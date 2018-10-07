@@ -1,0 +1,65 @@
+<ion-content padding >
+
+    <ion-slides pager>
+
+        <ion-slide class="myapp-slide">
+          
+          <img [src]="imgRg" alt="" (click)="getPictureRG()">
+          <h2>RG</h2>
+          
+          <div>
+            <p>
+              Tire uma foto da parte de trás do seu RG onde constam os 
+              seu dados, certifique-se de os dados 
+              aparecam bem na foto.
+            </p>
+          </div>
+        </ion-slide>
+      
+        <ion-slide class="myapp-slide">
+            <img [src]="imgCpf" alt="" (click)="getPictureCpf()">
+            <h2>CPF</h2>
+            <br>
+          <div>
+            <p>
+              Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
+            </p>
+          </div>
+        </ion-slide>
+      
+        <ion-slide class="myapp-slide">
+            <img [src]="imgCompR" alt="" (click)="getPictureCompR()">
+            <h2>Comprovante de residência</h2>
+            <br>
+          <div>
+            <p>
+              Tire uma foto do seu comprovante de residência,
+              certifique-se de que os dados do endereço e do nome 
+              estejam aparecendo bem na foto.
+            </p>
+          </div>
+        </ion-slide>
+
+        <ion-slide class="myapp-slide">
+            <img [src]="imgFotoComRg" alt="" (click)="getPictureFotoComRg()">
+            <h2>Foto com o documento</h2>
+            <br>
+          <div>
+            <p>
+              Tire uma foto sua segurando o seu RG com a parte de trás virada para a câmera,
+              certifique-se de estar bonito na foto! <strong>:)</strong>
+            </p>
+          </div>
+        </ion-slide>
+
+        <ion-slide class="myapp-slide">
+            <img src="assets/imgs/slide3.png" alt="">
+            <h2>Aguarde o envio dos documentos</h2>
+
+            <a (click)="goToTabsPage()" >Continuar</a>
+
+        </ion-slide>
+      
+      </ion-slides>
+
+</ion-content>
