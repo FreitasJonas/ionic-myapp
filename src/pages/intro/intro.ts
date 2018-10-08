@@ -5,6 +5,10 @@ import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
+import { PhotoLibrary } from '@ionic-native/photo-library';
+import { File } from '@ionic-native/file';
+import { ToastController } from 'ionic-angular';
+import { disableDebugTools } from '@angular/platform-browser';
 
 @IonicPage()
 @Component({
@@ -22,40 +26,38 @@ export class IntroPage {
   public imgCompR = "assets/imgs/slide3.png";
   public imgFotoComRg = "assets/imgs/slide4.png";
 
-  public protocolo = "";  
+  public protocolo = "";
   public geoPosition: Coordinates;
-    
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
     private e2doc: E2docProvider,
     private geolocation: Geolocation,
-    private storage: Storage) {
+    private storage: Storage,
+    private galery: PhotoLibrary,
+    private file: File,
+    public toastCtrl: ToastController) {
   }
 
   ionViewDidLoad() {
     let dt = new Date();
-    this.protocolo = 
-     dt.getFullYear().toString() + "|" +
-     dt.getMonth().toString() + "|" +
-     dt.getDay().toString() + "|" +
-     dt.getHours().toString() + "|" +
-     dt.getMinutes().toString() + "|" +
-     dt.getSeconds().toString() + "|" +
-     dt.getMilliseconds().toString();
-    
-    console.log("Protoclo: " + this.protocolo);   
-    
+    this.protocolo =
+      dt.getFullYear().toString() + "_" +
+      dt.getMonth().toString() + "_" +
+      dt.getDay().toString() + "_" +
+      dt.getHours().toString() + "_" +
+      dt.getMinutes().toString() + "_" +
+      dt.getSeconds().toString() + "_" +
+      dt.getMilliseconds().toString();
+  
+      this.presentToast("inicio");
+
     this.geolocation.getCurrentPosition().then((res) => {
-      
-      this.geoPosition = res.coords;
-      console.log(this.geoPosition);
-      
+      this.geoPosition = res.coords;    
     }).catch((error) => {
-
-      console.log(error);
-
-    });    
+      this.presentToast(error);
+    });
   }
 
   goToTabsPage() {
@@ -63,7 +65,7 @@ export class IntroPage {
   }
 
   getPictureRG() {
-    let res = this.getPicture("rg") as string;    
+    let res = this.getPicture("rg") as string;
     console.log(res);
   }
 
@@ -82,13 +84,15 @@ export class IntroPage {
     console.log(res);
   }
 
-  getPicture(tipoDoc: string) : any {
+  getPicture(tipoDoc: string): any {
 
     const options: CameraOptions = {
       quality: 100,
-      destinationType: this.camera.DestinationType.FILE_URI,
+      destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
-      mediaType: this.camera.MediaType.PICTURE
+      sourceType: this.camera.PictureSourceType.CAMERA,
+      mediaType: this.camera.MediaType.PICTURE,
+      saveToPhotoAlbum: true      
     }
 
     this.camera.getPicture(options).then((imageData) => {
@@ -100,22 +104,72 @@ export class IntroPage {
 
       //envia imagem e pega o retorno
       let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
-      
-      //grava resultado no localStorage
       this.storage.set(result.protocolo, result);
-
-
-      //Salva imagem na galeria, cria album MyApp
-
-      debugger;
       
-      return result;
-      // imageData is either a base64 encoded string or a file URI
-      // If it's base64 (DATA_URL):
+      var path = this.file.externalRootDirectory + "\myapp";
+      var contentType = this.getContentType(imageData);
+      var blob = this.base64toBlob(imageData, contentType);
 
-      // return 'data:image/jpeg;base64,' + imageData;
+      this.file.writeExistingFile(path, result.nm_imagem, blob);
+
+      this.presentToast("Salvo em " + path);
+
+      return result;
+
     }, (err) => {
+
+      this.presentToast("erro");
       return "erro";
     });
+  }
+
+  public writeFile(base64Data: any, folderName: string, fileName: any) {
+
+    let contentType = this.getContentType(base64Data);
+    let DataBlob = this.base64toBlob(base64Data, contentType);
+
+    // here iam mentioned this line this.file.externalRootDirectory is a native pre-defined file path storage. You can change a file path whatever pre-defined method.  
+    let filePath = this.file.externalRootDirectory + folderName;
+    this.file.writeFile(filePath, fileName, DataBlob, contentType).then((success) => {
+      this.presentToast("File Writed Successfully " + success);
+    }).catch((err) => {
+      this.presentToast("Error Occured While Writing File" + err);
+    })
+  }
+  
+  //here is the method is used to get content type of an bas64 data  
+  public getContentType(base64Data: any) {
+    let block = base64Data.split(";");
+    let contentType = block[0].split(":")[1];
+    return contentType;
+  }
+
+  //here is the method is used to convert base64 data to blob data  
+  public base64toBlob(b64Data, contentType) {
+    contentType = contentType || '';
+    let sliceSize = 512;
+    let byteCharacters = atob(b64Data);
+    let byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      let slice = byteCharacters.slice(offset, offset + sliceSize);
+      let byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      var byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    let blob = new Blob(byteArrays, {
+      type: contentType
+    });
+    return blob;
+  }
+
+  presentToast(msg: string) {
+    const toast = this.toastCtrl.create({
+      message: msg,
+      duration: 3000
+    });
+    toast.present();
   }
 }

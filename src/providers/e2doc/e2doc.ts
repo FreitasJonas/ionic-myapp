@@ -22,7 +22,7 @@ export class E2docProvider {
       status: "OK",
       tipo_doc: tipoDoc,
       numero_rg: "123456",
-      nm_imagem: protocolo + ".jpg"
+      nm_imagem: protocolo + "_" + tipoDoc + ".jpg"
     };
   }
 }

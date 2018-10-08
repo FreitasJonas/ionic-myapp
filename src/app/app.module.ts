@@ -15,6 +15,9 @@ import { E2docProvider } from '../providers/e2doc/e2doc';
 import { HttpClientModule } from '@angular/common/http';
 import { Geolocation } from '@ionic-native/geolocation';
 import { IonicStorageModule } from '@ionic/storage';
+import { PhotoLibrary } from '@ionic-native/photo-library';
+
+import { File } from '@ionic-native/file';
 
 @NgModule({
   declarations: [
@@ -45,7 +48,9 @@ import { IonicStorageModule } from '@ionic/storage';
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     E2docProvider,
-    Geolocation
+    Geolocation,
+    PhotoLibrary,
+    File
   ]
 })
 export class AppModule {}
