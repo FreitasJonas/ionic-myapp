@@ -5,10 +5,9 @@ import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
-import { PhotoLibrary } from '@ionic-native/photo-library';
 import { File } from '@ionic-native/file';
 import { ToastController } from 'ionic-angular';
-import { disableDebugTools } from '@angular/platform-browser';
+
 
 @IonicPage()
 @Component({
@@ -29,13 +28,22 @@ export class IntroPage {
   public protocolo = "";
   public geoPosition: Coordinates;
 
+  public checkRG = false;
+  public checkCpf = false;
+  public checkCompR = false;
+  public checkFotoComRg = false;
+
+  public RG = "RG";
+  public CPF = "CPF";
+  public COMP_RES = "COMP_RES";
+  public FOTO_DOC = "FOTO_DOC";
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
     private e2doc: E2docProvider,
     private geolocation: Geolocation,
     private storage: Storage,
-    private galery: PhotoLibrary,
     private file: File,
     public toastCtrl: ToastController) {
   }
@@ -65,23 +73,25 @@ export class IntroPage {
   }
 
   getPictureRG() {
-    let res = this.getPicture("rg") as string;
-    console.log(res);
+
+    this.getPicture(this.RG);
+       
+    // if(res.status = "OK")
+    // {
+    //   this.checkRG = true;
+    // }
   }
 
   getPictureCpf() {
-    let res = this.getPicture("cpf") as string;
-    console.log(res);
+    this.getPicture(this.CPF) as string;
   }
 
   getPictureCompR() {
-    let res = this.getPicture("CompR") as string;
-    console.log(res);
+    this.getPicture(this.COMP_RES) as string;
   }
 
   getPictureFotoComRg() {
-    let res = this.getPicture("FotoComRg") as string;
-    console.log(res);
+    this.getPicture(this.FOTO_DOC) as string;  
   }
 
   getPicture(tipoDoc: string): any {
@@ -114,6 +124,13 @@ export class IntroPage {
 
       this.presentToast("Salvo em " + path);
 
+      switch (result.tipo_doc){
+        case this.RG: this.checkRG = true; break;
+        case this.CPF: this.checkCpf = true; break;
+        case this.COMP_RES: this.checkCompR = true; break;
+        case this.FOTO_DOC: this.checkFotoComRg = true; break;        
+      }
+
       return result;
 
     }, (err) => {
@@ -136,7 +153,7 @@ export class IntroPage {
       this.presentToast("Error Occured While Writing File" + err);
     })
   }
-  
+
   //here is the method is used to get content type of an bas64 data  
   public getContentType(base64Data: any) {
     let block = base64Data.split(";");

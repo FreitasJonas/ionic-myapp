@@ -1,65 +1,90 @@
-<ion-content padding >
+<ion-content padding>
 
-    <ion-slides pager>
+  <ion-slides pager>
+    <ion-slide class="myapp-slide" (click)="getPictureRG()">
+      <p>Clique para tirar uma foto</p>
+      <img [src]="imgRg" alt="">
+      <h2>RG</h2>
 
-        <ion-slide class="myapp-slide">
-          
-          <img [src]="imgRg" alt="" (click)="getPictureRG()">
-          <h2>RG</h2>
-          
-          <div>
-            <p>
-              Tire uma foto da parte de trás do seu RG onde constam os 
-              seu dados, certifique-se de os dados 
-              aparecam bem na foto.
-            </p>
-          </div>
-        </ion-slide>
+      <div>
+        <p>
+          Tire uma foto da parte de trás do seu RG onde constam os
+          seu dados, certifique-se de os dados
+          aparecam bem na foto.
+        </p>
+      </div>
+
+    </ion-slide>
+
+    <ion-slide class="myapp-slide" (click)="getPictureCpf()">
+      <p>Clique para tirar uma foto</p>
+      <img [src]="imgCpf" alt="">
+      <h2>CPF</h2>
+      <br>
+      <div>
+        <p>
+          Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
+        </p>
+      </div>
+    </ion-slide>
+
+    <ion-slide class="myapp-slide" (click)="getPictureCompR()">
+      <p>Clique para tirar uma foto</p>
+      <img [src]="imgCompR" alt="">
+      <h2>Comprovante de residência</h2>
+      <br>
+      <div>
+        <p>
+          Tire uma foto do seu comprovante de residência,
+          certifique-se de que os dados do endereço e do nome
+          estejam aparecendo bem na foto.
+        </p>
+      </div>
+    </ion-slide>
+
+    <ion-slide class="myapp-slide" (click)="getPictureFotoComRg()">
+      <p>Clique para tirar uma foto</p>
+      <img [src]="imgFotoComRg" alt="">
+      <h2>Foto com o documento</h2>
+      <br>
+      <div>
+        <p>
+          Tire uma foto sua segurando o seu RG com a parte de trás virada para a câmera,
+          certifique-se de estar bonito na foto! <strong>:)</strong>
+        </p>
+      </div>
+    </ion-slide>
+
+    <ion-slide class="myapp-slide">
+      <img src="assets/imgs/slide3.png" alt="">
+      <h2>Aguarde o envio dos documentos</h2>
+
+      <ion-item>
+        <ion-label>RG</ion-label>
+        <ion-checkbox color="secondary" [checked]="checkRG" disabled></ion-checkbox>
+      </ion-item>
       
-        <ion-slide class="myapp-slide">
-            <img [src]="imgCpf" alt="" (click)="getPictureCpf()">
-            <h2>CPF</h2>
-            <br>
-          <div>
-            <p>
-              Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
-            </p>
-          </div>
-        </ion-slide>
-      
-        <ion-slide class="myapp-slide">
-            <img [src]="imgCompR" alt="" (click)="getPictureCompR()">
-            <h2>Comprovante de residência</h2>
-            <br>
-          <div>
-            <p>
-              Tire uma foto do seu comprovante de residência,
-              certifique-se de que os dados do endereço e do nome 
-              estejam aparecendo bem na foto.
-            </p>
-          </div>
-        </ion-slide>
+      <ion-item>
+        <ion-label>Cpf</ion-label>
+        <ion-checkbox color="secondary" [checked]="checkCpf" disabled></ion-checkbox>
+      </ion-item>
 
-        <ion-slide class="myapp-slide">
-            <img [src]="imgFotoComRg" alt="" (click)="getPictureFotoComRg()">
-            <h2>Foto com o documento</h2>
-            <br>
-          <div>
-            <p>
-              Tire uma foto sua segurando o seu RG com a parte de trás virada para a câmera,
-              certifique-se de estar bonito na foto! <strong>:)</strong>
-            </p>
-          </div>
-        </ion-slide>
+      <ion-item>
+        <ion-label>Comprocante Res</ion-label>
+        <ion-checkbox color="secondary" [checked]="checkCompR" disabled></ion-checkbox>
+      </ion-item>
 
-        <ion-slide class="myapp-slide">
-            <img src="assets/imgs/slide3.png" alt="">
-            <h2>Aguarde o envio dos documentos</h2>
+      <ion-item>
+        <ion-label>Foto com RG</ion-label>
+        <ion-checkbox color="secondary" [checked]="checkFotoComRg" disabled></ion-checkbox>
+      </ion-item>
 
-            <a (click)="goToTabsPage()" >Continuar</a>
+      <br>
 
-        </ion-slide>
-      
-      </ion-slides>
+      <a (click)="goToTabsPage()">Continuar</a>
+
+    </ion-slide>
+
+  </ion-slides>
 
 </ion-content>
