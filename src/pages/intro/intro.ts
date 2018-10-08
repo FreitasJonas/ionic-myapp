@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, DateTime } from 'ionic-angular';
-import { TabsPage } from '../tabs/tabs';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
 import { File } from '@ionic-native/file';
 import { ToastController } from 'ionic-angular';
-
+import { DocFichaPage } from '../doc-ficha/doc-ficha';
+import { disableDebugTools } from '@angular/platform-browser';
+import { JsonpCallbackContext } from '@angular/common/http/src/jsonp';
 
 @IonicPage()
 @Component({
@@ -38,6 +39,10 @@ export class IntroPage {
   public COMP_RES = "COMP_RES";
   public FOTO_DOC = "FOTO_DOC";
 
+  public storageKey = "e2docKeyStorage";
+
+  public info = [];
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
@@ -49,6 +54,9 @@ export class IntroPage {
   }
 
   ionViewDidLoad() {
+
+    this.storage.clear();
+
     let dt = new Date();
     this.protocolo =
       dt.getFullYear().toString() + "_" +
@@ -58,28 +66,42 @@ export class IntroPage {
       dt.getMinutes().toString() + "_" +
       dt.getSeconds().toString() + "_" +
       dt.getMilliseconds().toString();
-  
-      this.presentToast("inicio");
 
     this.geolocation.getCurrentPosition().then((res) => {
-      this.geoPosition = res.coords;    
+      this.geoPosition = res.coords;
     }).catch((error) => {
       this.presentToast(error);
     });
+
+    document.getElementById("msgEnvioRg").hidden = true;
+    document.getElementById("msgEnvioCpf").hidden = true;
+    document.getElementById("msgEnvioCompR").hidden = true;
+    document.getElementById("msgEnvioFotoComRg").hidden = true;
   }
 
-  goToTabsPage() {
-    this.navCtrl.push(TabsPage);
+  goToDocFichaPage() {
+
+    this.storage.set(this.storageKey, this.info);
+
+    this.navCtrl.push(DocFichaPage, {
+      key: this.storageKey
+    });
+
+    // if(this.checkRG &&
+    //   this.checkCpf &&
+    //   this.checkCompR &&
+    //   this.checkFotoComRg){
+
+    //     this.navCtrl.push(DocFichaPage);
+
+    //   }
+    //   else {
+    //     this.presentToast("Por favor envie todos os documentos!");
+    //   }    
   }
 
   getPictureRG() {
-
     this.getPicture(this.RG);
-       
-    // if(res.status = "OK")
-    // {
-    //   this.checkRG = true;
-    // }
   }
 
   getPictureCpf() {
@@ -91,53 +113,139 @@ export class IntroPage {
   }
 
   getPictureFotoComRg() {
-    this.getPicture(this.FOTO_DOC) as string;  
+    this.getPicture(this.FOTO_DOC) as string;
+  }
+
+
+  private getJsonTest(tipo_doc: string) {
+
+    switch (tipo_doc) {
+      case this.RG:
+        return {
+          protocolo: this.protocolo,
+          status: "OK",
+          tipo_doc: tipo_doc,
+          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          imgInfo: {
+            nr_rg: "0000000-9",
+            nm_nome: "Jonas Freitas"
+          }
+        };
+      case this.CPF:
+        return {
+          protocolo: this.protocolo,
+          status: "OK",
+          tipo_doc: tipo_doc,
+          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          imgInfo: {
+            nr_cpf: "55555555866"
+          }
+        };
+      case this.COMP_RES:
+        return {
+          protocolo: this.protocolo,
+          status: "OK",
+          tipo_doc: tipo_doc,
+          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          imgInfo: {
+            cep: "06226-120",
+            endereco: "Rua Goiania",
+            cidade: "Osasco",
+            estado: "SP"
+          }
+        };
+      case this.FOTO_DOC:
+        return {
+          protocolo: this.protocolo,
+          status: "OK",
+          tipo_doc: tipo_doc,
+          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          imgInfo: {
+            foto_status: "OK"
+          }
+        };
+    }
   }
 
   getPicture(tipoDoc: string): any {
 
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.DATA_URL,
-      encodingType: this.camera.EncodingType.JPEG,
-      sourceType: this.camera.PictureSourceType.CAMERA,
-      mediaType: this.camera.MediaType.PICTURE,
-      saveToPhotoAlbum: true      
+    let result = this.getJsonTest(tipoDoc);
+
+    this.info.push(result);
+
+    switch (result.tipo_doc) {
+      case this.RG:
+        this.checkRG = true;
+        document.getElementById("msgEnvioRg").hidden = false;
+        break;
+      case this.CPF:
+        this.checkCpf = true;
+        document.getElementById("msgEnvioCpf").hidden = false;
+        break;
+      case this.COMP_RES:
+        this.checkCompR = true;
+        document.getElementById("msgEnvioCompR").hidden = false;
+        break;
+      case this.FOTO_DOC:
+        this.checkFotoComRg = true;
+        document.getElementById("msgEnvioFotoComRg").hidden = false;
+        break;
     }
 
-    this.camera.getPicture(options).then((imageData) => {
+    // const options: CameraOptions = {
+    //   quality: 100,
+    //   destinationType: this.camera.DestinationType.DATA_URL,
+    //   encodingType: this.camera.EncodingType.JPEG,
+    //   sourceType: this.camera.PictureSourceType.CAMERA,
+    //   mediaType: this.camera.MediaType.PICTURE,
+    //   saveToPhotoAlbum: true
+    // }
 
-      //enviar imagem
-      //guardar retorno no storage
-      //salvar imagem na galeria
-      //mostrar resultado
+    // this.camera.getPicture(options).then((imageData) => {
 
-      //envia imagem e pega o retorno
-      let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
-      this.storage.set(result.protocolo, result);
-      
-      var path = this.file.externalRootDirectory + "\myapp";
-      var contentType = this.getContentType(imageData);
-      var blob = this.base64toBlob(imageData, contentType);
+    //   //enviar imagem
+    //   //guardar retorno no storage
+    //   //salvar imagem na galeria
+    //   //mostrar resultado
 
-      this.file.writeExistingFile(path, result.nm_imagem, blob);
+    //   //envia imagem e pega o retorno
+    //   let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
+    //   this.storage.set(result.protocolo, result);
 
-      this.presentToast("Salvo em " + path);
+    //   var path = this.file.externalRootDirectory + "\myapp";
+    //   var contentType = this.getContentType(imageData);
+    //   var blob = this.base64toBlob(imageData, contentType);
 
-      switch (result.tipo_doc){
-        case this.RG: this.checkRG = true; break;
-        case this.CPF: this.checkCpf = true; break;
-        case this.COMP_RES: this.checkCompR = true; break;
-        case this.FOTO_DOC: this.checkFotoComRg = true; break;        
-      }
+    //   this.file.writeExistingFile(path, result.nm_imagem, blob);
 
-      return result;
+    //   this.presentToast("Imagem salva com sucesso");
 
-    }, (err) => {
+    //   switch (result.tipo_doc) {
+    //     case this.RG:
+    //       this.checkRG = true;
+    //       document.getElementById("msgEnvioRg").hidden = false;
+    //       break;
+    //     case this.CPF: 
+    //       this.checkCpf = true;
+    //       document.getElementById("msgEnvioCpf").hidden = false;
+    //       break;
+    //     case this.COMP_RES:
+    //       this.checkCompR = true;
+    //       document.getElementById("msgEnvioCompR").hidden = false;
+    //       break;
+    //     case this.FOTO_DOC:
+    //       this.checkFotoComRg = true;
+    //       document.getElementById("msgEnvioFotoComRg").hidden = false;
+    //       break;
+    //   }
 
-      this.presentToast("erro");
-      return "erro";
-    });
+    //   return result;
+
+    // }, (err) => {
+
+    //   this.presentToast("erro");
+    //   return "erro";
+    // });
   }
 
   public writeFile(base64Data: any, folderName: string, fileName: any) {
@@ -185,7 +293,7 @@ export class IntroPage {
   presentToast(msg: string) {
     const toast = this.toastCtrl.create({
       message: msg,
-      duration: 3000
+      duration: 5000
     });
     toast.present();
   }

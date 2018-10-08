@@ -14,6 +14,12 @@
         </p>
       </div>
 
+      <div id="msgEnvioRg">
+        <ion-icon name="md-checkmark"></ion-icon> 
+        <br>
+        Documento Enviado
+      </div>
+
     </ion-slide>
 
     <ion-slide class="myapp-slide" (click)="getPictureCpf()">
@@ -26,6 +32,13 @@
           Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
         </p>
       </div>
+
+      <div id="msgEnvioCpf">
+        <ion-icon name="md-checkmark"></ion-icon> 
+        <br>
+        Documento Enviado
+      </div>
+
     </ion-slide>
 
     <ion-slide class="myapp-slide" (click)="getPictureCompR()">
@@ -40,6 +53,13 @@
           estejam aparecendo bem na foto.
         </p>
       </div>
+
+      <div id="msgEnvioCompR">
+        <ion-icon name="md-checkmark"></ion-icon> 
+        <br>
+        Documento Enviado
+      </div>
+
     </ion-slide>
 
     <ion-slide class="myapp-slide" (click)="getPictureFotoComRg()">
@@ -53,6 +73,13 @@
           certifique-se de estar bonito na foto! <strong>:)</strong>
         </p>
       </div>
+
+      <div id="msgEnvioFotoComRg">
+        <ion-icon name="md-checkmark"></ion-icon> 
+        <br>
+        Documento Enviado
+      </div>
+
     </ion-slide>
 
     <ion-slide class="myapp-slide">
@@ -63,7 +90,7 @@
         <ion-label>RG</ion-label>
         <ion-checkbox color="secondary" [checked]="checkRG" disabled></ion-checkbox>
       </ion-item>
-      
+
       <ion-item>
         <ion-label>Cpf</ion-label>
         <ion-checkbox color="secondary" [checked]="checkCpf" disabled></ion-checkbox>
@@ -81,7 +108,7 @@
 
       <br>
 
-      <a (click)="goToTabsPage()">Continuar</a>
+      <a (click)="goToDocFichaPage()">Continuar</a>
 
     </ion-slide>
 
