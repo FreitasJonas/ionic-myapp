@@ -18,6 +18,8 @@ import { PhotoLibrary } from '@ionic-native/photo-library';
 
 import { File } from '@ionic-native/file';
 import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
+import { SignaturePageModule } from '../pages/signature/signature.module';
+import { SignaturePadModule } from 'angular2-signaturepad';
 
 @NgModule({
   declarations: [
@@ -33,7 +35,9 @@ import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
     IonicStorageModule.forRoot(),
     DocFichaPageModule,
     IntroPageModule,
-    HttpClientModule
+    HttpClientModule,
+    SignaturePageModule,
+    SignaturePadModule 
   ],
   bootstrap: [IonicApp],
   entryComponents: [

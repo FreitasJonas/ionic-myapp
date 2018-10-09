@@ -80,24 +80,21 @@ export class IntroPage {
   }
 
   goToDocFichaPage() {
+    
+    if (this.checkRG &&
+      this.checkCpf &&
+      this.checkCompR &&
+      this.checkFotoComRg) {
 
-    this.storage.set(this.storageKey, this.info);
+      this.storage.set(this.storageKey, this.info);
 
-    this.navCtrl.push(DocFichaPage, {
-      key: this.storageKey
-    });
-
-    // if(this.checkRG &&
-    //   this.checkCpf &&
-    //   this.checkCompR &&
-    //   this.checkFotoComRg){
-
-    //     this.navCtrl.push(DocFichaPage);
-
-    //   }
-    //   else {
-    //     this.presentToast("Por favor envie todos os documentos!");
-    //   }    
+      this.navCtrl.push(DocFichaPage, {
+        key: this.storageKey
+      });
+    }
+    else {
+      this.presentToast("Por favor envie todos os documentos!");
+    }
   }
 
   getPictureRG() {
@@ -116,7 +113,6 @@ export class IntroPage {
     this.getPicture(this.FOTO_DOC) as string;
   }
 
-
   private getJsonTest(tipo_doc: string) {
 
     switch (tipo_doc) {
@@ -128,7 +124,8 @@ export class IntroPage {
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
           imgInfo: {
             nr_rg: "0000000-9",
-            nm_nome: "Jonas Freitas"
+            nm_nome: "Jonas Freitas",
+            dt_nascimento: "10/12/1996"
           }
         };
       case this.CPF:
@@ -169,83 +166,83 @@ export class IntroPage {
 
   getPicture(tipoDoc: string): any {
 
-    let result = this.getJsonTest(tipoDoc);
+    // let result = this.getJsonTest(tipoDoc);
 
-    this.info.push(result);
+    // this.info.push(result);
 
-    switch (result.tipo_doc) {
-      case this.RG:
-        this.checkRG = true;
-        document.getElementById("msgEnvioRg").hidden = false;
-        break;
-      case this.CPF:
-        this.checkCpf = true;
-        document.getElementById("msgEnvioCpf").hidden = false;
-        break;
-      case this.COMP_RES:
-        this.checkCompR = true;
-        document.getElementById("msgEnvioCompR").hidden = false;
-        break;
-      case this.FOTO_DOC:
-        this.checkFotoComRg = true;
-        document.getElementById("msgEnvioFotoComRg").hidden = false;
-        break;
-    }
-
-    // const options: CameraOptions = {
-    //   quality: 100,
-    //   destinationType: this.camera.DestinationType.DATA_URL,
-    //   encodingType: this.camera.EncodingType.JPEG,
-    //   sourceType: this.camera.PictureSourceType.CAMERA,
-    //   mediaType: this.camera.MediaType.PICTURE,
-    //   saveToPhotoAlbum: true
+    // switch (result.tipo_doc) {
+    //   case this.RG:
+    //     this.checkRG = true;
+    //     document.getElementById("msgEnvioRg").hidden = false;
+    //     break;
+    //   case this.CPF:
+    //     this.checkCpf = true;
+    //     document.getElementById("msgEnvioCpf").hidden = false;
+    //     break;
+    //   case this.COMP_RES:
+    //     this.checkCompR = true;
+    //     document.getElementById("msgEnvioCompR").hidden = false;
+    //     break;
+    //   case this.FOTO_DOC:
+    //     this.checkFotoComRg = true;
+    //     document.getElementById("msgEnvioFotoComRg").hidden = false;
+    //     break;
     // }
 
-    // this.camera.getPicture(options).then((imageData) => {
+    const options: CameraOptions = {
+      quality: 100,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      sourceType: this.camera.PictureSourceType.CAMERA,
+      mediaType: this.camera.MediaType.PICTURE,
+      saveToPhotoAlbum: true
+    }
 
-    //   //enviar imagem
-    //   //guardar retorno no storage
-    //   //salvar imagem na galeria
-    //   //mostrar resultado
+    this.camera.getPicture(options).then((imageData) => {
 
-    //   //envia imagem e pega o retorno
-    //   let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
-    //   this.storage.set(result.protocolo, result);
+      //enviar imagem
+      //guardar retorno no storage
+      //salvar imagem na galeria
+      //mostrar resultado
 
-    //   var path = this.file.externalRootDirectory + "\myapp";
-    //   var contentType = this.getContentType(imageData);
-    //   var blob = this.base64toBlob(imageData, contentType);
+      //envia imagem e pega o retorno
+      let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
+      this.info.push(result);
 
-    //   this.file.writeExistingFile(path, result.nm_imagem, blob);
+      var path = this.file.externalRootDirectory + "\myapp";
+      var contentType = this.getContentType(imageData);
+      var blob = this.base64toBlob(imageData, contentType);
 
-    //   this.presentToast("Imagem salva com sucesso");
+      this.file.writeExistingFile(path, result.nm_imagem, blob);
 
-    //   switch (result.tipo_doc) {
-    //     case this.RG:
-    //       this.checkRG = true;
-    //       document.getElementById("msgEnvioRg").hidden = false;
-    //       break;
-    //     case this.CPF: 
-    //       this.checkCpf = true;
-    //       document.getElementById("msgEnvioCpf").hidden = false;
-    //       break;
-    //     case this.COMP_RES:
-    //       this.checkCompR = true;
-    //       document.getElementById("msgEnvioCompR").hidden = false;
-    //       break;
-    //     case this.FOTO_DOC:
-    //       this.checkFotoComRg = true;
-    //       document.getElementById("msgEnvioFotoComRg").hidden = false;
-    //       break;
-    //   }
+      this.presentToast("Imagem salva com sucesso");
 
-    //   return result;
+      switch (result.tipo_doc) {
+        case this.RG:
+          this.checkRG = true;
+          document.getElementById("msgEnvioRg").hidden = false;
+          break;
+        case this.CPF:
+          this.checkCpf = true;
+          document.getElementById("msgEnvioCpf").hidden = false;
+          break;
+        case this.COMP_RES:
+          this.checkCompR = true;
+          document.getElementById("msgEnvioCompR").hidden = false;
+          break;
+        case this.FOTO_DOC:
+          this.checkFotoComRg = true;
+          document.getElementById("msgEnvioFotoComRg").hidden = false;
+          break;
+      }
 
-    // }, (err) => {
+      return result;
 
-    //   this.presentToast("erro");
-    //   return "erro";
-    // });
+    }, (err) => {
+
+      this.presentToast("erro");
+      return "erro";
+    });
   }
 
   public writeFile(base64Data: any, folderName: string, fileName: any) {

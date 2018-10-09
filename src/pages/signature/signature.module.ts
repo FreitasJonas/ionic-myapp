@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
-import { DocFichaPage } from './doc-ficha';
+import { SignaturePage } from './signature';
 import { SignaturePadModule } from 'angular2-signaturepad';
 
 @NgModule({
   declarations: [
-    DocFichaPage,
+    SignaturePage,
   ],
   imports: [
-    IonicPageModule.forChild(DocFichaPage),
+    IonicPageModule.forChild(SignaturePage),
     SignaturePadModule
   ],
 })
-export class DocFichaPageModule {}
+export class SignaturePageModule {}

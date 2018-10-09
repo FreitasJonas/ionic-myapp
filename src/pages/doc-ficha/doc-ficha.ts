@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { IonicPage, NavController, NavParams, ToastController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
+import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 
 @IonicPage()
 @Component({
@@ -9,30 +10,66 @@ import { Storage } from '@ionic/storage';
 })
 export class DocFichaPage {
 
-  public teste = "teste3";
+  @ViewChild(SignaturePad) signaturePad: SignaturePad;
+
+  public nome = "";
+  public rg = "";
+  public cpf = "";
+  public dt_nascimento = "";
+  public cep = "";
+  public endereco = "";
+  public cidade = "";
+  public estado = "";
+
+  public signatureImage: string;
 
   constructor(public navCtrl: NavController,
-     public navParams: NavParams,
-     public storage: Storage) {    
+    public navParams: NavParams,
+    public storage: Storage,
+    public toastCtrl: ToastController) {
   }
 
   ionViewDidLoad() {
 
-    let key = this.navParams.get('key');   
+    let key = this.navParams.get('key');
 
-    this.storage.get(key).then((res)=>{     
-                  
-      res.forEach(element => {
+    this.storage.get(key).then((res) => {
 
-        if(element.tipo_doc = "RG"){
-          console.log(element.imgInfo.nr_rg);        
-        }
-      });      
+      this.nome = res[0].imgInfo.nm_nome;
+      this.rg = res[0].imgInfo.nr_rg;
+      this.dt_nascimento = res[0].imgInfo.dt_nascimento;
+
+      this.cpf = res[1].imgInfo.nr_cpf;
+
+      this.cep = res[2].imgInfo.cep;
+      this.endereco = res[2].imgInfo.endereco;
+      this.cidade = res[2].imgInfo.cidade;
+      this.estado = res[2].imgInfo.estado;
     });
   }
 
-  assinarEnviar(){
-    this.teste = "teste";
+  public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
+    'minWidth': 5,
+    'canvasWidth': 340,
+    'canvasHeight': 200
+  };
+
+  drawComplete(){
+    this.signatureImage = this.signaturePad.toDataURL();
+    console.log(this.signatureImage);
+
+    this.presentToast("Documento enviado!");
   }
 
+  drawClear(){
+    this.signaturePad.clear();
+  }
+
+  presentToast(msg: string) {
+    const toast = this.toastCtrl.create({
+      message: msg,
+      duration: 5000
+    });
+    toast.present();
+  }
 }
