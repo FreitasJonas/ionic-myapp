@@ -2,6 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ToastController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
+import { MsgHelper } from '../../app/MsgHelper';
+import { E2docProvider } from '../../providers/e2doc/e2doc';
 
 @IonicPage()
 @Component({
@@ -20,13 +22,16 @@ export class DocFichaPage {
   public endereco = "";
   public cidade = "";
   public estado = "";
+  
+  public msgHelper = new MsgHelper(this.toastCtrl);
 
   public signatureImage: string;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public storage: Storage,
-    public toastCtrl: ToastController) {
+    public toastCtrl: ToastController,
+    private e2doc: E2docProvider) {
   }
 
   ionViewDidLoad() {
@@ -54,22 +59,17 @@ export class DocFichaPage {
     'canvasHeight': 200
   };
 
-  drawComplete(){
-    this.signatureImage = this.signaturePad.toDataURL();
-    console.log(this.signatureImage);
-
-    this.presentToast("Documento enviado!");
-  }
-
   drawClear(){
     this.signaturePad.clear();
   }
 
-  presentToast(msg: string) {
-    const toast = this.toastCtrl.create({
-      message: msg,
-      duration: 5000
-    });
-    toast.present();
+  drawComplete(){
+
+    this.e2doc.soapCall();
+
+    this.signatureImage = this.signaturePad.toDataURL();
+    console.log(this.signatureImage);
+    
+    this.msgHelper.presentToast("Documento enviado!");
   }
 }

@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, DateTime } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, DateTime, ToastController } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
 import { File } from '@ionic-native/file';
-import { ToastController } from 'ionic-angular';
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
-import { disableDebugTools } from '@angular/platform-browser';
-import { JsonpCallbackContext } from '@angular/common/http/src/jsonp';
+import { ImageHelper } from '../../app/ImageHelper';
+import { MsgHelper } from '../../app/MsgHelper';
 
 @IonicPage()
 @Component({
@@ -43,14 +42,20 @@ export class IntroPage {
 
   public info = [];
 
+  public testInDevice = false;
+
+  private imageHelper: ImageHelper;
+  
+  public msgHelper = new MsgHelper(this.toastCtrl);
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
     private e2doc: E2docProvider,
     private geolocation: Geolocation,
     private storage: Storage,
-    private file: File,
-    public toastCtrl: ToastController) {
+    public toastCtrl: ToastController,
+    private file: File) {
   }
 
   ionViewDidLoad() {
@@ -70,7 +75,7 @@ export class IntroPage {
     this.geolocation.getCurrentPosition().then((res) => {
       this.geoPosition = res.coords;
     }).catch((error) => {
-      this.presentToast(error);
+      this.msgHelper.presentToast(error);
     });
 
     document.getElementById("msgEnvioRg").hidden = true;
@@ -80,7 +85,7 @@ export class IntroPage {
   }
 
   goToDocFichaPage() {
-    
+
     if (this.checkRG &&
       this.checkCpf &&
       this.checkCompR &&
@@ -93,7 +98,7 @@ export class IntroPage {
       });
     }
     else {
-      this.presentToast("Por favor envie todos os documentos!");
+      this.msgHelper.presentToast("Por favor envie todos os documentos!");
     }
   }
 
@@ -166,56 +171,10 @@ export class IntroPage {
 
   getPicture(tipoDoc: string): any {
 
-    // let result = this.getJsonTest(tipoDoc);
+    if (!this.testInDevice) {
+      let result = this.getJsonTest(tipoDoc);
 
-    // this.info.push(result);
-
-    // switch (result.tipo_doc) {
-    //   case this.RG:
-    //     this.checkRG = true;
-    //     document.getElementById("msgEnvioRg").hidden = false;
-    //     break;
-    //   case this.CPF:
-    //     this.checkCpf = true;
-    //     document.getElementById("msgEnvioCpf").hidden = false;
-    //     break;
-    //   case this.COMP_RES:
-    //     this.checkCompR = true;
-    //     document.getElementById("msgEnvioCompR").hidden = false;
-    //     break;
-    //   case this.FOTO_DOC:
-    //     this.checkFotoComRg = true;
-    //     document.getElementById("msgEnvioFotoComRg").hidden = false;
-    //     break;
-    // }
-
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.DATA_URL,
-      encodingType: this.camera.EncodingType.JPEG,
-      sourceType: this.camera.PictureSourceType.CAMERA,
-      mediaType: this.camera.MediaType.PICTURE,
-      saveToPhotoAlbum: true
-    }
-
-    this.camera.getPicture(options).then((imageData) => {
-
-      //enviar imagem
-      //guardar retorno no storage
-      //salvar imagem na galeria
-      //mostrar resultado
-
-      //envia imagem e pega o retorno
-      let result = this.e2doc.sendImage(this.protocolo, tipoDoc, this.geoPosition, imageData);
       this.info.push(result);
-
-      var path = this.file.externalRootDirectory + "\myapp";
-      var contentType = this.getContentType(imageData);
-      var blob = this.base64toBlob(imageData, contentType);
-
-      this.file.writeExistingFile(path, result.nm_imagem, blob);
-
-      this.presentToast("Imagem salva com sucesso");
 
       switch (result.tipo_doc) {
         case this.RG:
@@ -236,62 +195,63 @@ export class IntroPage {
           break;
       }
 
-      return result;
-
-    }, (err) => {
-
-      this.presentToast("erro");
-      return "erro";
-    });
-  }
-
-  public writeFile(base64Data: any, folderName: string, fileName: any) {
-
-    let contentType = this.getContentType(base64Data);
-    let DataBlob = this.base64toBlob(base64Data, contentType);
-
-    // here iam mentioned this line this.file.externalRootDirectory is a native pre-defined file path storage. You can change a file path whatever pre-defined method.  
-    let filePath = this.file.externalRootDirectory + folderName;
-    this.file.writeFile(filePath, fileName, DataBlob, contentType).then((success) => {
-      this.presentToast("File Writed Successfully " + success);
-    }).catch((err) => {
-      this.presentToast("Error Occured While Writing File" + err);
-    })
-  }
-
-  //here is the method is used to get content type of an bas64 data  
-  public getContentType(base64Data: any) {
-    let block = base64Data.split(";");
-    let contentType = block[0].split(":")[1];
-    return contentType;
-  }
-
-  //here is the method is used to convert base64 data to blob data  
-  public base64toBlob(b64Data, contentType) {
-    contentType = contentType || '';
-    let sliceSize = 512;
-    let byteCharacters = atob(b64Data);
-    let byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      let slice = byteCharacters.slice(offset, offset + sliceSize);
-      let byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-      var byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
     }
-    let blob = new Blob(byteArrays, {
-      type: contentType
-    });
-    return blob;
-  }
+    else {
+      
+      const options: CameraOptions = {
+        quality: 100,
+        destinationType: this.camera.DestinationType.DATA_URL,
+        encodingType: this.camera.EncodingType.JPEG,
+        sourceType: this.camera.PictureSourceType.CAMERA,
+        mediaType: this.camera.MediaType.PICTURE,
+        saveToPhotoAlbum: true
+      }
 
-  presentToast(msg: string) {
-    const toast = this.toastCtrl.create({
-      message: msg,
-      duration: 5000
-    });
-    toast.present();
+      this.camera.getPicture(options).then((imageData) => {
+
+        //enviar imagem
+        //guardar retorno no storage
+        //salvar imagem na galeria
+        //mostrar resultado
+
+        //envia imagem e pega o retorno
+        let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
+        this.info.push(result);
+
+        var path = this.file.externalRootDirectory + "\myapp";
+        var contentType = this.imageHelper.getContentType(imageData);
+        var blob = this.imageHelper.base64toBlob(imageData, contentType);
+
+        this.file.writeExistingFile(path, result.nm_imagem, blob);
+
+        this.msgHelper.presentToast("Imagem salva com sucesso");
+
+        switch (result.tipo_doc) {
+          case this.RG:
+            this.checkRG = true;
+            document.getElementById("msgEnvioRg").hidden = false;
+            break;
+          case this.CPF:
+            this.checkCpf = true;
+            document.getElementById("msgEnvioCpf").hidden = false;
+            break;
+          case this.COMP_RES:
+            this.checkCompR = true;
+            document.getElementById("msgEnvioCompR").hidden = false;
+            break;
+          case this.FOTO_DOC:
+            this.checkFotoComRg = true;
+            document.getElementById("msgEnvioFotoComRg").hidden = false;
+            break;
+        }
+
+        return result;
+
+      }, (err) => {
+
+        this.msgHelper.presentToast("erro");
+        return "erro";
+      });
+    }
   }
 }
