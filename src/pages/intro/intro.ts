@@ -64,13 +64,15 @@ export class IntroPage {
 
     let dt = new Date();
     this.protocolo =
-      dt.getFullYear().toString() + "_" +
-      dt.getMonth().toString() + "_" +
-      dt.getDay().toString() + "_" +
-      dt.getHours().toString() + "_" +
-      dt.getMinutes().toString() + "_" +
-      dt.getSeconds().toString() + "_" +
+      dt.getFullYear().toString() + 
+      (dt.getMonth() + 1).toString() +
+      dt.getDate().toString() + 
+      dt.getHours().toString() +
+      dt.getMinutes().toString() +
+      dt.getSeconds().toString() +
       dt.getMilliseconds().toString();
+
+      console.log(this.protocolo);
 
     this.geolocation.getCurrentPosition().then((res) => {
       this.geoPosition = res.coords;

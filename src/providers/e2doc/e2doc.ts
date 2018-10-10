@@ -8,13 +8,14 @@ import { ToastController } from 'ionic-angular';
 @Injectable()
 export class E2docProvider {
 
+  public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
+
   public user = "administrador";
-  public pas = "E35tec.0102%";
+  public pas = "E35tec.0102!";
   public key = "XXMP";
 
-  public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
-  public headers: any;
-
+  public token = "";
+  
   public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public http: HttpClient,
@@ -77,103 +78,78 @@ export class E2docProvider {
         };
     }
   }
+  
+  autenticar() {
+    
+    const xmlhttp = new XMLHttpRequest();
 
-  autenticarUsuario() {
+    // The following variable contains the xml SOAP request.
+    const sr =
+      `<?xml version="1.0" encoding="utf-8"?>
+        <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+          <soap12:Body>
+            <AutenticarUsuario xmlns="http://www.e2doc.com.br/">
+              <usuario>` + this.user + `</usuario>
+              <senha>` + this.pas + `</senha>
+              <key>` + this.key + `</key>
+            </AutenticarUsuario>
+          </soap12:Body>
+        </soap12:Envelope>`;
 
-    let input = "<?xml version=\"1.0\" encoding=\"utf-8\"?> \
-<soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\"> \
-  <soap12:Body> \
-    <AutenticarUsuario xmlns=\"http://www.e2doc.com.br/\"> \
-      <usuario>" + this.user + "</usuario> \
-      <senha>" + this.pas + "</senha> \
-      <key>" + this.key + "</key> \
-    </AutenticarUsuario> \
-  </soap12:Body> \
-</soap12:Envelope>";
+    xmlhttp.onreadystatechange = () => {
+      if (xmlhttp.readyState == 4) {
+        if (xmlhttp.status == 200) {
+          const xml = xmlhttp.responseXML;
+          this.key = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;          
+        }
+      }
+    }
 
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(input, "application/xml");
+    // Send the POST request.
+    xmlhttp.open('POST', this.url, true);
 
-    let headers = new HttpHeaders()
-      .set('Access-Control-Allow-Origin', '*')
-      .set('Content-Type', 'application/xml');
-    debugger;
+    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
 
-    this.http.post(this.url, doc, { headers: headers })
-      .subscribe((response) => {
-        let result = new DOMParser().parseFromString(response.toString(), "text/xml").getElementsByTagName("AutenticarUsuarioResult")[0].innerHTML;
-        debugger;
-
-      }, (error) => {
-        debugger;
-        return "Erro";
-      });
+    xmlhttp.send(sr);
   }
 
-  soapCall() {
-    // const xmlhttp = new XMLHttpRequest();
+  sincronismoIniciar(info: any, campos: string){
 
-    // // The following variable contains the xml SOAP request.
-    // const sr =
-    //   `<?xml version="1.0" encoding="utf-8"?>
-    //     <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-    //       <soap12:Body>
-    //         <AutenticarUsuario xmlns="http://www.e2doc.com.br/">
-    //           <usuario>administrador</usuario>
-    //           <senha>E35tec.0102%</senha>
-    //           <key>XXMP</key>
-    //         </AutenticarUsuario>
-    //       </soap12:Body>
-    //     </soap12:Envelope>`;
+    console.log("Protocolo" + info.protocolo);
+    console.log("Tipo" + info.tipo_doc);
+    console.log("Imagem" + info.nm_imagem);
 
-    // xmlhttp.onreadystatechange = () => {
-    //   if (xmlhttp.readyState == 4) {
-    //     if (xmlhttp.status == 200) {
+    const xmlhttp = new XMLHttpRequest();
 
-    //       debugger;
+    // The following variable contains the xml SOAP request.
+    let sr = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <SincronismoIniciar xmlns="http://www.e2doc.com.br/">
+          <id>` + this.key + `</id>
+          <modelo>` + info.tipo_doc + `</modelo>
+          <campos>` + campos + `</campos>
+          <usuario>` + this.user + `</usuario>
+          <protocolo>` + info.protocolo + `</protocolo>
+        </SincronismoIniciar>
+      </soap:Body>
+    </soap:Envelope>`;
 
-    //       const xml = xmlhttp.responseXML;
-    //       // Here I'm getting the value contained by the <return> node.
-    //       const response_number = parseInt(xml.getElementsByTagName('return')[0].childNodes[0].nodeValue);
-    //       // Print result square number.
-    //       console.log(response_number);
-
-    //       debugger;
-    //     }
-    //   }
-    // }
-
-    // // Send the POST request.
-    // xmlhttp.open('POST', this.url, true);
-
-    // // xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');    
-    // // xmlhttp.setRequestHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
-    // // xmlhttp.setRequestHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Auth-Token');
-    // xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-    // // xmlhttp.setRequestHeader('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-    // // xmlhttp.setRequestHeader('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token');
-
-    // debugger;
-
-    // xmlhttp.send(sr);
-
-    var data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n        <soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\">\r\n          <soap12:Body>\r\n            <AutenticarUsuario xmlns=\"http://www.e2doc.com.br/\">\r\n              <usuario>administrador</usuario>\r\n              <senha>E35tec.0102!</senha>\r\n              <key>XXMP</key>\r\n            </AutenticarUsuario>\r\n          </soap12:Body>\r\n        </soap12:Envelope>";
-
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-
-    let ctx = this;
-    xhr.addEventListener("readystatechange", function () {
-      if (this.readyState === 4) {
-        ctx.msgHelper.presentToast(this.responseText);        
+    xmlhttp.onreadystatechange = () => {
+      if (xmlhttp.readyState == 4) {
+        if (xmlhttp.status == 200) {
+          const xml = xmlhttp.responseXML;
+          let res = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;          
+          debugger;
+        }
       }
-    });
+    }
 
-    xhr.open("POST", "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl=");
-    xhr.setRequestHeader("Content-Type", "text/xml");
-    xhr.setRequestHeader("cache-control", "no-cache");
-    xhr.setRequestHeader("Postman-Token", "7ec23245-c579-4d41-8109-592dd2d802f9");
+    // Send the POST request.
+    xmlhttp.open('POST', this.url, true);
 
-    xhr.send(data);
+    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+
+    xmlhttp.send(sr);
   }
 }

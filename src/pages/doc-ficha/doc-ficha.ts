@@ -27,6 +27,8 @@ export class DocFichaPage {
 
   public signatureImage: string;
 
+  public jObj: any;
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public storage: Storage,
@@ -39,6 +41,8 @@ export class DocFichaPage {
     let key = this.navParams.get('key');
 
     this.storage.get(key).then((res) => {
+
+      this.jObj = res;
 
       this.nome = res[0].imgInfo.nm_nome;
       this.rg = res[0].imgInfo.nr_rg;
@@ -65,11 +69,28 @@ export class DocFichaPage {
 
   drawComplete(){
 
-    this.e2doc.soapCall();
+    var campos = this.getStringCampos();
 
     this.signatureImage = this.signaturePad.toDataURL();
-    console.log(this.signatureImage);
-    
-    this.msgHelper.presentToast("Documento enviado!");
+    this.e2doc.autenticar();
+    this.e2doc.sincronismoIniciar(this.jObj, campos);
+
+    this.msgHelper.presentToast("Enviando documentos");
+  }
+
+  private getStringCampos(): string {
+
+    var campos = `<campo0>NOME<campo0><valor0>{0}<valor0>
+                  <campo1>RG<campo1><valor1>{1}<valor1>
+                  <campo2>CPF<campo2><valor2>{2}<valor2>
+                  <campo3>Data de nascimento<campo3><valor3>{3}<valor3>
+                  <campo4>CEP<campo4><valor4>{4}<valor4>`;
+    campos = campos.replace("{0}", this.rg);
+
+
+
+    debugger;
+
+    return "";
   }
 }
