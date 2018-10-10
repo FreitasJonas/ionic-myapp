@@ -20,10 +20,10 @@ import { MsgHelper } from '../../app/MsgHelper';
 })
 export class IntroPage {
 
-  public imgRg = "assets/imgs/slide1.png";
-  public imgCpf = "assets/imgs/slide2.png";
-  public imgCompR = "assets/imgs/slide3.png";
-  public imgFotoComRg = "assets/imgs/slide4.png";
+  public imgRg = "assets/imgs/cam_picture.png";
+  public imgCpf = "assets/imgs/cam_picture.png";
+  public imgCompR = "assets/imgs/cam_picture.png";
+  public imgFotoComRg = "assets/imgs/cam_picture.png";
 
   public protocolo = "";
   public geoPosition: Coordinates;
@@ -75,7 +75,7 @@ export class IntroPage {
       console.log(this.protocolo);
 
     this.geolocation.getCurrentPosition().then((res) => {
-      this.geoPosition = res.coords;
+      this.geoPosition = res.coords;      
     }).catch((error) => {
       this.msgHelper.presentToast(error);
     });
@@ -125,7 +125,8 @@ export class IntroPage {
     switch (tipo_doc) {
       case this.RG:
         return {
-          protocolo: this.protocolo,
+          protocolo: this.protocolo,     
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
@@ -137,7 +138,8 @@ export class IntroPage {
         };
       case this.CPF:
         return {
-          protocolo: this.protocolo,
+          protocolo: this.protocolo,          
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
@@ -147,7 +149,8 @@ export class IntroPage {
         };
       case this.COMP_RES:
         return {
-          protocolo: this.protocolo,
+          protocolo: this.protocolo,          
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
@@ -160,7 +163,8 @@ export class IntroPage {
         };
       case this.FOTO_DOC:
         return {
-          protocolo: this.protocolo,
+          protocolo: this.protocolo,         
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,         
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
@@ -220,13 +224,19 @@ export class IntroPage {
         let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
         this.info.push(result);
 
-        var path = this.file.externalRootDirectory + "\myapp";
+        var path = this.file.externalRootDirectory + "myapp";
+
+        debugger;
+
+
+        this.msgHelper.presentToast("Path: " + path)
+
         var contentType = this.imageHelper.getContentType(imageData);
         var blob = this.imageHelper.base64toBlob(imageData, contentType);
 
-        this.file.writeExistingFile(path, result.nm_imagem, blob);
+        this.file.writeFile(path, result.nm_imagem, blob);
 
-        this.msgHelper.presentToast("Imagem salva com sucesso");
+        this.msgHelper.presentToast("Imagem salva com sucesso!");
 
         switch (result.tipo_doc) {
           case this.RG:
