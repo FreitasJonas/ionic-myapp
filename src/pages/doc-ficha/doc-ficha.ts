@@ -7,7 +7,6 @@ import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { File } from '@ionic-native/file';
 import { ImageHelper } from '../../app/ImageHelper';
 
-
 @IonicPage()
 @Component({
   selector: 'page-doc-ficha',
@@ -32,14 +31,22 @@ export class DocFichaPage {
 
   public jObj: any;
 
+  public signatureCanvas;
+
   private imageHelper = new ImageHelper();
 
+  public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
+    'minWidth': 2,
+    'canvasWidth': 380,
+    'canvasHeight': 250
+  };
+  
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public storage: Storage,
     public toastCtrl: ToastController,
     private e2doc: E2docProvider,
-    private file: File) {
+    private file: File) {    
   }
 
   ionViewDidLoad() {
@@ -63,97 +70,58 @@ export class DocFichaPage {
     });
   }
 
-  public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
-    'minWidth': 5,
-    'canvasWidth': 340,
-    'canvasHeight': 200
-  };
-
   drawClear() {
     this.signaturePad.clear();
-  }
-
-  getDocInfo(path: string, name: string, callback) {
-
-    this.file.readAsDataURL(path, name).then((res) => {
-
-      if (typeof callback === 'function') {
-        callback(res);
-      }
-    }).
-      catch((res) => {
-
-        if (typeof callback === 'function') {
-          let err = {
-            status: "erro",
-            msg: res
-          };
-          callback(err);
-        }
-      });
   }
 
   drawComplete() {
 
     let vetDoc = [];
 
-    var campos = this.getStringCampos();
-    this.signatureImage = this.signaturePad.toDataURL();
-    this.e2doc.autenticar();
-    //this.e2doc.sincronismoIniciar(this.jObj, campos);
-
     this.jObj.forEach((element, index) => {
 
-      //var path = this.file.externalRootDirectory + "/myapp/";
       var fullPath = this.file.externalRootDirectory + "/myapp/" + element.nm_imagem;
 
-      //let ctx = this;
-
-      //this.getDocInfo(path, element.nm_imagem, function (value) {
-
-      //  if (value.status == "erro") {
-      //    ctx.msgHelper.presentToast2("Erro docInfo " + element.nm_imagem + "\n" + path + "\n" + value.msg);          
-      //    return;
-      //  }
-
-        //var contentType = ctx.imageHelper.getContentType(value);
-        //var blob = ctx.imageHelper.base64toBlob(blob, contentType);
-
-        vetDoc.push({
-          modelo: element.tipo_doc,
-          descricao: element.tipo_doc,
-          path: fullPath,
-          doc: element.blob,
-          length: element.blob_size,
-          paginas: 1,
-          hash: "",
-          extensao: "JPG",
-          id_doc: index,
-          protocolo: element.protocolo,
-          fileNamePart: element.protocolo + "_1.jpg"
-        //});
+      vetDoc.push({
+        modelo: element.tipo_doc,
+        descricao: element.tipo_doc,
+        path: fullPath,
+        doc: element.blob,
+        length: element.blob_size,
+        paginas: 1,
+        hash: "",
+        extensao: "JPG",
+        id_doc: index,
+        protocolo: element.protocolo,
+        fileNamePart: element.protocolo + "_1.jpg"
       });
     });
 
-    this.enviarDocumentos(vetDoc, campos).then(()=>{
-     this.msgHelper.presentToast("Documentos enviados com sucesso!");      
+    this.signatureImage = this.signaturePad.toDataURL();
+
+    var contentType = this.imageHelper.getContentType(this.signatureImage);
+    var blob = this.imageHelper.base64toBlob(this.signatureImage, contentType);
+    var fileName = vetDoc[0].protocolo + "_1.png";
+
+    vetDoc.push({
+      modelo: "Assinatura",
+      descricao: "Assinatura",
+      path: this.file.externalRootDirectory + "/myapp/" + fileName,
+      doc: blob,
+      length: blob.size,
+      paginas: 1,
+      hash: "",
+      extensao: "PNG",
+      id_doc: vetDoc.length,
+      protocolo: vetDoc[0].protocolo,
+      fileNamePart: fileName
     });
+
+    var campos = this.getStringCampos();
+
+    this.e2doc.enviarDocumentos(vetDoc, campos);
 
     this.msgHelper.presentToast("Enviando documentos!");
-  }
-
-  private enviarDocumentos(vetDoc: any, campos: string): Promise<void> {
-
-    let ctx = this;
-
-    return new Promise<void>((resolve) => {
-
-      vetDoc.array.forEach((element, index) => {
-        ctx.e2doc.sincronismoEnviaParte(element, campos);
-      });
-
-      ctx.e2doc.sincronismoFinalizar(vetDoc[0].protocolo);
-    });
   }
 
   private getStringCampos(): string {
@@ -177,5 +145,25 @@ export class DocFichaPage {
     campos = campos.replace("{7}", this.jObj[0].location);
 
     return campos;
+  }
+
+  getDocInfo(path: string, name: string, callback) {
+
+    this.file.readAsDataURL(path, name).then((res) => {
+
+      if (typeof callback === 'function') {
+        callback(res);
+      }
+    }).
+      catch((res) => {
+
+        if (typeof callback === 'function') {
+          let err = {
+            status: "erro",
+            msg: res
+          };
+          callback(err);
+        }
+      });
   }
 }

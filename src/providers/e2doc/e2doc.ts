@@ -17,13 +17,13 @@ export class E2docProvider {
 
   public token = "";
   public retorno = "";
-  
+
   public msgHelper = new MsgHelper(this.toastCtrl);
 
   private imageHelper = new ImageHelper();
 
   constructor(public http: HttpClient,
-    public toastCtrl: ToastController) {    
+    public toastCtrl: ToastController) {
   }
 
   sendImageFromOCR(protocolo: string, tipo_doc: string, geoLocation: Coordinates, img: any) {
@@ -40,8 +40,8 @@ export class E2docProvider {
     switch (tipo_doc) {
       case "RG":
         return {
-          protocolo: protocolo,   
-          location: geoLocation.latitude + "_" + geoLocation.longitude,               
+          protocolo: protocolo,
+          location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
@@ -51,13 +51,13 @@ export class E2docProvider {
             dt_nascimento: "10/12/1996",
             contentType: contentType,
             blob_size: blob.size,
-            blob: blob            
+            blob: blob
           }
         };
       case "CPF":
         return {
-          protocolo: protocolo,      
-          location: geoLocation.latitude + "_" + geoLocation.longitude,       
+          protocolo: protocolo,
+          location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
@@ -70,8 +70,8 @@ export class E2docProvider {
         };
       case "COMP_RES":
         return {
-          protocolo: protocolo,   
-          location: geoLocation.latitude + "_" + geoLocation.longitude,          
+          protocolo: protocolo,
+          location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
@@ -87,8 +87,8 @@ export class E2docProvider {
         };
       case "FOTO_DOC":
         return {
-          protocolo: protocolo,    
-          location: geoLocation.latitude + "_" + geoLocation.longitude,         
+          protocolo: protocolo,
+          location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
@@ -101,8 +101,8 @@ export class E2docProvider {
         };
     }
   }
-  
-  autenticar() {
+
+  autenticar(fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -119,13 +119,17 @@ export class E2docProvider {
           </soap12:Body>
         </soap12:Envelope>`;
 
-    let ctx = this;    
+    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;
           ctx.msgHelper.presentToast("Token: " + ctx.token);
+
+          if (typeof fn === 'function') {
+            fn(ctx.token);
+          }
         }
       }
     }
@@ -138,11 +142,7 @@ export class E2docProvider {
     xmlhttp.send(sr);
   }
 
-  sincronismoIniciar(info: any, campos: string){
-
-    console.log("Protocolo" + info.protocolo);
-    console.log("Tipo" + info.tipo_doc);
-    console.log("Imagem" + info.nm_imagem);
+  sincronismoIniciar(info: any, campos: string, fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -165,7 +165,11 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;
+
+          if (typeof fn === 'function') {
+            fn(ctx.retorno);
+          }
         }
       }
     }
@@ -178,7 +182,7 @@ export class E2docProvider {
     xmlhttp.send(sr);
   }
 
-  sincronismoEnviaParte(info: any, campos: string){
+  sincronismoEnviaParte(info: any, campos: string, fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -194,12 +198,16 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-    let ctx= this;
+    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
+
+          if (typeof fn === 'function') {
+            fn(ctx.retorno);
+          }
         }
       }
     }
@@ -212,7 +220,7 @@ export class E2docProvider {
     xmlhttp.send(sr);
   }
 
-  sincronismoEnviarArquivo(info: any){
+  sincronismoEnviarArquivo(info: any, fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -257,7 +265,11 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
+
+          if (typeof fn === 'function') {
+            fn(ctx.retorno);
+          }
         }
       }
     }
@@ -267,10 +279,10 @@ export class E2docProvider {
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
 
-    xmlhttp.send(sr);  
+    xmlhttp.send(sr);
   }
 
-  sincronismoFinalizar(protocolo: string) {
+  sincronismoFinalizar(protocolo: string, fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -290,7 +302,11 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
+
+          if (typeof fn === 'function') {
+            fn(ctx.retorno);
+          }
         }
       }
     }
@@ -302,5 +318,48 @@ export class E2docProvider {
 
     xmlhttp.send(sr);
 
+  }
+
+  enviarDocumentos(vetDoc: any[], campos: string): any {
+
+    let ctx = this;
+    vetDoc.forEach((element, index) => {
+      this.autenticar(function (res) { //Autenticar
+        if (!res.contains("[ERRO]")) {
+          ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
+            if (!res.contains("[ERRO]")) {
+              ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
+                if (!res.contains("[ERRO]")) {
+                  ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
+                    if (!res.contains("[ERRO]")) {
+                      ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
+                        if (!res.contains("[ERRO]")) {
+                          ctx.msgHelper.presentToast2("Documento enviado com sucesso");
+                        }
+                        else {
+                          ctx.msgHelper.presentToast2("Erro finalizando sincronismo " + element.tipo_doc + " \n" + res);
+                        }
+                      })
+                    }
+                    else {
+                      ctx.msgHelper.presentToast2("Erro enviando arquivo " + element.tipo_doc + " \n" + res);
+                    }
+                  })
+                }
+                else {
+                  ctx.msgHelper.presentToast2("Erro enviando parte " + element.tipo_doc + " \n" + res);
+                }
+              });
+            }
+            else {
+              ctx.msgHelper.presentToast2("Erro iniciar sincronismo " + element.tipo_doc + " \n" + res);
+            }
+          })
+        }
+        else {
+          ctx.msgHelper.presentToast2("Erro atenticar " + element.tipo_doc + " \n" + res);
+        }
+      })
+    });
   }
 }

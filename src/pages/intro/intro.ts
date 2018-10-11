@@ -19,11 +19,11 @@ import { MsgHelper } from '../../app/MsgHelper';
   ]
 })
 export class IntroPage {
-
-  public imgRg = "assets/imgs/cam_picture.png";
-  public imgCpf = "assets/imgs/cam_picture.png";
-  public imgCompR = "assets/imgs/cam_picture.png";
-  public imgFotoComRg = "assets/imgs/cam_picture.png";
+  
+  public imgRg = "assets/imgs/cam.png";
+  public imgCpf = "assets/imgs/cam.png";
+  public imgCompR = "assets/imgs/cam.png";
+  public imgFotoComRg = "assets/imgs/cam.png";
 
   public protocolo = "";
   public geoPosition: any = {
@@ -31,10 +31,13 @@ export class IntroPage {
     longitude: "00000"
   }
 
-  public checkRG = false;
-  public checkCpf = false;
-  public checkCompR = false;
-  public checkFotoComRg = false;
+  public checked = "md-checkbox-outline";
+  public unChecked = "md-close";
+
+  public checkRG = "md-close"; //"md-checkbox-outline";
+  public checkCpf = "md-close";
+  public checkCompR = "md-close";
+  public checkFotoComRg = "md-close";
 
   public RG = "RG";
   public CPF = "CPF";
@@ -91,10 +94,10 @@ export class IntroPage {
 
   goToDocFichaPage() {
 
-    if (this.checkRG &&
-      this.checkCpf &&
-      this.checkCompR &&
-      this.checkFotoComRg) {
+    if (this.checkRG == this.checked &&
+      this.checkCpf == this.checked &&
+      this.checkCompR == this.checked &&
+      this.checkFotoComRg == this.checked) {
 
       this.storage.set(this.storageKey, this.info);
 
@@ -112,15 +115,15 @@ export class IntroPage {
   }
 
   getPictureCpf() {
-    this.getPicture(this.CPF) as string;
+    this.getPicture(this.CPF);
   }
 
   getPictureCompR() {
-    this.getPicture(this.COMP_RES) as string;
+    this.getPicture(this.COMP_RES);
   }
 
   getPictureFotoComRg() {
-    this.getPicture(this.FOTO_DOC) as string;
+    this.getPicture(this.FOTO_DOC);
   }
 
   private getJsonTest(tipo_doc: string) {
@@ -185,21 +188,21 @@ export class IntroPage {
 
       this.info.push(result);
 
-      switch (result.tipo_doc) {
+      switch (tipoDoc) {
         case this.RG:
-          this.checkRG = true;
+          this.checkRG = this.checked;
           document.getElementById("msgEnvioRg").hidden = false;
           break;
         case this.CPF:
-          this.checkCpf = true;
+          this.checkCpf = this.checked;
           document.getElementById("msgEnvioCpf").hidden = false;
           break;
         case this.COMP_RES:
-          this.checkCompR = true;
+          this.checkCompR = this.checked;
           document.getElementById("msgEnvioCompR").hidden = false;
           break;
         case this.FOTO_DOC:
-          this.checkFotoComRg = true;
+          this.checkFotoComRg = this.checked;
           document.getElementById("msgEnvioFotoComRg").hidden = false;
           break;
       }
@@ -233,19 +236,19 @@ export class IntroPage {
 
         switch (result.tipo_doc) {
           case this.RG:
-            this.checkRG = true;
+            this.checkRG = this.checked;
             document.getElementById("msgEnvioRg").hidden = false;
             break;
           case this.CPF:
-            this.checkCpf = true;
+            this.checkCpf = this.checked;
             document.getElementById("msgEnvioCpf").hidden = false;
             break;
           case this.COMP_RES:
-            this.checkCompR = true;
+            this.checkCompR = this.checked;
             document.getElementById("msgEnvioCompR").hidden = false;
             break;
           case this.FOTO_DOC:
-            this.checkFotoComRg = true;
+            this.checkFotoComRg = this.checked;
             document.getElementById("msgEnvioFotoComRg").hidden = false;
             break;
         }
