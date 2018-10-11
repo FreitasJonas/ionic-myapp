@@ -26,7 +26,10 @@ export class IntroPage {
   public imgFotoComRg = "assets/imgs/cam_picture.png";
 
   public protocolo = "";
-  public geoPosition: Coordinates;
+  public geoPosition: any = {
+    latitude: "00000",
+    longitude: "00000"
+  }
 
   public checkRG = false;
   public checkCpf = false;
@@ -42,9 +45,9 @@ export class IntroPage {
 
   public info = [];
 
-  public testInDevice = false;
+  public testInDevice = true;
 
-  private imageHelper: ImageHelper;
+  private imageHelper = new ImageHelper();
   
   public msgHelper = new MsgHelper(this.toastCtrl);
 
@@ -76,7 +79,7 @@ export class IntroPage {
 
     this.geolocation.getCurrentPosition().then((res) => {
       this.geoPosition = res.coords;      
-    }).catch((error) => {
+    }).catch((error) => {      
       this.msgHelper.presentToast(error);
     });
 
@@ -224,19 +227,9 @@ export class IntroPage {
         let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
         this.info.push(result);
 
-        var path = this.file.externalRootDirectory + "myapp";
-
-        debugger;
-
-
-        this.msgHelper.presentToast("Path: " + path)
-
-        var contentType = this.imageHelper.getContentType(imageData);
-        var blob = this.imageHelper.base64toBlob(imageData, contentType);
-
-        this.file.writeFile(path, result.nm_imagem, blob);
-
-        this.msgHelper.presentToast("Imagem salva com sucesso!");
+        //var path = this.file.externalRootDirectory + "myapp";
+        
+        //file.writeFile(path, result.nm_imagem, blob);
 
         switch (result.tipo_doc) {
           case this.RG:
@@ -256,6 +249,8 @@ export class IntroPage {
             document.getElementById("msgEnvioFotoComRg").hidden = false;
             break;
         }
+        
+        this.msgHelper.presentToast("Imagem salva com sucesso!");
 
         return result;
 

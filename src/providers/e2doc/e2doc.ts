@@ -4,6 +4,7 @@ import { Http, Response, RequestOptions, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { MsgHelper } from '../../app/MsgHelper';
 import { ToastController } from 'ionic-angular';
+import { ImageHelper } from '../../app/ImageHelper';
 
 @Injectable()
 export class E2docProvider {
@@ -19,6 +20,8 @@ export class E2docProvider {
   
   public msgHelper = new MsgHelper(this.toastCtrl);
 
+  private imageHelper = new ImageHelper();
+
   constructor(public http: HttpClient,
     public toastCtrl: ToastController) {    
   }
@@ -31,6 +34,9 @@ export class E2docProvider {
 
     //this.http.get("");
 
+    var contentType = this.imageHelper.getContentType(img);
+    var blob = this.imageHelper.base64toBlob(img, contentType);
+
     switch (tipo_doc) {
       case "RG":
         return {
@@ -42,7 +48,10 @@ export class E2docProvider {
           imgInfo: {
             nr_rg: "0000000-9",
             nm_nome: "Jonas Freitas",
-            dt_nascimento: "10/12/1996"
+            dt_nascimento: "10/12/1996",
+            contentType: contentType,
+            blob_size: blob.size,
+            blob: blob            
           }
         };
       case "CPF":
@@ -53,7 +62,10 @@ export class E2docProvider {
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
           imgInfo: {
-            nr_cpf: "55555555866"
+            nr_cpf: "55555555866",
+            contentType: contentType,
+            blob_size: blob.size,
+            blob: blob
           }
         };
       case "COMP_RES":
@@ -67,7 +79,10 @@ export class E2docProvider {
             cep: "06226-120",
             endereco: "Rua Goiania",
             cidade: "Osasco",
-            estado: "SP"
+            estado: "SP",
+            contentType: contentType,
+            blob_size: blob.size,
+            blob: blob
           }
         };
       case "FOTO_DOC":
@@ -78,14 +93,17 @@ export class E2docProvider {
           tipo_doc: tipo_doc,
           nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
           imgInfo: {
-            foto_status: "OK"
+            foto_status: "OK",
+            contentType: contentType,
+            blob_size: blob.size,
+            blob: blob
           }
         };
     }
   }
   
   autenticar() {
-    
+
     const xmlhttp = new XMLHttpRequest();
 
     // The following variable contains the xml SOAP request.
@@ -101,11 +119,13 @@ export class E2docProvider {
           </soap12:Body>
         </soap12:Envelope>`;
 
+    let ctx = this;    
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          this.key = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;          
+          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;
+          ctx.msgHelper.presentToast("Token: " + ctx.token);
         }
       }
     }
@@ -140,11 +160,12 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
+    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          this.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;                    
         }
       }
     }
@@ -173,11 +194,12 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
+    let ctx= this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          this.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;                    
         }
       }
     }
@@ -230,11 +252,12 @@ export class E2docProvider {
       </soap12:Body>
     </soap12:Envelope>`;
 
+    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          this.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;                    
         }
       }
     }
@@ -262,11 +285,12 @@ export class E2docProvider {
       </soap12:Body>
     </soap12:Envelope>`;
 
+    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          this.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;                    
+          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;                    
         }
       }
     }

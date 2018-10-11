@@ -7,6 +7,7 @@ import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { File } from '@ionic-native/file';
 import { ImageHelper } from '../../app/ImageHelper';
 
+
 @IonicPage()
 @Component({
   selector: 'page-doc-ficha',
@@ -31,7 +32,7 @@ export class DocFichaPage {
 
   public jObj: any;
 
-  private imageHelper: ImageHelper;
+  private imageHelper = new ImageHelper();
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -81,8 +82,13 @@ export class DocFichaPage {
       }
     }).
       catch((res) => {
+
         if (typeof callback === 'function') {
-          callback(res);
+          let err = {
+            status: "erro",
+            msg: res
+          };
+          callback(err);
         }
       });
   }
@@ -93,44 +99,47 @@ export class DocFichaPage {
 
     var campos = this.getStringCampos();
     this.signatureImage = this.signaturePad.toDataURL();
-    //this.e2doc.autenticar();
+    this.e2doc.autenticar();
     //this.e2doc.sincronismoIniciar(this.jObj, campos);
-    
+
     this.jObj.forEach((element, index) => {
 
-      var path = this.file.externalRootDirectory;
-      var fullPath = this.file.externalRootDirectory + "/myapp/" + element.nm_imagem;      
+      //var path = this.file.externalRootDirectory + "/myapp/";
+      var fullPath = this.file.externalRootDirectory + "/myapp/" + element.nm_imagem;
 
-      let ctx = this;  
+      //let ctx = this;
 
-      this.getDocInfo(path, element.nm_imagem, function (value) {
+      //this.getDocInfo(path, element.nm_imagem, function (value) {
 
-        ctx.msgHelper.presentToast(value);
+      //  if (value.status == "erro") {
+      //    ctx.msgHelper.presentToast2("Erro docInfo " + element.nm_imagem + "\n" + path + "\n" + value.msg);          
+      //    return;
+      //  }
 
-        var contentType = this.imageHelper.getContentType(value);
-        var blob = this.imageHelper.base64toBlob(blob, contentType);
+        //var contentType = ctx.imageHelper.getContentType(value);
+        //var blob = ctx.imageHelper.base64toBlob(blob, contentType);
 
         vetDoc.push({
           modelo: element.tipo_doc,
           descricao: element.tipo_doc,
           path: fullPath,
-          doc: blob,
-          length: blob.length / 1024,
+          doc: element.blob,
+          length: element.blob_size,
           paginas: 1,
           hash: "",
           extensao: "JPG",
           id_doc: index,
           protocolo: element.protocolo,
           fileNamePart: element.protocolo + "_1.jpg"
-        });        
+        //});
       });
-    });    
+    });
 
-    //this.enviarDocumentos(vetDoc, campos).then(()=>{
-    // this.msgHelper.presentToast("Documentos enviados com sucesso!");      
-    //});
-    
-    this.msgHelper.presentToast("Enviando documentos!");    
+    this.enviarDocumentos(vetDoc, campos).then(()=>{
+     this.msgHelper.presentToast("Documentos enviados com sucesso!");      
+    });
+
+    this.msgHelper.presentToast("Enviando documentos!");
   }
 
   private enviarDocumentos(vetDoc: any, campos: string): Promise<void> {
@@ -140,11 +149,11 @@ export class DocFichaPage {
     return new Promise<void>((resolve) => {
 
       vetDoc.array.forEach((element, index) => {
-        ctx.e2doc.sincronismoEnviaParte(element, campos);        
-      });      
+        ctx.e2doc.sincronismoEnviaParte(element, campos);
+      });
 
       ctx.e2doc.sincronismoFinalizar(vetDoc[0].protocolo);
-    });    
+    });
   }
 
   private getStringCampos(): string {
