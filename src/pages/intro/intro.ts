@@ -48,7 +48,7 @@ export class IntroPage {
 
   public info = [];
 
-  public testInDevice = true;
+  public testInDevice = false;
 
   private imageHelper = new ImageHelper();
   
@@ -216,6 +216,7 @@ export class IntroPage {
         encodingType: this.camera.EncodingType.JPEG,
         sourceType: this.camera.PictureSourceType.CAMERA,
         mediaType: this.camera.MediaType.PICTURE,
+        allowEdit: true,
         saveToPhotoAlbum: true
       }
 
@@ -229,7 +230,7 @@ export class IntroPage {
         //envia imagem e pega o retorno
         let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
         this.info.push(result);
-
+                
         //var path = this.file.externalRootDirectory + "myapp";
         
         //file.writeFile(path, result.nm_imagem, blob);

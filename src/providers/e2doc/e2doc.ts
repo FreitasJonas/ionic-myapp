@@ -33,7 +33,7 @@ export class E2docProvider {
     //dados celular (geo location)
 
     //this.http.get("");
-
+    
     var contentType = this.imageHelper.getContentType(img);
     var blob = this.imageHelper.base64toBlob(img, contentType);
 
@@ -124,9 +124,7 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;
-          ctx.msgHelper.presentToast("Token: " + ctx.token);
-
+          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
             fn(ctx.token);
           }
@@ -160,29 +158,25 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-    debugger;
+    // Send the POST request.
+    xmlhttp.open('POST', this.url, true);
 
     let ctx = this;
-    xmlhttp.onreadystatechange = () => {
+    xmlhttp.onreadystatechange = () => {      
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;
-          debugger;
+          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
-            fn(ctx.retorno);
-            debugger;
+            fn(ctx.retorno);            
           }
         }
       }
       else{
-        debugger;
+        //debugger;
       }
     }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
+    
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
 
     xmlhttp.send(sr);
@@ -197,12 +191,14 @@ export class E2docProvider {
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
         <SincronismoEnviarParte xmlns="http://www.e2doc.com.br/">
-          <id>` + this.key + `</id>
+          <id>` + this.token + `</id>
           <fileNamePart>` + info.fileNamePart + `</fileNamePart>
-          <buffer>` + info.blob + `</buffer>
+          <buffer>` + info.doc + `</buffer>
         </SincronismoEnviarParte>
       </soap:Body>
     </soap:Envelope>`;
+
+    debugger;
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -210,11 +206,14 @@ export class E2docProvider {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
-
+          debugger;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
         }
+      }
+      else{
+        debugger;
       }
     }
 
@@ -329,13 +328,27 @@ export class E2docProvider {
   enviarDocumentos(vetDoc: any[], campos: string): any {
 
     let ctx = this;
-    vetDoc.forEach((element, index) => {
-      this.autenticar(function (res) { //Autenticar
-        if (res.indexOf("[ERRO]") <= 0) {
+    this.autenticar(function(res){
+      if (res.indexOf("[ERRO]") <= 0) {
+        ctx.msgHelper.presentToast("Autenticado!");
+
+        vetDoc.forEach((element, index) => {
+
           ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
             if (res.indexOf("[ERRO]") <= 0) {
+
+              debugger;
+
+              if(res == element.protocolo){
+                ctx.msgHelper.presentToast("Sincronismo Iniciado"!);
+              }
+              else{
+                ctx.msgHelper.presentToast("Erro Inicia Sync" + res);
+              }
+
               ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
                 if (res.indexOf("[ERRO]") <= 0) {
+                  debugger;
                   ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
                     if (res.indexOf("[ERRO]") <= 0) {
                       ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
@@ -361,11 +374,12 @@ export class E2docProvider {
               ctx.msgHelper.presentToast2("Erro iniciar sincronismo " + element.tipo_doc + " \n" + res);
             }
           })
-        }
-        else {
-          ctx.msgHelper.presentToast2("Erro atenticar " + element.tipo_doc + " \n" + res);
-        }
-      })
+
+        });
+      }else{
+        ctx.msgHelper.presentToast2("Erro atenticar \n" + res);
+      }
     });
+    
   }
 }
