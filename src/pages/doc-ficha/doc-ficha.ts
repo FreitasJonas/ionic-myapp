@@ -99,8 +99,10 @@ export class DocFichaPage {
 
     this.signatureImage = this.signaturePad.toDataURL();
 
+    let block = this.signatureImage.split(",");
+    
     var contentType = this.imageHelper.getContentType(this.signatureImage);
-    var blob = this.imageHelper.base64toBlob(this.signatureImage, contentType);
+    var blob = this.imageHelper.base64toBlob(block[1], contentType);
     var fileName = vetDoc[0].protocolo + "_1.png";
 
     vetDoc.push({
@@ -126,14 +128,14 @@ export class DocFichaPage {
 
   private getStringCampos(): string {
 
-    var campos = `<campo0>Nome<campo0><valor0>{0}<valor0>
+    var campos = `<![CDATA[<campo0>NOME<campo0><valor0>{0}<valor0>
                   <campo1>RG<campo1><valor1>{1}<valor1>
                   <campo2>CPF<campo2><valor2>{2}<valor2>
-                  <campo3>Data nascimento<campo3><valor3>{3}<valor3>
+                  <campo3>DATA NASCIMENTO<campo3><valor3>{3}<valor3>
                   <campo4>CEP<campo4><valor4>{4}<valor4>
-                  <campo5>Rua<campo5><valor4>{5}<valor4>
-                  <campo6>CIDADE<campo6><valor4>{6}<valor4>
-                  <campo7>VALIDAÇÃO<campo7><valor4>{7}<valor4>`;
+                  <campo5>RUA<campo5><valor5>{5}<valor5>
+                  <campo6>CIDADE<campo6><valor6>{6}<valor6>
+                  <campo7>VALIDACAO<campo7><valor7>{7}<valor7>]]>`;
 
     campos = campos.replace("{0}", this.nome);
     campos = campos.replace("{1}", this.rg);

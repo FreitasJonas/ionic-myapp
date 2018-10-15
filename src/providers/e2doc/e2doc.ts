@@ -151,8 +151,8 @@ export class E2docProvider {
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
         <SincronismoIniciar xmlns="http://www.e2doc.com.br/">
-          <id>` + this.key + `</id>
-          <modelo>` + info.tipo_doc + `</modelo>
+          <id>` + this.token + `</id>
+          <modelo>CONTRATACAO</modelo>
           <campos>` + campos + `</campos>
           <usuario>` + this.user + `</usuario>
           <protocolo>` + info.protocolo + `</protocolo>
@@ -160,17 +160,23 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
+    debugger;
+
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;
-
+          debugger;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
+            debugger;
           }
         }
+      }
+      else{
+        debugger;
       }
     }
 
@@ -325,15 +331,15 @@ export class E2docProvider {
     let ctx = this;
     vetDoc.forEach((element, index) => {
       this.autenticar(function (res) { //Autenticar
-        if (!res.contains("[ERRO]")) {
+        if (res.indexOf("[ERRO]") <= 0) {
           ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-            if (!res.contains("[ERRO]")) {
+            if (res.indexOf("[ERRO]") <= 0) {
               ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-                if (!res.contains("[ERRO]")) {
+                if (res.indexOf("[ERRO]") <= 0) {
                   ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-                    if (!res.contains("[ERRO]")) {
+                    if (res.indexOf("[ERRO]") <= 0) {
                       ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
-                        if (!res.contains("[ERRO]")) {
+                        if (res.indexOf("[ERRO]") <= 0) {
                           ctx.msgHelper.presentToast2("Documento enviado com sucesso");
                         }
                         else {
