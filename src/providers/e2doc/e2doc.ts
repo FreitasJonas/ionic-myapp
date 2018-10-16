@@ -119,6 +119,7 @@ export class E2docProvider {
           </soap12:Body>
         </soap12:Envelope>`;
 
+    
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
@@ -158,6 +159,8 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
+    
+
     // Send the POST request.
     xmlhttp.open('POST', this.url, true);
 
@@ -173,7 +176,7 @@ export class E2docProvider {
         }
       }
       else{
-        //debugger;
+        
       }
     }
     
@@ -197,7 +200,9 @@ export class E2docProvider {
         </SincronismoEnviarParte>
       </soap:Body>
     </soap:Envelope>`;
+
     
+        
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
@@ -247,7 +252,7 @@ export class E2docProvider {
           <vDadosDocumento>
             <string>`+ info.modelo + `</string>
             <string>`+ info.descricao + `</string>
-            <string>`+ info.fullPath + `</string>
+            <string>`+ info.path + `</string>
             <string>`+ info.length + `</string>
             <string>`+ info.paginas + `</string>
             <string>`+ info.protocolo + `</string>
@@ -261,7 +266,7 @@ export class E2docProvider {
       </soap12:Body>
     </soap12:Envelope>`;
 
-    debugger;
+    
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -269,7 +274,7 @@ export class E2docProvider {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
-          debugger;
+          
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -323,34 +328,25 @@ export class E2docProvider {
 
   }
 
-  enviarDocumentos(vetDoc: any[], campos: string): any {
-
+  enviarDocumentos(vetDoc: any[], campos: string): any {    
     let ctx = this;
+
+    ctx.msgHelper.presentToast("Enviado Documentos!");
+
     this.autenticar(function(res){
       if (res.indexOf("[ERRO]") <= 0) {
-        ctx.msgHelper.presentToast("Autenticado!");
 
         vetDoc.forEach((element, index) => {
-
+          
           ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-            if (res.indexOf("[ERRO]") <= 0) {              
-
-              if(res == element.protocolo){
-                ctx.msgHelper.presentToast("Sincronismo Iniciado"!);
-              }
-              else{                
-                ctx.msgHelper.presentToast("Erro Inicia Sync" + res);
-              }
-
+            if (res.indexOf("[ERRO]") <= 0) {
               ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-                if (res.indexOf("[ERRO]") <= 0) {
-                  debugger;
+                if (res.indexOf("[ERRO]") <= 0) {                                    
                   ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-                    debugger;
                     if (res.indexOf("[ERRO]") <= 0) {
                       ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
                         if (res.indexOf("[ERRO]") <= 0) {
-                          ctx.msgHelper.presentToast2("Documento enviado com sucesso");
+                          ctx.msgHelper.presentToast2(  "Documento enviado com sucesso");
                         }
                         else {
                           ctx.msgHelper.presentToast2("Erro finalizando sincronismo " + element.tipo_doc + " \n" + res);
@@ -373,10 +369,11 @@ export class E2docProvider {
           })
 
         });
+
+
       }else{
         ctx.msgHelper.presentToast2("Erro atenticar \n" + res);
       }
-    });
-    
+    }); 
   }
 }
