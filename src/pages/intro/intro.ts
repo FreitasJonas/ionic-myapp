@@ -48,7 +48,7 @@ export class IntroPage {
 
   public info = [];
 
-  public testInDevice = false;
+  public testInDevice = true;
 
   private imageHelper = new ImageHelper();
   

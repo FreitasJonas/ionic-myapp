@@ -197,23 +197,19 @@ export class E2docProvider {
         </SincronismoEnviarParte>
       </soap:Body>
     </soap:Envelope>`;
-
-    debugger;
-
+    
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
-          debugger;
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
         }
       }
-      else{
-        debugger;
+      else{        
       }
     }
 
@@ -244,7 +240,7 @@ export class E2docProvider {
     <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
       <soap12:Body>
         <SincronismoEnviarArquivo xmlns="http://www.e2doc.com.br/">
-          <id>` + this.key + `</id>
+          <id>` + this.token + `</id>
           <partes>            
             <string>`+ info.fileNamePart + `</string>
           </partes>
@@ -259,11 +255,13 @@ export class E2docProvider {
             <string>`+ info.extensao + `</string>
             <string>`+ info.id_doc + `</string>            
           </vDadosDocumento>
-          <modelo>`+ info.modelo + `</modelo>
+          <modelo> CONTRATACAO </modelo>
           <protocolo>`+ info.protocolo + `</protocolo>
         </SincronismoEnviarArquivo>
       </soap12:Body>
     </soap12:Envelope>`;
+
+    debugger;
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -271,7 +269,7 @@ export class E2docProvider {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
-
+          debugger;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -296,7 +294,7 @@ export class E2docProvider {
     <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
       <soap12:Body>
         <SincronismoFinalizar xmlns="http://www.e2doc.com.br/">
-        <id>` + this.key + `</id>
+        <id>` + this.token + `</id>
           <protocolo>` + protocolo + `</protocolo>
         </SincronismoFinalizar>
       </soap12:Body>
@@ -335,14 +333,12 @@ export class E2docProvider {
         vetDoc.forEach((element, index) => {
 
           ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-            if (res.indexOf("[ERRO]") <= 0) {
-
-              debugger;
+            if (res.indexOf("[ERRO]") <= 0) {              
 
               if(res == element.protocolo){
                 ctx.msgHelper.presentToast("Sincronismo Iniciado"!);
               }
-              else{
+              else{                
                 ctx.msgHelper.presentToast("Erro Inicia Sync" + res);
               }
 
@@ -350,6 +346,7 @@ export class E2docProvider {
                 if (res.indexOf("[ERRO]") <= 0) {
                   debugger;
                   ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
+                    debugger;
                     if (res.indexOf("[ERRO]") <= 0) {
                       ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
                         if (res.indexOf("[ERRO]") <= 0) {
