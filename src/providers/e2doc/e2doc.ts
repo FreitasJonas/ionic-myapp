@@ -68,7 +68,7 @@ export class E2docProvider {
             blob: blob
           }
         };
-      case "COMP_RES":
+      case "COMP RESIDENCIA":
         return {
           protocolo: protocolo,
           location: geoLocation.latitude + "_" + geoLocation.longitude,
@@ -85,7 +85,7 @@ export class E2docProvider {
             blob: blob
           }
         };
-      case "FOTO_DOC":
+      case "FOTO E DOC":
         return {
           protocolo: protocolo,
           location: geoLocation.latitude + "_" + geoLocation.longitude,

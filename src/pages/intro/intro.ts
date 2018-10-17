@@ -41,8 +41,8 @@ export class IntroPage {
 
   public RG = "RG";
   public CPF = "CPF";
-  public COMP_RES = "COMP_RES";
-  public FOTO_DOC = "FOTO_DOC";
+  public COMP_RES = "COMP RESIDENCIA";
+  public FOTO_DOC = "FOTO E DOC";
 
   public storageKey = "e2docKeyStorage";
 
