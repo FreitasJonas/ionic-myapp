@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { MsgHelper } from '../../app/MsgHelper';
 import { ToastController } from 'ionic-angular';
 import { ImageHelper } from '../../app/ImageHelper';
+import { elementAttribute } from '@angular/core/src/render3/instructions';
 
 @Injectable()
 export class E2docProvider {
@@ -33,7 +34,7 @@ export class E2docProvider {
     //dados celular (geo location)
 
     //this.http.get("");
-    
+
     var contentType = this.imageHelper.getContentType(img);
     var blob = this.imageHelper.base64toBlob(img, contentType);
 
@@ -119,13 +120,13 @@ export class E2docProvider {
           </soap12:Body>
         </soap12:Envelope>`;
 
-    
+
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;          
+          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;
           if (typeof fn === 'function') {
             fn(ctx.token);
           }
@@ -159,27 +160,27 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-    
+
 
     // Send the POST request.
     xmlhttp.open('POST', this.url, true);
 
     let ctx = this;
-    xmlhttp.onreadystatechange = () => {      
+    xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;          
+          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;
           if (typeof fn === 'function') {
-            fn(ctx.retorno);            
+            fn(ctx.retorno);
           }
         }
       }
-      else{
-        
+      else {
+
       }
     }
-    
+
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
 
     xmlhttp.send(sr);
@@ -201,20 +202,20 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-    
-        
+
+
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;          
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
         }
       }
-      else{        
+      else {
       }
     }
 
@@ -266,7 +267,7 @@ export class E2docProvider {
       </soap12:Body>
     </soap12:Envelope>`;
 
-    
+
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -274,7 +275,7 @@ export class E2docProvider {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
           ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
-          
+
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -328,25 +329,23 @@ export class E2docProvider {
 
   }
 
-  enviarDocumentos(vetDoc: any[], campos: string): any {    
+  enviarDocumentos(vetDoc: any[], campos: string): any {
     let ctx = this;
 
-    ctx.msgHelper.presentToast("Enviado Documentos!");
+    ctx.msgHelper.presentToast("Enviando Documentos!");
 
-    this.autenticar(function(res){
+    this.autenticar(function (res) {
       if (res.indexOf("[ERRO]") <= 0) {
-
         vetDoc.forEach((element, index) => {
-          
           ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
             if (res.indexOf("[ERRO]") <= 0) {
               ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-                if (res.indexOf("[ERRO]") <= 0) {                                    
+                if (res.indexOf("[ERRO]") <= 0) {
                   ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
                     if (res.indexOf("[ERRO]") <= 0) {
                       ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
                         if (res.indexOf("[ERRO]") <= 0) {
-                          ctx.msgHelper.presentToast2(  "Documento enviado com sucesso");
+                          ctx.msgHelper.presentToast2("Documento enviado com sucesso");
                         }
                         else {
                           ctx.msgHelper.presentToast2("Erro finalizando sincronismo " + element.tipo_doc + " \n" + res);
@@ -371,9 +370,44 @@ export class E2docProvider {
         });
 
 
-      }else{
+      } else {
         ctx.msgHelper.presentToast2("Erro atenticar \n" + res);
       }
-    }); 
+    });
+  }
+
+  teste(vetDoc: any[], campos: string): Promise<string> {
+
+    let ctx = this;
+
+    return new Promise((resolve, reject) => {      
+
+      var msg = "";
+
+      ctx.autenticar(function (res) {
+
+        if (res.indexOf(res) <= 0) {
+          vetDoc.forEach((element, index) => {
+            ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
+              ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
+                ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
+                  ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
+                    resolve(res);
+                  });
+                });
+              });
+            });
+          });
+        }
+        else
+        {
+          reject(res);
+        }
+      });
+    });
+
+
+
+
   }
 }

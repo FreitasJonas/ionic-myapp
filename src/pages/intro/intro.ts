@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, DateTime, ToastController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, DateTime, ToastController, LoadingController } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
@@ -26,6 +26,7 @@ export class IntroPage {
   public imgFotoComRg = "assets/imgs/cam.png";
 
   public protocolo = "";
+
   public geoPosition: any = {
     latitude: "00000",
     longitude: "00000"
@@ -34,7 +35,7 @@ export class IntroPage {
   public checked = "md-checkbox-outline";
   public unChecked = "md-close";
 
-  public checkRG = "md-close"; //"md-checkbox-outline";
+  public checkRG = "md-close"; 
   public checkCpf = "md-close";
   public checkCompR = "md-close";
   public checkFotoComRg = "md-close";
@@ -61,7 +62,7 @@ export class IntroPage {
     private geolocation: Geolocation,
     private storage: Storage,
     public toastCtrl: ToastController,
-    private file: File) {
+    public loadingCtrl: LoadingController) {
   }
 
   ionViewDidLoad() {
@@ -110,11 +111,11 @@ export class IntroPage {
     }
   }
 
-  getPictureRG() {
-    this.getPicture(this.RG);
+  async getPictureRG() {
+    this.getPicture(this.RG);        
   }
 
-  getPictureCpf() {
+  getPictureCpf() {    
     this.getPicture(this.CPF);
   }
 
@@ -182,7 +183,7 @@ export class IntroPage {
   }
 
   getPicture(tipoDoc: string): any {
-
+       
     if (!this.testInDevice) {
       let result = this.getJsonTest(tipoDoc);
 
@@ -205,11 +206,10 @@ export class IntroPage {
           this.checkFotoComRg = this.checked;
           document.getElementById("msgEnvioFotoComRg").hidden = false;
           break;
-      }
-
+      }      
     }
     else {
-      
+
       const options: CameraOptions = {
         quality: 100,
         destinationType: this.camera.DestinationType.DATA_URL,
@@ -219,22 +219,30 @@ export class IntroPage {
         allowEdit: true,
         saveToPhotoAlbum: true
       }
-
+      
       this.camera.getPicture(options).then((imageData) => {
 
+        let loading = this.loadingCtrl.create({
+          spinner: 'dots',
+          content: 'Aguarde, processando imagem'
+        });
+
+        loading.present();
+        
         //enviar imagem
         //guardar retorno no storage
         //salvar imagem na galeria
         //mostrar resultado
-
         //envia imagem e pega o retorno
         let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
         this.info.push(result);
-                
+
+        loading.dismiss();
+                                
         //var path = this.file.externalRootDirectory + "myapp";
         
         //file.writeFile(path, result.nm_imagem, blob);
-
+        
         switch (result.tipo_doc) {
           case this.RG:
             this.checkRG = this.checked;
@@ -254,15 +262,13 @@ export class IntroPage {
             break;
         }
         
-        this.msgHelper.presentToast("Imagem salva com sucesso!");
-
         return result;
 
       }, (err) => {
 
-        this.msgHelper.presentToast("erro");
+        this.msgHelper.presentToast("Imagem não capturada!");
         return "erro";
-      });
+      });      
     }
   }
 }
