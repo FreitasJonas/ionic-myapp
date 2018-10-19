@@ -62,7 +62,8 @@ export class IntroPage {
     private geolocation: Geolocation,
     private storage: Storage,
     public toastCtrl: ToastController,
-    public loadingCtrl: LoadingController) {
+    public loadingCtrl: LoadingController,
+    private file: File) {
   }
 
   ionViewDidLoad() {
@@ -238,11 +239,7 @@ export class IntroPage {
         this.info.push(result);
 
         loading.dismiss();
-                                
-        //var path = this.file.externalRootDirectory + "myapp";
-        
-        //file.writeFile(path, result.nm_imagem, blob);
-        
+                        
         switch (result.tipo_doc) {
           case this.RG:
             this.checkRG = this.checked;

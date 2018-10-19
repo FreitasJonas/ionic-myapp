@@ -32,22 +32,30 @@ export class ImageHelper {
         contentType = contentType || '';
         let sliceSize = 512;
         let byteCharacters = atob(b64Data);
+
+        var binaryString = ""; 
         let byteArrays = [];
+
         for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
             let slice = byteCharacters.slice(offset, offset + sliceSize);
             let byteNumbers = new Array(slice.length);
+
             for (let i = 0; i < slice.length; i++) {
                 byteNumbers[i] = slice.charCodeAt(i);
+                binaryString += byteNumbers[i].toString(2);                
             }
+            
             var byteArray = new Uint8Array(byteNumbers);
             byteArrays.push(byteArray);
         }
-
+        
+        //blob
         let blob = new Blob(byteArrays, {
             type: contentType
         });
 
-        return blob;
+        return { blob: blob, strBlob: binaryString };
+
     }
 
     //here is the method is used to convert base64 data to blob data  
@@ -74,7 +82,7 @@ export class ImageHelper {
     }
 
     _base64ToArrayBuffer(base64) {
-        var binary_string =  window.atob(base64);
+        var binary_string =  window.atob(base64);        
         var len = binary_string.length;
         var bytes = new Uint8Array( len );
         var strBytes = "";

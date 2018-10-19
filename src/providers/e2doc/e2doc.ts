@@ -1,11 +1,9 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptions, Headers } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
 import { MsgHelper } from '../../app/MsgHelper';
 import { ToastController } from 'ionic-angular';
 import { ImageHelper } from '../../app/ImageHelper';
-import { elementAttribute } from '@angular/core/src/render3/instructions';
+import { File } from '@ionic-native/file';
 
 @Injectable()
 export class E2docProvider {
@@ -24,7 +22,8 @@ export class E2docProvider {
   private imageHelper = new ImageHelper();
 
   constructor(public http: HttpClient,
-    public toastCtrl: ToastController) {
+    public toastCtrl: ToastController,
+    private file: File) {
   }
 
   sendImageFromOCR(protocolo: string, tipo_doc: string, geoLocation: Coordinates, img: any) {
@@ -37,6 +36,11 @@ export class E2docProvider {
 
     var contentType = this.imageHelper.getContentType(img);
     var blob = this.imageHelper.base64toBlob(img, contentType);
+    var path = this.file.externalRootDirectory + "myapp";
+
+    let nm_imagem = protocolo + "_" + tipo_doc + ".jpg";
+
+    this.file.writeFile(path, nm_imagem, blob);
 
     switch (tipo_doc) {
       case "RG":
@@ -45,7 +49,8 @@ export class E2docProvider {
           location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
-          nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
+          nm_imagem: nm_imagem,
+          path: path,
           imgInfo: {
             nr_rg: "0000000-9",
             nm_nome: "Jonas Freitas",
@@ -61,7 +66,8 @@ export class E2docProvider {
           location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
-          nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
+          nm_imagem: nm_imagem,
+          path: path,
           imgInfo: {
             nr_cpf: "55555555866",
             contentType: contentType,
@@ -75,7 +81,8 @@ export class E2docProvider {
           location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
-          nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
+          nm_imagem: nm_imagem,
+          path: path,
           imgInfo: {
             cep: "06226-120",
             endereco: "Rua Goiania",
@@ -92,7 +99,8 @@ export class E2docProvider {
           location: geoLocation.latitude + "_" + geoLocation.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
-          nm_imagem: protocolo + "_" + tipo_doc + ".jpg",
+          nm_imagem: nm_imagem,
+          path: path,
           imgInfo: {
             foto_status: "OK",
             contentType: contentType,
@@ -186,7 +194,7 @@ export class E2docProvider {
     xmlhttp.send(sr);
   }
 
-  sincronismoEnviaParte(info: any, campos: string, fn: any) {
+  sincronismoEnviaParte(info: any, fn: any) {
 
     const xmlhttp = new XMLHttpRequest();
 
@@ -195,14 +203,21 @@ export class E2docProvider {
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
         <SincronismoEnviarParte xmlns="http://www.e2doc.com.br/">
-          <id>` + this.token + `</id>
-          <fileNamePart>` + info.fileNamePart + `</fileNamePart>
-          <buffer>` + info.doc + `</buffer>
+          <id></id>
+          <fileNamePart></fileNamePart>
+          <buffer></buffer>
         </SincronismoEnviarParte>
       </soap:Body>
     </soap:Envelope>`;
 
-
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(sr,"text/xml");
+    xmlDoc.getElementsByTagName("id")[0].textContent = this.token.replace("\"", "");
+    xmlDoc.getElementsByTagName("fileNamePart")[0].textContent = info.fileNamePart;
+    xmlDoc.getElementsByTagName("buffer")[0].textContent = info.doc;
+        
+    console.log(xmlDoc);
+    debugger;
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -218,13 +233,13 @@ export class E2docProvider {
       else {
       }
     }
-
+    
     // Send the POST request.
     xmlhttp.open('POST', this.url, true);
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-    xmlhttp.send(sr);
+        
+    xmlhttp.send(xmlDoc);
   }
 
   sincronismoEnviarArquivo(info: any, fn: any) {
@@ -380,34 +395,59 @@ export class E2docProvider {
 
     let ctx = this;
 
-    return new Promise((resolve, reject) => {      
+    return new Promise((resolve, reject) => {
 
       var msg = "";
 
       ctx.autenticar(function (res) {
 
-        if (res.indexOf(res) <= 0) {
-          vetDoc.forEach((element, index) => {
-            ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-              ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-                ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-                  ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
-                    resolve(res);
-                  });
-                });
+        console.log("Autenticar ");
+
+        var doc = vetDoc[0];
+
+        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+          console.log("Sincronismo iniciar: " + res);
+          ctx.sincronismoEnviaParte(doc, campos, function (res) { //Enviar parte
+            console.log("sincronismoEnviaParte: " + res);
+            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+              console.log("sincronismoEnviarArquivo: " + res);
+              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+                console.log("sincronismoFinalizar: " + res)
+                resolve("Envio finalizado");
               });
             });
           });
-        }
-        else
-        {
-          reject(res);
-        }
+        });
       });
+    
+
+
+        // if (res.indexOf(res) <= 0) {
+        //   vetDoc.forEach((element, index) => {
+
+        //     console.log("Enviando " + element.modelo + " " + index)
+
+        //     ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
+        //       console.log("Sincronismo iniciar: " + res + " " + index)
+        //       ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
+        //         console.log("sincronismoEnviaParte: " + res + " " + index)
+        //         ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
+        //           console.log("sincronismoEnviarArquivo " + element.modelo + " " + index)
+        //           ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
+        //             msg += element.modelo + " enviado!" + " " + index;                    
+        //             console.log("Envio finalizado " + msg);
+        //             resolve(msg);
+        //           });
+        //         });
+        //       });
+        //     });
+        //   });          
+        // }
+        // else
+        // {
+        //   reject(res);
+        // }
+      // });
     });
-
-
-
-
   }
 }
