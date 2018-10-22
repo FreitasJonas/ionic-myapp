@@ -86,14 +86,18 @@ export class DocFichaPage {
     let base64 = ctx.getBase64Example();
 
     var objBlob = this.imageHelper.base64toBlob(base64, "");
-            
+
+    var teste = this.imageHelper.base64toByteArray(base64, "");
+    var teste2 = teste.toString();
+    debugger;
+                    
     var reader = new FileReader();
 
     reader.onloadend = function () {
       var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(this.result));
       var md5 = hash.toString(CryptoJS.enc.Hex).toUpperCase();
-
-      let res = { blob: objBlob.blob, hash: md5, size: objBlob.blob.size }   
+      
+      let res = { blob: objBlob.strBlob, hash: md5, size: objBlob.blob.size }   
       callback(res);
     }
 
@@ -112,15 +116,12 @@ export class DocFichaPage {
     let ctx = this;
 
     this.getVetDoc().then((res) => {
-
-      var campos = this.getStringCampos();
-
-      //this.e2doc.enviarDocumentos(vetDoc, campos);   
       
-      this.e2doc.teste(res, campos).then(res => {
+      var campos = this.getStringCampos();
+      
+      this.e2doc.enviarDocumentos(res, campos).then(res => {
         loading.dismiss();
-        ctx.msgHelper.presentToast2(res);
-        console.log(res);
+        ctx.msgHelper.presentToast2(res);        
       }, (err) => {
         console.log(err);
       });
@@ -131,9 +132,7 @@ export class DocFichaPage {
 
     return new Promise((resolve) => {
       let vetDoc = [];
-
-      console.log("Inicio");
-
+      
       this.jObj.forEach((element, index) => {
 
         this.getHash(element.path, element.nm_imagem, function (res) {

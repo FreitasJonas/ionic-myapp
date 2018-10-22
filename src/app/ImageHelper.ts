@@ -42,7 +42,8 @@ export class ImageHelper {
 
             for (let i = 0; i < slice.length; i++) {
                 byteNumbers[i] = slice.charCodeAt(i);
-                binaryString += byteNumbers[i].toString(2);                
+                binaryString += byteNumbers[i].toString(2);
+                //binaryString += " ";
             }
             
             var byteArray = new Uint8Array(byteNumbers);

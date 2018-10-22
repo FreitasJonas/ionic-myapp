@@ -35,12 +35,12 @@ export class E2docProvider {
     //this.http.get("");
 
     var contentType = this.imageHelper.getContentType(img);
-    var blob = this.imageHelper.base64toBlob(img, contentType);
+    var objBlob = this.imageHelper.base64toBlob(img, contentType);
     var path = this.file.externalRootDirectory + "myapp";
 
     let nm_imagem = protocolo + "_" + tipo_doc + ".jpg";
 
-    this.file.writeFile(path, nm_imagem, blob);
+    this.file.writeFile(path, nm_imagem, objBlob.blob);
 
     switch (tipo_doc) {
       case "RG":
@@ -56,8 +56,8 @@ export class E2docProvider {
             nm_nome: "Jonas Freitas",
             dt_nascimento: "10/12/1996",
             contentType: contentType,
-            blob_size: blob.size,
-            blob: blob
+            blob_size: objBlob.blob,
+            blob: objBlob
           }
         };
       case "CPF":
@@ -71,8 +71,8 @@ export class E2docProvider {
           imgInfo: {
             nr_cpf: "55555555866",
             contentType: contentType,
-            blob_size: blob.size,
-            blob: blob
+            blob_size: objBlob.blob,
+            blob: objBlob
           }
         };
       case "COMP RESIDENCIA":
@@ -89,8 +89,8 @@ export class E2docProvider {
             cidade: "Osasco",
             estado: "SP",
             contentType: contentType,
-            blob_size: blob.size,
-            blob: blob
+            blob_size: objBlob.blob,
+            blob: objBlob
           }
         };
       case "FOTO E DOC":
@@ -104,8 +104,8 @@ export class E2docProvider {
           imgInfo: {
             foto_status: "OK",
             contentType: contentType,
-            blob_size: blob.size,
-            blob: blob
+            blob_size: objBlob.blob,
+            blob: objBlob
           }
         };
     }
@@ -127,7 +127,6 @@ export class E2docProvider {
             </AutenticarUsuario>
           </soap12:Body>
         </soap12:Envelope>`;
-
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
@@ -168,8 +167,6 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-
-
     // Send the POST request.
     xmlhttp.open('POST', this.url, true);
 
@@ -203,43 +200,40 @@ export class E2docProvider {
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
         <SincronismoEnviarParte xmlns="http://www.e2doc.com.br/">
-          <id></id>
-          <fileNamePart></fileNamePart>
-          <buffer></buffer>
+          <id>`+ this.token + `</id>
+          <fileNamePart>`+ info.fileNamePart + `</fileNamePart>
+          <buffer><![CDATA[`+ info.doc + `]]></buffer>
         </SincronismoEnviarParte>
       </soap:Body>
     </soap:Envelope>`;
 
     var parser = new DOMParser();
-    var xmlDoc = parser.parseFromString(sr,"text/xml");
-    xmlDoc.getElementsByTagName("id")[0].textContent = this.token.replace("\"", "");
+    var xmlDoc = parser.parseFromString(sr, "text/xml");
+    xmlDoc.getElementsByTagName("id")[0].textContent = this.token;
     xmlDoc.getElementsByTagName("fileNamePart")[0].textContent = info.fileNamePart;
     xmlDoc.getElementsByTagName("buffer")[0].textContent = info.doc;
-        
-    console.log(xmlDoc);
-    debugger;
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
-          if (typeof fn === 'function') {
-            fn(ctx.retorno);
+          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
+          if (typeof fn === 'function') {            
+            fn(res);
           }
         }
       }
       else {
       }
     }
-    
+
     // Send the POST request.
     xmlhttp.open('POST', this.url, true);
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-        
-    xmlhttp.send(xmlDoc);
+
+    xmlhttp.send(sr);
   }
 
   sincronismoEnviarArquivo(info: any, fn: any) {
@@ -282,15 +276,12 @@ export class E2docProvider {
       </soap12:Body>
     </soap12:Envelope>`;
 
-
-
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
-
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -326,8 +317,7 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
-
+          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -344,54 +334,7 @@ export class E2docProvider {
 
   }
 
-  enviarDocumentos(vetDoc: any[], campos: string): any {
-    let ctx = this;
-
-    ctx.msgHelper.presentToast("Enviando Documentos!");
-
-    this.autenticar(function (res) {
-      if (res.indexOf("[ERRO]") <= 0) {
-        vetDoc.forEach((element, index) => {
-          ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-            if (res.indexOf("[ERRO]") <= 0) {
-              ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-                if (res.indexOf("[ERRO]") <= 0) {
-                  ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-                    if (res.indexOf("[ERRO]") <= 0) {
-                      ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
-                        if (res.indexOf("[ERRO]") <= 0) {
-                          ctx.msgHelper.presentToast2("Documento enviado com sucesso");
-                        }
-                        else {
-                          ctx.msgHelper.presentToast2("Erro finalizando sincronismo " + element.tipo_doc + " \n" + res);
-                        }
-                      })
-                    }
-                    else {
-                      ctx.msgHelper.presentToast2("Erro enviando arquivo " + element.tipo_doc + " \n" + res);
-                    }
-                  })
-                }
-                else {
-                  ctx.msgHelper.presentToast2("Erro enviando parte " + element.tipo_doc + " \n" + res);
-                }
-              });
-            }
-            else {
-              ctx.msgHelper.presentToast2("Erro iniciar sincronismo " + element.tipo_doc + " \n" + res);
-            }
-          })
-
-        });
-
-
-      } else {
-        ctx.msgHelper.presentToast2("Erro atenticar \n" + res);
-      }
-    });
-  }
-
-  teste(vetDoc: any[], campos: string): Promise<string> {
+  enviarDocumentos(vetDoc: any[], campos: string): Promise<string> {
 
     let ctx = this;
 
@@ -401,13 +344,11 @@ export class E2docProvider {
 
       ctx.autenticar(function (res) {
 
-        console.log("Autenticar ");
-
         var doc = vetDoc[0];
 
         ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
           console.log("Sincronismo iniciar: " + res);
-          ctx.sincronismoEnviaParte(doc, campos, function (res) { //Enviar parte
+          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
             console.log("sincronismoEnviaParte: " + res);
             ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
               console.log("sincronismoEnviarArquivo: " + res);
@@ -419,34 +360,35 @@ export class E2docProvider {
           });
         });
       });
-    
 
 
-        // if (res.indexOf(res) <= 0) {
-        //   vetDoc.forEach((element, index) => {
+      // ctx.autenticar(function (res) {
 
-        //     console.log("Enviando " + element.modelo + " " + index)
+      //   if (res.indexOf(res) <= 0) {
+      //     vetDoc.forEach((element, index) => {
 
-        //     ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-        //       console.log("Sincronismo iniciar: " + res + " " + index)
-        //       ctx.sincronismoEnviaParte(element, campos, function (res) { //Enviar parte
-        //         console.log("sincronismoEnviaParte: " + res + " " + index)
-        //         ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-        //           console.log("sincronismoEnviarArquivo " + element.modelo + " " + index)
-        //           ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando
-        //             msg += element.modelo + " enviado!" + " " + index;                    
-        //             console.log("Envio finalizado " + msg);
-        //             resolve(msg);
-        //           });
-        //         });
-        //       });
-        //     });
-        //   });          
-        // }
-        // else
-        // {
-        //   reject(res);
-        // }
+      //       setTimeout(() => {              
+      //         console.log("Enviando " + element.modelo + " " + index)
+      //         ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
+      //           console.log("Sincronismo iniciar: " + res + " " + index)
+      //           ctx.sincronismoEnviaParte(element, function (res) { //Enviar parte
+      //             console.log("sincronismoEnviaParte: " + res + " " + index)
+      //             ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
+      //               console.log("sincronismoEnviarArquivo " + element.modelo + " " + index)
+      //               ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando                      
+      //                 console.log("Envio finalizado " + element.modelo);
+      //                 resolve(msg);
+      //               });
+      //             });
+      //           });
+      //         });
+      //       }, 10000);
+      //     });
+
+      //   }
+      //   else {
+      //     reject(res);
+      //   }
       // });
     });
   }
