@@ -4,6 +4,7 @@ import { MsgHelper } from '../../app/MsgHelper';
 import { ToastController } from 'ionic-angular';
 import { ImageHelper } from '../../app/ImageHelper';
 import { File } from '@ionic-native/file';
+import { XmlTextProvider } from '../xml-text/xml-text';
 
 @Injectable()
 export class E2docProvider {
@@ -24,7 +25,8 @@ export class E2docProvider {
 
   constructor(public http: HttpClient,
     public toastCtrl: ToastController,
-    private file: File) {
+    private file: File,
+    private xmlProvider: XmlTextProvider) {
   }
 
   sendImageFromOCR(protocolo: string, tipo_doc: string, geoLocation: Coordinates, img: any) {
@@ -146,7 +148,7 @@ export class E2docProvider {
     xmlhttp.open('POST', this.url, true);
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-   
+
     xmlhttp.send(sr);
   }
 
@@ -188,6 +190,7 @@ export class E2docProvider {
     }
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+    xmlhttp.setRequestHeader('Origin', 'e2docApp');
 
     xmlhttp.send(sr);
   }
@@ -218,8 +221,8 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;          
-          if (typeof fn === 'function') {            
+          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
+          if (typeof fn === 'function') {
             fn(res);
           }
         }
@@ -336,11 +339,82 @@ export class E2docProvider {
 
   enviarDocumentos(vetDoc: any[], campos: string): Promise<string> {
 
-    let ctx = this;
-
     return new Promise((resolve, reject) => {
 
+      let ctx = this;
       var msg = "";
+
+      // vetDoc.forEach((element) => {
+
+      //   console.log(element.modelo);
+
+
+      //   // const xmlhttp = new XMLHttpRequest();
+
+      //   // // The following variable contains the xml SOAP request.
+      //   // let sr = this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key);
+
+      //   // // Send the POST request.
+      //   // xmlhttp.open('POST', this.url, false);
+
+      //   // xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+
+      //   // xmlhttp.send(sr);
+
+      //   // if (xmlhttp.readyState == 4) {
+      //   //   if (xmlhttp.status == 200) {
+      //   //     const xml = xmlhttp.responseXML;
+      //   //     let retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
+      //   //     console.log("Autenticar: OK");
+      //   //   }
+      //   // }
+
+      //   // console.log("Fim: " + element.modelo);
+
+      // });
+
+      // resolve("FINALIZADO");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       ctx.autenticar(function (res) {
 

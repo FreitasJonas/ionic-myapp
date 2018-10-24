@@ -135,8 +135,6 @@ export class DocFichaPage {
 
         this.getHash(element.path, element.nm_imagem, function (res) {
 
-          console.log(element.tipo_doc + " Hash: " + res.hash);
-
           vetDoc.push({
             modelo: element.tipo_doc,
             descricao: element.tipo_doc,
@@ -156,8 +154,6 @@ export class DocFichaPage {
       this.signatureImage = this.signaturePad.toDataURL();
 
       this.getHash("", "", function (res) {
-
-        console.log("Assinatura Hash: " + res.hash);
 
         var fileName = vetDoc[0].protocolo + "_1.png";
 

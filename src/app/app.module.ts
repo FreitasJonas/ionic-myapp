@@ -16,6 +16,7 @@ import { File } from '@ionic-native/file';
 import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
 import { SignaturePageModule } from '../pages/signature/signature.module';
 import { SignaturePadModule } from 'angular2-signaturepad';
+import { XmlTextProvider } from '../providers/xml-text/xml-text';
 
 
 @NgModule({
@@ -41,9 +42,11 @@ import { SignaturePadModule } from 'angular2-signaturepad';
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     E2docProvider,
+    XmlTextProvider,
     Geolocation,
     PhotoLibrary,
-    File
+    File,
+    XmlTextProvider
   ]
 })
 export class AppModule {}
