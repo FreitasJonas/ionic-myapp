@@ -8,6 +8,7 @@ import { File } from '@ionic-native/file';
 @Injectable()
 export class E2docProvider {
 
+  //public url = "http://192.168.0.126/e2doc_webservice/sincronismo.asmx?wsdl";
   public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
 
   public user = "administrador";
@@ -145,7 +146,7 @@ export class E2docProvider {
     xmlhttp.open('POST', this.url, true);
 
     xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
+   
     xmlhttp.send(sr);
   }
 
@@ -207,18 +208,17 @@ export class E2docProvider {
       </soap:Body>
     </soap:Envelope>`;
 
-    var parser = new DOMParser();
-    var xmlDoc = parser.parseFromString(sr, "text/xml");
-    xmlDoc.getElementsByTagName("id")[0].textContent = this.token;
-    xmlDoc.getElementsByTagName("fileNamePart")[0].textContent = info.fileNamePart;
-    xmlDoc.getElementsByTagName("buffer")[0].textContent = info.doc;
+    // var parser = new DOMParser();
+    // var xmlDoc = parser.parseFromString(sr, "application/xml");
+    // xmlDoc.getElementsByTagName("id")[0].textContent = "<![CDATA[" + this.token + "]]>";
+    // xmlDoc.getElementsByTagName("fileNamePart")[0].textContent = info.fileNamePart;
+    // xmlDoc.getElementsByTagName("buffer")[0].textContent = "<![CDATA[" + info.doc + "]]>";
 
-    let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
+          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {            
             fn(res);
           }
@@ -281,7 +281,7 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;          
+          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
@@ -317,7 +317,7 @@ export class E2docProvider {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;          
+          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }

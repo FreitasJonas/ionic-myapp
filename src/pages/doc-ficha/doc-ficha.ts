@@ -7,7 +7,8 @@ import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { File } from '@ionic-native/file';
 import { ImageHelper } from '../../app/ImageHelper';
 import * as CryptoJS from 'crypto-js';
-import { createText } from '@angular/core/src/view/text';
+import * as utf8 from 'utf8';
+
 
 
 @IonicPage()
@@ -84,20 +85,17 @@ export class DocFichaPage {
     let ctx = this;
 
     let base64 = ctx.getBase64Example();
-
-    var objBlob = this.imageHelper.base64toBlob(base64, "");
-
-    var teste = this.imageHelper.base64toByteArray(base64, "");
-    var teste2 = teste.toString();
-    debugger;
-                    
+    var objBlob =  this.imageHelper.base64toBlob(base64, "");
+    
     var reader = new FileReader();
 
     reader.onloadend = function () {
       var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(this.result));
       var md5 = hash.toString(CryptoJS.enc.Hex).toUpperCase();
-      
-      let res = { blob: objBlob.strBlob, hash: md5, size: objBlob.blob.size }   
+
+      let strEncoded = utf8.encode(base64);      
+
+      let res = { blob: strEncoded, hash: md5, size: objBlob.blob.size }   
       callback(res);
     }
 
@@ -108,7 +106,7 @@ export class DocFichaPage {
 
     let loading = this.loadingCtrl.create({
       spinner: 'dots',
-      content: 'Aguarde, sincronizando ao e2docCloud'
+      content: 'Aguarde, sincronizando com o e2docCloud'
     });
 
     loading.present();
@@ -180,33 +178,6 @@ export class DocFichaPage {
 
       resolve(vetDoc);
     });
-
-
-
-    // this.signatureImage = this.signaturePad.toDataURL();
-
-    //   this.getHash("", "").then((res) => {
-
-    //     console.log("Assinatura Hash: " + res.hash);        
-
-    //     var fileName = vetDoc[0].protocolo + "_1.png";
-
-    //     vetDoc.push({
-    //       modelo: "ASSINATURA",
-    //       descricao: "ASSINATURA",
-    //       path: "/myapp/" + fileName,
-    //       doc: res.blob,
-    //       length: res.size,
-    //       paginas: 1,
-    //       hash: res.hash,
-    //       extensao: "PNG",
-    //       id_doc: vetDoc.length,
-    //       protocolo: vetDoc[0].protocolo,
-    //       fileNamePart: fileName
-    //     });
-    //   });
-
-
   }
 
   private getStringCampos(): string {
