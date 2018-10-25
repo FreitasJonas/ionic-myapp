@@ -14,7 +14,6 @@ import { PhotoLibrary } from '@ionic-native/photo-library';
 
 import { File } from '@ionic-native/file';
 import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
-import { SignaturePageModule } from '../pages/signature/signature.module';
 import { SignaturePadModule } from 'angular2-signaturepad';
 import { XmlTextProvider } from '../providers/xml-text/xml-text';
 
@@ -29,8 +28,7 @@ import { XmlTextProvider } from '../providers/xml-text/xml-text';
     IonicStorageModule.forRoot(),
     DocFichaPageModule,
     IntroPageModule,
-    HttpClientModule,
-    SignaturePageModule,
+    HttpClientModule,    
     SignaturePadModule
   ],
   bootstrap: [IonicApp],

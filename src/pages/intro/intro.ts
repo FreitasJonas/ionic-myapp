@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, DateTime, ToastController, LoadingController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
-import { File } from '@ionic-native/file';
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
-import { ImageHelper } from '../../app/ImageHelper';
 import { MsgHelper } from '../../app/MsgHelper';
 
 @IonicPage()
@@ -40,6 +38,11 @@ export class IntroPage {
   public checkCompR = "md-close";
   public checkFotoComRg = "md-close";
 
+  public showMsgRg = false;
+  public showMsgCpf = false;
+  public showMsgComp = false;
+  public showMsgFoto = false;
+  
   public RG = "RG";
   public CPF = "CPF";
   public COMP_RES = "COMP RESIDENCIA";
@@ -50,9 +53,7 @@ export class IntroPage {
   public info = [];
 
   public testInDevice = false;
-
-  private imageHelper = new ImageHelper();
-  
+    
   public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public navCtrl: NavController,
@@ -62,13 +63,13 @@ export class IntroPage {
     private geolocation: Geolocation,
     private storage: Storage,
     public toastCtrl: ToastController,
-    public loadingCtrl: LoadingController,
-    private file: File) {
+    public loadingCtrl: LoadingController) {
   }
 
   ionViewDidLoad() {
-
+    
     this.storage.clear();
+    this.reset();
 
     let dt = new Date();
     this.protocolo =
@@ -79,19 +80,25 @@ export class IntroPage {
       dt.getMinutes().toString() +
       dt.getSeconds().toString() +
       dt.getMilliseconds().toString();
-
-      console.log(this.protocolo);
-
+      
     this.geolocation.getCurrentPosition().then((res) => {
       this.geoPosition = res.coords;      
     }).catch((error) => {      
       this.msgHelper.presentToast(error);
     });
+  }
 
-    document.getElementById("msgEnvioRg").hidden = true;
-    document.getElementById("msgEnvioCpf").hidden = true;
-    document.getElementById("msgEnvioCompR").hidden = true;
-    document.getElementById("msgEnvioFotoComRg").hidden = true;
+  reset(){      
+
+    this.showMsgRg = false;
+    this.showMsgCpf = false;
+    this.showMsgFoto = false;
+    this.showMsgComp = false;
+    
+    this.checkRG = this.unChecked;
+    this.checkCpf = this.unChecked;
+    this.checkCompR = this.unChecked;
+    this.checkFotoComRg = this.unChecked;
   }
 
   goToDocFichaPage() {
@@ -193,19 +200,19 @@ export class IntroPage {
       switch (tipoDoc) {
         case this.RG:
           this.checkRG = this.checked;
-          document.getElementById("msgEnvioRg").hidden = false;
+          this.showMsgRg = true;          
           break;
         case this.CPF:
           this.checkCpf = this.checked;
-          document.getElementById("msgEnvioCpf").hidden = false;
+          this.showMsgCpf = true;
           break;
         case this.COMP_RES:
           this.checkCompR = this.checked;
-          document.getElementById("msgEnvioCompR").hidden = false;
+          this.showMsgComp = true;
           break;
         case this.FOTO_DOC:
           this.checkFotoComRg = this.checked;
-          document.getElementById("msgEnvioFotoComRg").hidden = false;
+          this.showMsgFoto = true;
           break;
       }      
     }
@@ -240,24 +247,24 @@ export class IntroPage {
 
         loading.dismiss();
                         
-        switch (result.tipo_doc) {
+        switch (tipoDoc) {
           case this.RG:
             this.checkRG = this.checked;
-            document.getElementById("msgEnvioRg").hidden = false;
+            this.showMsgRg = true;          
             break;
           case this.CPF:
             this.checkCpf = this.checked;
-            document.getElementById("msgEnvioCpf").hidden = false;
+            this.showMsgCpf = true;
             break;
           case this.COMP_RES:
             this.checkCompR = this.checked;
-            document.getElementById("msgEnvioCompR").hidden = false;
+            this.showMsgComp = true;
             break;
           case this.FOTO_DOC:
             this.checkFotoComRg = this.checked;
-            document.getElementById("msgEnvioFotoComRg").hidden = false;
+            this.showMsgFoto = true;
             break;
-        }
+        } 
         
         return result;
 

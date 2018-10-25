@@ -17,7 +17,7 @@
         </p>
       </div>
 
-      <div id="msgEnvioRg" class="msgOk">
+      <div id="msgEnvioRg" class="msgOk" *ngIf="showMsgRg">
         <ion-icon name="md-checkmark"></ion-icon>
         <br>
         Documento Enviado
@@ -38,7 +38,7 @@
         </p>
       </div>
 
-      <div id="msgEnvioCpf" class="msgOk">
+      <div id="msgEnvioCpf" class="msgOk" *ngIf="showMsgCpf">
         <ion-icon name="md-checkmark"></ion-icon>
         <br>
         Documento Enviado
@@ -61,7 +61,7 @@
         </p>
       </div>
 
-      <div id="msgEnvioCompR" class="msgOk">
+      <div id="msgEnvioCompR" class="msgOk" *ngIf="showMsgComp">
         <ion-icon name="md-checkmark"></ion-icon>
         <br>
         Documento Enviado
@@ -83,7 +83,7 @@
         </p>
       </div>
 
-      <div id="msgEnvioFotoComRg" class="msgOk">
+      <div id="msgEnvioFotoComRg" class="msgOk" *ngIf="showMsgFoto">
         <ion-icon name="md-checkmark"></ion-icon>
         <br>
         Documento Enviado

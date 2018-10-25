@@ -114,317 +114,219 @@ export class E2docProvider {
     }
   }
 
-  autenticar(fn: any) {
-
-    const xmlhttp = new XMLHttpRequest();
-
-    // The following variable contains the xml SOAP request.
-    const sr =
-      `<?xml version="1.0" encoding="utf-8"?>
-        <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-          <soap12:Body>
-            <AutenticarUsuario xmlns="http://www.e2doc.com.br/">
-              <usuario>` + this.user + `</usuario>
-              <senha>` + this.pas + `</senha>
-              <key>` + this.key + `</key>
-            </AutenticarUsuario>
-          </soap12:Body>
-        </soap12:Envelope>`;
-
-    let ctx = this;
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          const xml = xmlhttp.responseXML;
-          ctx.token = xml.getElementsByTagName('AutenticarUsuarioResult')[0].childNodes[0].nodeValue;
-          if (typeof fn === 'function') {
-            fn(ctx.token);
-          }
-        }
-      }
-    }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-    xmlhttp.send(sr);
-  }
-
-  sincronismoIniciar(info: any, campos: string, fn: any) {
-
-    const xmlhttp = new XMLHttpRequest();
-
-    // The following variable contains the xml SOAP request.
-    let sr = `<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <SincronismoIniciar xmlns="http://www.e2doc.com.br/">
-          <id>` + this.token + `</id>
-          <modelo>CONTRATACAO</modelo>
-          <campos>` + campos + `</campos>
-          <usuario>` + this.user + `</usuario>
-          <protocolo>` + info.protocolo + `</protocolo>
-        </SincronismoIniciar>
-      </soap:Body>
-    </soap:Envelope>`;    
-
-    let ctx = this;
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;          
-          if (typeof fn === 'function') {
-            fn(ctx.retorno);
-          }
-        }
-      }      
-    }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-    
-    xmlhttp.send(sr);
-  }
-
-  sincronismoEnviaParte(info: any, fn: any) {
-
-    const xmlhttp = new XMLHttpRequest();
-
-    // The following variable contains the xml SOAP request.
-    let sr = `<?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <SincronismoEnviarParte xmlns="http://www.e2doc.com.br/">
-          <id>`+ this.token + `</id>
-          <fileNamePart>`+ info.fileNamePart + `</fileNamePart>
-          <buffer><![CDATA[`+ info.doc + `]]></buffer>
-        </SincronismoEnviarParte>
-      </soap:Body>
-    </soap:Envelope>`;
-
-    // var parser = new DOMParser();
-    // var xmlDoc = parser.parseFromString(sr, "application/xml");
-    // xmlDoc.getElementsByTagName("id")[0].textContent = "<![CDATA[" + this.token + "]]>";
-    // xmlDoc.getElementsByTagName("fileNamePart")[0].textContent = info.fileNamePart;
-    // xmlDoc.getElementsByTagName("buffer")[0].textContent = "<![CDATA[" + info.doc + "]]>";
-
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          const xml = xmlhttp.responseXML;
-          let res = xml.getElementsByTagName('SincronismoEnviarParteResult')[0].childNodes[0].nodeValue;
-          if (typeof fn === 'function') {
-            fn(res);
-          }
-        }
-      }
-      else {
-      }
-    }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-    xmlhttp.send(sr);
-  }
-
-  sincronismoEnviarArquivo(info: any, fn: any) {
-
-    const xmlhttp = new XMLHttpRequest();
-
-    //vDocumento.Add(p["descricao"].ToString());                                              // Documento
-    //vDocumento.Add(p["descricao"].ToString());                                              // Descrição
-    //vDocumento.Add(arquivo);                                                                // path do arquivo
-    //vDocumento.Add(file.Length.ToString());                                                 // tamanho
-    //vDocumento.Add(p["paginas"].ToString());                                                // paginas
-    //vDocumento.Add(new Geral().CriaID(12));                                                 // protocolo
-    //vDocumento.Add(p["hash"].ToString().ToUpper());                                         // hash
-    //vDocumento.Add(extensao);                                                               // extensao
-    //vDocumento.Add(id_doc);                                                                 // sequencia do documento
-
-    // The following variable contains the xml SOAP request.
-    let sr = `<?xml version="1.0" encoding="utf-8"?>
-    <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-      <soap12:Body>
-        <SincronismoEnviarArquivo xmlns="http://www.e2doc.com.br/">
-          <id>` + this.token + `</id>
-          <partes>            
-            <string>`+ info.fileNamePart + `</string>
-          </partes>
-          <vDadosDocumento>
-            <string>`+ info.modelo + `</string>
-            <string>`+ info.descricao + `</string>
-            <string>`+ info.path + `</string>
-            <string>`+ info.length + `</string>
-            <string>`+ info.paginas + `</string>
-            <string>`+ info.protocolo + `</string>
-            <string>`+ info.hash + `</string>
-            <string>`+ info.extensao + `</string>
-            <string>`+ info.id_doc + `</string>            
-          </vDadosDocumento>
-          <modelo> CONTRATACAO </modelo>
-          <protocolo>`+ info.protocolo + `</protocolo>
-        </SincronismoEnviarArquivo>
-      </soap12:Body>
-    </soap12:Envelope>`;
-
-    let ctx = this;
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoEnviarArquivoResult')[0].childNodes[0].nodeValue;
-          if (typeof fn === 'function') {
-            fn(ctx.retorno);
-          }
-        }
-      }
-    }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-    xmlhttp.send(sr);
-  }
-
-  sincronismoFinalizar(protocolo: string, fn: any) {
-
-    const xmlhttp = new XMLHttpRequest();
-
-    // The following variable contains the xml SOAP request.
-    let sr = `<?xml version="1.0" encoding="utf-8"?>
-    <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-      <soap12:Body>
-        <SincronismoFinalizar xmlns="http://www.e2doc.com.br/">
-        <id>` + this.token + `</id>
-          <protocolo>` + protocolo + `</protocolo>
-        </SincronismoFinalizar>
-      </soap12:Body>
-    </soap12:Envelope>`;
-
-    let ctx = this;
-    xmlhttp.onreadystatechange = () => {
-      if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-          const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
-          if (typeof fn === 'function') {
-            fn(ctx.retorno);
-          }
-        }
-      }
-    }
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
-
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-    xmlhttp.send(sr);
-
-  }
-
-  enviarDocumentos(vetDoc: any, campos: string): Promise<string> {
+  postSOAP(xmlText: string, tagResult: string): Promise<string> {
 
     return new Promise((resolve, reject) => {
 
-      let ctx = this;
-      var msg = "";
+      const xmlhttp = new XMLHttpRequest();
+      
+      xmlhttp.onreadystatechange = () => {
+        if (xmlhttp.readyState == 4) {
+          if (xmlhttp.status == 200) {
+            const xml = xmlhttp.responseXML;
+            let result = xml.getElementsByTagName(tagResult)[0].childNodes[0].nodeValue;
 
-      ctx.autenticar(function (res) {
+            if (result.indexOf("[ERRO]") <= 0) {
 
-        var doc = vetDoc[0];
+              resolve(result);
+
+            }
+            else {
+
+              reject(result);
+
+            }
+          }
+        }
+      }
+
+      // Send the POST request.
+      xmlhttp.open('POST', this.url, true);
+
+      xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+
+      xmlhttp.send(xmlText);
+
+    });
+  }
+
+  enviarDocumentos(vetDoc: any, index: number, campos: string): Promise<string> {
+
+    return new Promise((resolve, reject) => {
+
+      console.log("Autenticando!");
+      this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key), "AutenticarUsuarioResult").then((res) => {
+
+        this.token = res;
         
-        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-          console.log("Sincronismo iniciar: " + res);
-          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-            console.log("sincronismoEnviaParte: " + res);
-            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-              console.log("sincronismoEnviarArquivo: " + res);
-              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-                console.log("sincronismoFinalizar: " + res)
-                resolve("Envio finalizado");
-              });
-            });
-          });
-        });
-      });
+        let doc = vetDoc[index];
 
-      setTimeout(() => {
-
-      ctx.autenticar(function (res) {
-
-        var doc = vetDoc[1];
+        console.log(doc);
         
-        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-          console.log("Sincronismo iniciar: " + res);
-          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-            console.log("sincronismoEnviaParte: " + res);
-            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-              console.log("sincronismoEnviarArquivo: " + res);
-              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-                console.log("sincronismoFinalizar: " + res)
-                resolve("Envio finalizado");
-              });
-            });
-          });
-        });
+        console.log("Iniciando Sincronismo!");
+        this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo), "SincronismoIniciarResult").then((res) => {
+
+          console.log("Enviando Parte!");
+          this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.doc), "SincronismoEnviarParteResult").then((res) => {
+
+            console.log("Enviando arquivo!");
+            this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc), "SincronismoEnviarArquivoResult").then((res) => {
+
+              console.log("Finalizando!");
+              this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo), "SincronismoFinalizarResult").then((res) => {
+
+                resolve(doc.modelo + ": Envio finalizado!");
+
+              }, (err) => {
+                reject(doc.modelo + "Falha finalizando: " + err);
+              })
+            }, (err) => {
+              reject(doc.modelo + "Falha enviando arquivo: " + err);
+            })
+          }, (err) => {
+            reject(doc.modelo + "Falha enviando parte: " + err);
+          })
+        }, (err) => {
+          reject(doc.modelo + "Falha iniciando sincronismo: " + err);
+        })
+      }, (err) => {
+
+        reject("Falha na autentição: " + err);
       });
-    }, 1000);
-
-    setTimeout(() => {
-
-      ctx.autenticar(function (res) {
-
-        var doc = vetDoc[2];
-        
-        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-          console.log("Sincronismo iniciar: " + res);
-          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-            console.log("sincronismoEnviaParte: " + res);
-            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-              console.log("sincronismoEnviarArquivo: " + res);
-              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-                console.log("sincronismoFinalizar: " + res)
-                resolve("Envio finalizado");
-              });
-            });
-          });
-        });
-      });
-    }, 1000);
 
       // ctx.autenticar(function (res) {
 
-      //   if (res.indexOf(res) <= 0) {
-      //     vetDoc.forEach((element, index) => {
+      //   var doc = vetDoc[4];
+
+      //   console.log(doc);
+
+      //   ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+      //     console.log("Sincronismo iniciar: " + res);
+      //     ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
+      //       console.log("sincronismoEnviaParte: " + res);
+      //       ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+      //         console.log("sincronismoEnviarArquivo: " + res);
+      //         ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+      //           console.log("sincronismoFinalizar: " + res)
+      //           resolve("Envio finalizado");
+      //         });
+      //       });
+      //     });
+      //   });
+      // });
+
+      
+
+      //   console.log("------------------INICIO SYNC--------------------");
+
+      //   setTimeout(() => {
+
+
+      //   ctx.autenticar(function (res) {        
+
+      //     var doc = vetDoc[1];
+
+      //     ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+      //       console.log("Sincronismo iniciar: " + res);
+      //       ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
+      //         console.log("sincronismoEnviaParte: " + res);
+      //         ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+      //           console.log("sincronismoEnviarArquivo: " + res);
+      //           ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+      //             console.log("sincronismoFinalizar: " + res)
+      //             resolve("Envio finalizado");
+      //           });
+      //         });
+      //       });
+      //     });
+      //   });      
+      // }, 5000);
+
+      // console.log("------------------FIM SYNC--------------------");
+
+      // console.log("------------------INICIO SYNC--------------------");
+
+      // setTimeout(() => {
+
+      //   ctx.autenticar(function (res) {
+
+      //     var doc = vetDoc[2];
+
+      //     ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+      //       console.log("Sincronismo iniciar: " + res);
+      //       ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
+      //         console.log("sincronismoEnviaParte: " + res);
+      //         ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+      //           console.log("sincronismoEnviarArquivo: " + res);
+      //           ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+      //             console.log("sincronismoFinalizar: " + res)
+      //             resolve("Envio finalizado");
+      //           });
+      //         });
+      //       });
+      //     });
+      //   });
+      // }, 5000);
+
+      // console.log("------------------FIM SYNC--------------------");
+
+      // ctx.autenticar(function (res) {
+
+      //   if (res.indexOf("[ERRO]") <= 0) {
+      //     vetDoc.forEach((element, index) => {            
 
       //       setTimeout(() => {
-      //         console.log("Enviando " + element.modelo + " " + index)
+
       //         ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-      //           console.log("Sincronismo iniciar: " + res + " " + index)
+
+      //           console.log("------------------INICIO SYNC " + element.modelo + "--------------------");
+
+      //           if (res.indexOf("[ERRO]") <= 0) {
+      //             console.log("[" + element.modelo + "] Sincronismo iniciar: " + res);                  
+      //           }
+      //           else {
+      //             console.log("[" + element.modelo + "]" + " Sincronismo iniciar: OK");                  
+      //           }                
+
+
       //           ctx.sincronismoEnviaParte(element, function (res) { //Enviar parte
-      //             console.log("sincronismoEnviaParte: " + res + " " + index)
+
+      //             if (res.indexOf("[ERRO]") <= 0) {
+      //               console.log("[" + element.modelo + "]" +" sincronismoEnviaParte: " + res);
+      //             }
+      //             else {
+      //               console.log("[" + element.modelo + "]" +" sincronismoEnviaParte: OK");            
+      //             }                  
+
+
       //             ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-      //               console.log("sincronismoEnviarArquivo " + element.modelo + " " + index)
+
+      //               if (res.indexOf("[ERRO]") <= 0) {
+      //                 console.log("[" + element.modelo + "]" + "sincronismoEnviarArquivo: " + res)
+      //               }
+      //               else {
+      //                 console.log("[" + element.modelo + "]" +" sincronismoEnviarArquivo: OK");            
+      //               }
+
       //               ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando                      
-      //                 console.log("Envio finalizado " + element.modelo);
-      //                 resolve(msg);
+
+      //                 if (res.indexOf("[ERRO]") <= 0) {
+      //                   console.log("[" + element.modelo + "]" +" sincronismoFinalizar: " + res)
+      //                 }
+      //                 else {
+      //                   console.log("[" + element.modelo + "]" +" sincronismoFinalizar: " + element.modelo );            
+      //                 }                     
+
+      //                 console.log("------------------FIM SYNC " + element.modelo + "--------------------");
+
       //               });
       //             });
       //           });
-      //         });
+      //         });              
+
+      //         resolve(msg);
       //       }, 10000);
-      //     });
+      //     });          
       //   }
       //   else {
       //     reject(res);

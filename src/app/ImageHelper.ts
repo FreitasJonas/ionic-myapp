@@ -74,11 +74,7 @@ export class ImageHelper {
             var byteArray = new Uint8Array(byteNumbers);
             byteArrays.push(byteArray);
         }
-
-        let blob = new Blob(byteArrays, {
-            type: contentType
-        });
-        
+                
         return byteArray;
     }
 

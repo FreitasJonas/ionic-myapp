@@ -8,6 +8,8 @@ import { File } from '@ionic-native/file';
 import { ImageHelper } from '../../app/ImageHelper';
 import * as CryptoJS from 'crypto-js';
 import * as utf8 from 'utf8';
+import { IntroPage } from '../intro/intro';
+import { text } from '@angular/core/src/render3/instructions';
 
 @IonicPage()
 @Component({
@@ -26,6 +28,8 @@ export class DocFichaPage {
   public endereco = "";
   public cidade = "";
   public estado = "";
+
+  public protocolo: string;
 
   public msgHelper = new MsgHelper(this.toastCtrl);
 
@@ -61,6 +65,7 @@ export class DocFichaPage {
 
       this.jObj = res;
 
+      this.protocolo = res[0].protocolo;
       this.nome = res[0].imgInfo.nm_nome;
       this.rg = res[0].imgInfo.nr_rg;
       this.dt_nascimento = res[0].imgInfo.dt_nascimento;
@@ -78,26 +83,23 @@ export class DocFichaPage {
     this.signaturePad.clear();
   }
 
-  getHash(path: string, fileName: string, callback: any) {
-
-    let ctx = this;
-
-    let base64 = ctx.getBase64Example();
-    var objBlob =  this.imageHelper.base64toBlob(base64, "");
+  getHash(base64: string, callback: any) {
     
+    var objBlob = this.imageHelper.base64toBlob(base64, "");
+
     var reader = new FileReader();
 
     reader.onloadend = function () {
       var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(this.result));
       var md5 = hash.toString(CryptoJS.enc.Hex).toUpperCase();
 
-      let strEncoded = utf8.encode(base64);      
+      let strEncoded = utf8.encode(base64);
 
-      let res = { blob: strEncoded, hash: md5, size: objBlob.blob.size }   
+      let res = { blob: strEncoded, hash: md5, size: objBlob.blob.size }
       callback(res);
     }
 
-    reader.readAsBinaryString(objBlob.blob);        
+    reader.readAsBinaryString(objBlob.blob);
   }
 
   drawComplete() {
@@ -111,29 +113,76 @@ export class DocFichaPage {
 
     let ctx = this;
 
-    this.getVetDoc().then((res) => {
+    this.getVetDoc().then((vetDoc) => {
 
       var campos = this.getStringCampos();
-            
-      this.e2doc.enviarDocumentos(res, campos).then(res => {
-        loading.dismiss();
-        console.log(res);
-        ctx.msgHelper.presentToast2(res);        
-      }, (err) => {
-        console.log(err);
-      });
 
+      var i = 0;
+
+      this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
+        i++;
+        ctx.msgHelper.presentToast2(res);
+
+        this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
+          i++;
+          ctx.msgHelper.presentToast2(res);
+
+          this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
+            i++;
+            ctx.msgHelper.presentToast2(res);
+
+            this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
+              i++;
+              ctx.msgHelper.presentToast2(res);
+
+              this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {                
+                loading.dismiss();
+                ctx.msgHelper.presentToast2(res);
+                
+                this.alertCtrl.create({
+                  title: '',
+                  message: 'Envio finalizado com sucesso!',
+                  buttons: [
+                    {
+                      text: 'OK',
+                      role: 'cancel',
+                      handler: () => {
+                        this.navCtrl.push(IntroPage);
+                      }
+                    }                    
+                  ]
+                }).present();                
+
+              }, (err) => {
+                ctx.msgHelper.presentToast2(err);
+              });
+            }, (err) => {
+              ctx.msgHelper.presentToast2(err);
+            });
+          }, (err) => {
+            ctx.msgHelper.presentToast2(err);
+          });
+        }, (err) => {
+          ctx.msgHelper.presentToast2(err);
+        });
+      }, (err) => {
+        ctx.msgHelper.presentToast2(err);
+      });      
     });
   }
 
   getVetDoc(): Promise<any> {
 
+    let ctx = this;
+
+    let base64 = this.getBase64Example();
+
     return new Promise((resolve) => {
       let vetDoc = [];
-      
+
       this.jObj.forEach((element, index) => {
 
-        this.getHash(element.path, element.nm_imagem, function (res) {
+        this.getHash(base64, function (res) {
 
           vetDoc.push({
             modelo: element.tipo_doc,
@@ -151,9 +200,9 @@ export class DocFichaPage {
         });
       });
 
-      this.signatureImage = this.signaturePad.toDataURL();
+      this.signatureImage = this.signaturePad.toDataURL().split(",")[1];
 
-      this.getHash("", "", function (res) {
+      this.getHash(this.signatureImage, function (res) {
 
         var fileName = vetDoc[0].protocolo + "_1.png";
 
@@ -167,7 +216,7 @@ export class DocFichaPage {
           hash: res.hash,
           extensao: ".png",
           id_doc: vetDoc.length,
-          protocolo: vetDoc[0].protocolo+ "_5",
+          protocolo: ctx.protocolo + "_5",
           fileNamePart: fileName
         });
       });
@@ -192,7 +241,7 @@ export class DocFichaPage {
     campos = campos.replace("{2}", this.cpf);
     campos = campos.replace("{3}", this.dt_nascimento);
     campos = campos.replace("{4}", this.cep);
-    campos = campos.replace("{5}", this.cidade);
+    campos = campos.replace("{5}", this.endereco);
     campos = campos.replace("{6}", this.cidade);
     campos = campos.replace("{7}", this.jObj[0].location);
 

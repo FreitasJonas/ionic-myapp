@@ -3,5 +3,11 @@
   "integrations": {
     "cordova": {}
   },
-  "type": "ionic-angular"  
+  "type": "ionic-angular",
+  "proxies": [
+    {
+      "path": "/e2doc_webservice",
+      "proxyUrl": "https://www.e2doc.com.br/"
+    }
+  ]
 }
