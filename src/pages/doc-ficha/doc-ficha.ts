@@ -9,8 +9,6 @@ import { ImageHelper } from '../../app/ImageHelper';
 import * as CryptoJS from 'crypto-js';
 import * as utf8 from 'utf8';
 
-
-
 @IonicPage()
 @Component({
   selector: 'page-doc-ficha',
@@ -114,15 +112,17 @@ export class DocFichaPage {
     let ctx = this;
 
     this.getVetDoc().then((res) => {
-      
+
       var campos = this.getStringCampos();
-      
+            
       this.e2doc.enviarDocumentos(res, campos).then(res => {
         loading.dismiss();
+        console.log(res);
         ctx.msgHelper.presentToast2(res);        
       }, (err) => {
         console.log(err);
       });
+
     });
   }
 
@@ -145,7 +145,7 @@ export class DocFichaPage {
             hash: res.hash,
             extensao: ".jpg",
             id_doc: index,
-            protocolo: element.protocolo,
+            protocolo: element.protocolo + "_" + index,
             fileNamePart: element.protocolo + "_1.jpg"
           });
         });
@@ -167,7 +167,7 @@ export class DocFichaPage {
           hash: res.hash,
           extensao: ".png",
           id_doc: vetDoc.length,
-          protocolo: vetDoc[0].protocolo,
+          protocolo: vetDoc[0].protocolo+ "_5",
           fileNamePart: fileName
         });
       });

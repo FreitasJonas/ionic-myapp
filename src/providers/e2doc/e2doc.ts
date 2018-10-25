@@ -168,30 +168,26 @@ export class E2docProvider {
           <protocolo>` + info.protocolo + `</protocolo>
         </SincronismoIniciar>
       </soap:Body>
-    </soap:Envelope>`;
-
-    // Send the POST request.
-    xmlhttp.open('POST', this.url, true);
+    </soap:Envelope>`;    
 
     let ctx = this;
     xmlhttp.onreadystatechange = () => {
       if (xmlhttp.readyState == 4) {
         if (xmlhttp.status == 200) {
           const xml = xmlhttp.responseXML;
-          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;
+          ctx.retorno = xml.getElementsByTagName('SincronismoIniciarResult')[0].childNodes[0].nodeValue;          
           if (typeof fn === 'function') {
             fn(ctx.retorno);
           }
         }
-      }
-      else {
-
-      }
+      }      
     }
 
-    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-    xmlhttp.setRequestHeader('Origin', 'e2docApp');
+    // Send the POST request.
+    xmlhttp.open('POST', this.url, true);
 
+    xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+    
     xmlhttp.send(sr);
   }
 
@@ -337,89 +333,17 @@ export class E2docProvider {
 
   }
 
-  enviarDocumentos(vetDoc: any[], campos: string): Promise<string> {
+  enviarDocumentos(vetDoc: any, campos: string): Promise<string> {
 
     return new Promise((resolve, reject) => {
 
       let ctx = this;
       var msg = "";
 
-      // vetDoc.forEach((element) => {
-
-      //   console.log(element.modelo);
-
-
-      //   // const xmlhttp = new XMLHttpRequest();
-
-      //   // // The following variable contains the xml SOAP request.
-      //   // let sr = this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key);
-
-      //   // // Send the POST request.
-      //   // xmlhttp.open('POST', this.url, false);
-
-      //   // xmlhttp.setRequestHeader('Content-Type', 'text/xml');
-
-      //   // xmlhttp.send(sr);
-
-      //   // if (xmlhttp.readyState == 4) {
-      //   //   if (xmlhttp.status == 200) {
-      //   //     const xml = xmlhttp.responseXML;
-      //   //     let retorno = xml.getElementsByTagName('SincronismoFinalizarResult')[0].childNodes[0].nodeValue;
-      //   //     console.log("Autenticar: OK");
-      //   //   }
-      //   // }
-
-      //   // console.log("Fim: " + element.modelo);
-
-      // });
-
-      // resolve("FINALIZADO");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       ctx.autenticar(function (res) {
 
         var doc = vetDoc[0];
-
+        
         ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
           console.log("Sincronismo iniciar: " + res);
           ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
@@ -435,13 +359,56 @@ export class E2docProvider {
         });
       });
 
+      setTimeout(() => {
+
+      ctx.autenticar(function (res) {
+
+        var doc = vetDoc[1];
+        
+        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+          console.log("Sincronismo iniciar: " + res);
+          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
+            console.log("sincronismoEnviaParte: " + res);
+            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+              console.log("sincronismoEnviarArquivo: " + res);
+              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+                console.log("sincronismoFinalizar: " + res)
+                resolve("Envio finalizado");
+              });
+            });
+          });
+        });
+      });
+    }, 1000);
+
+    setTimeout(() => {
+
+      ctx.autenticar(function (res) {
+
+        var doc = vetDoc[2];
+        
+        ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
+          console.log("Sincronismo iniciar: " + res);
+          ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
+            console.log("sincronismoEnviaParte: " + res);
+            ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
+              console.log("sincronismoEnviarArquivo: " + res);
+              ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
+                console.log("sincronismoFinalizar: " + res)
+                resolve("Envio finalizado");
+              });
+            });
+          });
+        });
+      });
+    }, 1000);
 
       // ctx.autenticar(function (res) {
 
       //   if (res.indexOf(res) <= 0) {
       //     vetDoc.forEach((element, index) => {
 
-      //       setTimeout(() => {              
+      //       setTimeout(() => {
       //         console.log("Enviando " + element.modelo + " " + index)
       //         ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
       //           console.log("Sincronismo iniciar: " + res + " " + index)
@@ -458,7 +425,6 @@ export class E2docProvider {
       //         });
       //       }, 10000);
       //     });
-
       //   }
       //   else {
       //     reject(res);
