@@ -1,7 +1,16 @@
 <ion-header>
 
-  <ion-navbar>
+  <!-- <ion-navbar>
     <ion-title>Ficha</ion-title>
+  </ion-navbar> -->
+
+  <ion-navbar color="primary" hideBackButton="true">
+    <ion-buttons left>
+      <button ion-button icon-only>
+        &nbsp;&nbsp;&nbsp;<ion-icon name="ios-document-outline"></ion-icon>
+        <ion-title>Ficha</ion-title>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 
 </ion-header>
@@ -53,16 +62,23 @@
 
     <br>
 
+
+    <div text-center>
+      <p ion-text color="danger">Assinatura</p>
+    </div>
     <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
 
     <ion-grid>
       <ion-row>
-        <ion-col col-6>
+        <ion-col col-12>
+          <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
+        </ion-col>
+        <ion-col col-12>
           <button ion-button full color="light" (click)="drawClear()">Limpar</button>
         </ion-col>
-        <ion-col col-6>
-          <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
-        </ion-col>        
+        <ion-col col-12>
+          <button ion-button full color="danger" (click)="cancelar()">Cencelar</button>
+        </ion-col>
       </ion-row>
     </ion-grid>
 

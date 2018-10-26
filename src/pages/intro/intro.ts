@@ -6,6 +6,7 @@ import { Geolocation } from "@ionic-native/geolocation";
 import { Storage } from '@ionic/storage';
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
 import { MsgHelper } from '../../app/MsgHelper';
+import { Hasher } from '../../app/Hasher';
 
 @IonicPage()
 @Component({
@@ -17,44 +18,56 @@ import { MsgHelper } from '../../app/MsgHelper';
   ]
 })
 export class IntroPage {
-  
-  public imgRg = "assets/imgs/cam.png";
-  public imgCpf = "assets/imgs/cam.png";
-  public imgCompR = "assets/imgs/cam.png";
-  public imgFotoComRg = "assets/imgs/cam.png";
+
+  //icone da camera
+  public imgIcoPhoto = "assets/imgs/cam.png";
 
   public protocolo = "";
 
+  //localização
   public geoPosition: any = {
     latitude: "00000",
     longitude: "00000"
   }
 
+  //classe do checkbox para checado e não checado
   public checked = "md-checkbox-outline";
   public unChecked = "md-close";
 
-  public checkRG = "md-close"; 
-  public checkCpf = "md-close";
-  public checkCompR = "md-close";
-  public checkFotoComRg = "md-close";
+  //inicia checkbox não checado
+  public checkRG = this.unChecked;
+  public checkCpf = this.unChecked;
+  public checkCompR = this.unChecked;
+  public checkFotoComRg = this.unChecked;
 
+  //esconde mensagem
   public showMsgRg = false;
   public showMsgCpf = false;
   public showMsgComp = false;
   public showMsgFoto = false;
-  
+
+  //modelos de documento
   public RG = "RG";
   public CPF = "CPF";
   public COMP_RES = "COMP RESIDENCIA";
   public FOTO_DOC = "FOTO E DOC";
 
+  //chava do storage
   public storageKey = "e2docKeyStorage";
 
+  //obj onde será guardo as informações das imagens que retornarem do ws
   public info = [];
 
-  public testInDevice = false;
-    
+  public vetTemp = [];  
+
+  //testar no sispositivo, se false não chama a camera
+  public testInDevice = true;
+
+  //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
+
+  //utilizado para gerar hash com base em base64
+  private hasher = new Hasher();
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -63,38 +76,42 @@ export class IntroPage {
     private geolocation: Geolocation,
     private storage: Storage,
     public toastCtrl: ToastController,
-    public loadingCtrl: LoadingController) {
+    public loadingCtrl: LoadingController
+  ) {
   }
 
+  //quando a tela é carregada
   ionViewDidLoad() {
-    
+
     this.storage.clear();
     this.reset();
 
+    //define protocolo
     let dt = new Date();
     this.protocolo =
-      dt.getFullYear().toString() + 
+      dt.getFullYear().toString() +
       (dt.getMonth() + 1).toString() +
-      dt.getDate().toString() + 
+      dt.getDate().toString() +
       dt.getHours().toString() +
       dt.getMinutes().toString() +
       dt.getSeconds().toString() +
       dt.getMilliseconds().toString();
-      
+
+    //obtem protocolo  
     this.geolocation.getCurrentPosition().then((res) => {
-      this.geoPosition = res.coords;      
-    }).catch((error) => {      
+      this.geoPosition = res.coords;
+    }).catch((error) => {
       this.msgHelper.presentToast(error);
     });
   }
 
-  reset(){      
+  reset() {
 
     this.showMsgRg = false;
     this.showMsgCpf = false;
     this.showMsgFoto = false;
     this.showMsgComp = false;
-    
+
     this.checkRG = this.unChecked;
     this.checkCpf = this.unChecked;
     this.checkCompR = this.unChecked;
@@ -103,13 +120,18 @@ export class IntroPage {
 
   goToDocFichaPage() {
 
+    //verifica se todos os documentos foram enviados
     if (this.checkRG == this.checked &&
       this.checkCpf == this.checked &&
       this.checkCompR == this.checked &&
       this.checkFotoComRg == this.checked) {
+      
+      console.log(this.vetTemp);
 
-      this.storage.set(this.storageKey, this.info);
+      //guardo o retorno no storage  
+      this.storage.set(this.storageKey, this.vetTemp);
 
+      //chama DocFichaPage passando a chave do storage
       this.navCtrl.push(DocFichaPage, {
         key: this.storageKey
       });
@@ -120,10 +142,10 @@ export class IntroPage {
   }
 
   async getPictureRG() {
-    this.getPicture(this.RG);        
+    this.getPicture(this.RG);
   }
 
-  getPictureCpf() {    
+  getPictureCpf() {
     this.getPicture(this.CPF);
   }
 
@@ -135,16 +157,18 @@ export class IntroPage {
     this.getPicture(this.FOTO_DOC);
   }
 
-  private getJsonTest(tipo_doc: string) {
+  //JSON de teste, retirar quando o webservice estiver pronto
+  public getJsonTest(tipo_doc: string, b64string: string) {
 
     switch (tipo_doc) {
       case this.RG:
         return {
-          protocolo: this.protocolo,     
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
+          protocolo: this.protocolo,
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          base64: b64string,
           imgInfo: {
             nr_rg: "0000000-9",
             nm_nome: "Jonas Freitas",
@@ -153,22 +177,24 @@ export class IntroPage {
         };
       case this.CPF:
         return {
-          protocolo: this.protocolo,          
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
+          protocolo: this.protocolo,
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          base64: b64string,
           imgInfo: {
             nr_cpf: "55555555866"
           }
         };
       case this.COMP_RES:
         return {
-          protocolo: this.protocolo,          
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,        
+          protocolo: this.protocolo,
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          base64: b64string,
           imgInfo: {
             cep: "06226-120",
             endereco: "Rua Goiania",
@@ -178,11 +204,12 @@ export class IntroPage {
         };
       case this.FOTO_DOC:
         return {
-          protocolo: this.protocolo,         
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,         
+          protocolo: this.protocolo,
+          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
           status: "OK",
           tipo_doc: tipo_doc,
           nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
+          base64: b64string,
           imgInfo: {
             foto_status: "OK"
           }
@@ -191,33 +218,63 @@ export class IntroPage {
   }
 
   getPicture(tipoDoc: string): any {
-       
+
+    let ctx = this;
+
+    //Se estiver testando no dispositivo, isto por que ao testar no PC ao chamar a camera da erro       
     if (!this.testInDevice) {
-      let result = this.getJsonTest(tipoDoc);
 
-      this.info.push(result);
+      let loading = this.loadingCtrl.create({
+        spinner: 'dots',
+        content: 'Aguarde, processando imagem!'
+      });
 
-      switch (tipoDoc) {
-        case this.RG:
-          this.checkRG = this.checked;
-          this.showMsgRg = true;          
-          break;
-        case this.CPF:
-          this.checkCpf = this.checked;
-          this.showMsgCpf = true;
-          break;
-        case this.COMP_RES:
-          this.checkCompR = this.checked;
-          this.showMsgComp = true;
-          break;
-        case this.FOTO_DOC:
-          this.checkFotoComRg = this.checked;
-          this.showMsgFoto = true;
-          break;
-      }      
+      //apresenta o loading
+      loading.present();
+
+      let b64string = this.hasher.getBase64Example();
+
+      ctx.hasher.getHash(b64string, function (res) {
+
+        //enviar imagem               
+        ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", res.hash, b64string).
+          then((res) => {
+
+            //guardo retorno
+            ctx.info.push({ modelo: tipoDoc, status: res });
+
+            //fechar loading
+            loading.dismiss();
+
+            //mostra mensagem de envio com sucesso e marca o checkbox
+            switch (tipoDoc) {
+              case ctx.RG:
+                ctx.checkRG = ctx.checked;
+                ctx.showMsgRg = true;
+                break;
+              case ctx.CPF:
+                ctx.checkCpf = ctx.checked;
+                ctx.showMsgCpf = true;
+                break;
+              case ctx.COMP_RES:
+                ctx.checkCompR = ctx.checked;
+                ctx.showMsgComp = true;
+                break;
+              case ctx.FOTO_DOC:
+                ctx.checkFotoComRg = ctx.checked;
+                ctx.showMsgFoto = true;
+                break;
+            }
+          }, (err) => {
+
+            ctx.msgHelper.presentToast2(err);
+            loading.dismiss();
+          });
+      });
     }
     else {
 
+      //configura opções da camera
       const options: CameraOptions = {
         quality: 100,
         destinationType: this.camera.DestinationType.DATA_URL,
@@ -227,52 +284,59 @@ export class IntroPage {
         allowEdit: true,
         saveToPhotoAlbum: true
       }
-      
-      this.camera.getPicture(options).then((imageData) => {
+
+      //chama a camera e aguada o retorno
+      ctx.camera.getPicture(options).then((b64string) => {
 
         let loading = this.loadingCtrl.create({
           spinner: 'dots',
-          content: 'Aguarde, processando imagem'
+          content: 'Aguarde, processando imagem!'
         });
 
+        //apresenta o loading
         loading.present();
-        
-        //enviar imagem
-        //guardar retorno no storage
-        //salvar imagem na galeria
-        //mostrar resultado
-        //envia imagem e pega o retorno
-        let result = this.e2doc.sendImageFromOCR(this.protocolo, tipoDoc, this.geoPosition, imageData);
-        this.info.push(result);
 
-        loading.dismiss();
-                        
-        switch (tipoDoc) {
-          case this.RG:
-            this.checkRG = this.checked;
-            this.showMsgRg = true;          
-            break;
-          case this.CPF:
-            this.checkCpf = this.checked;
-            this.showMsgCpf = true;
-            break;
-          case this.COMP_RES:
-            this.checkCompR = this.checked;
-            this.showMsgComp = true;
-            break;
-          case this.FOTO_DOC:
-            this.checkFotoComRg = this.checked;
-            this.showMsgFoto = true;
-            break;
-        } 
-        
-        return result;
+        ctx.hasher.getHash(b64string, function (hash) {
 
+          //enviar imagem               
+          ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hash.hash, b64string).
+            then((res) => {
+
+              ctx.vetTemp.push(ctx.getJsonTest(tipoDoc, b64string));
+
+              //guardo retorno
+              ctx.info.push({ modelo: tipoDoc, status: res });
+
+              //fechar loading
+              loading.dismiss();
+
+              //mostra mensagem de envio com sucesso e marca o checkbox
+              switch (tipoDoc) {
+                case ctx.RG:
+                ctx.checkRG = ctx.checked;
+                ctx.showMsgRg = true;
+                  break;
+                case ctx.CPF:
+                ctx.checkCpf = ctx.checked;
+                ctx.showMsgCpf = true;
+                  break;
+                case ctx.COMP_RES:
+                ctx.checkCompR = ctx.checked;
+                ctx.showMsgComp = true;
+                  break;
+                case ctx.FOTO_DOC:
+                ctx.checkFotoComRg = ctx.checked;
+                ctx.showMsgFoto = true;
+                  break;
+              }
+            }, (err) => {
+              ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
+              loading.dismiss();
+            });
+        });
       }, (err) => {
-
-        this.msgHelper.presentToast("Imagem não capturada!");
-        return "erro";
-      });      
+        ctx.msgHelper.presentToast("Imagem não capturada!");        
+      });
     }
   }
 }

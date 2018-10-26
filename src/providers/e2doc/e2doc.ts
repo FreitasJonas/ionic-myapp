@@ -9,15 +9,15 @@ import { XmlTextProvider } from '../xml-text/xml-text';
 @Injectable()
 export class E2docProvider {
 
-  //public url = "http://192.168.0.126/e2doc_webservice/sincronismo.asmx?wsdl";
-  public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
-
-  public user = "administrador";
-  public pas = "E35tec.0102!";
+  public user = "jonas";
+  public pas = "Hoje01!";
   public key = "XXMP";
 
   public token = "";
   public retorno = "";
+
+  public OK = -1;
+  public ERRO = -0;
 
   public msgHelper = new MsgHelper(this.toastCtrl);
 
@@ -29,151 +29,186 @@ export class E2docProvider {
     private xmlProvider: XmlTextProvider) {
   }
 
-  sendImageFromOCR(protocolo: string, tipo_doc: string, geoLocation: Coordinates, img: any) {
-    //protocolo
-    //tipo documento
-    //imagem
-    //dados celular (geo location)
+  isError(str: string): boolean {
 
-    //this.http.get("");
+    var msg = str.indexOf("[ERRO]");
 
-    var contentType = this.imageHelper.getContentType(img);
-    var objBlob = this.imageHelper.base64toBlob(img, contentType);
-    var path = this.file.externalRootDirectory + "myapp";
-
-    let nm_imagem = protocolo + "_" + tipo_doc + ".jpg";
-
-    this.file.writeFile(path, nm_imagem, objBlob.blob);
-
-    switch (tipo_doc) {
-      case "RG":
-        return {
-          protocolo: protocolo,
-          location: geoLocation.latitude + "_" + geoLocation.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: nm_imagem,
-          path: path,
-          imgInfo: {
-            nr_rg: "0000000-9",
-            nm_nome: "Jonas Freitas",
-            dt_nascimento: "10/12/1996",
-            contentType: contentType,
-            blob_size: objBlob.blob,
-            blob: objBlob
-          }
-        };
-      case "CPF":
-        return {
-          protocolo: protocolo,
-          location: geoLocation.latitude + "_" + geoLocation.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: nm_imagem,
-          path: path,
-          imgInfo: {
-            nr_cpf: "55555555866",
-            contentType: contentType,
-            blob_size: objBlob.blob,
-            blob: objBlob
-          }
-        };
-      case "COMP RESIDENCIA":
-        return {
-          protocolo: protocolo,
-          location: geoLocation.latitude + "_" + geoLocation.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: nm_imagem,
-          path: path,
-          imgInfo: {
-            cep: "06226-120",
-            endereco: "Rua Goiania",
-            cidade: "Osasco",
-            estado: "SP",
-            contentType: contentType,
-            blob_size: objBlob.blob,
-            blob: objBlob
-          }
-        };
-      case "FOTO E DOC":
-        return {
-          protocolo: protocolo,
-          location: geoLocation.latitude + "_" + geoLocation.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: nm_imagem,
-          path: path,
-          imgInfo: {
-            foto_status: "OK",
-            contentType: contentType,
-            blob_size: objBlob.blob,
-            blob: objBlob
-          }
-        };
+    if (msg == this.OK) {
+      return true;
+    }
+    else {
+      return false;
     }
   }
 
-  postSOAP(xmlText: string, tagResult: string): Promise<string> {
+  //texto xml
+  //tag de resultado para obter valor
+  postSOAP(xml: any): Promise<string> {
 
     return new Promise((resolve, reject) => {
 
       const xmlhttp = new XMLHttpRequest();
-      
+
       xmlhttp.onreadystatechange = () => {
         if (xmlhttp.readyState == 4) {
           if (xmlhttp.status == 200) {
-            const xml = xmlhttp.responseXML;
-            let result = xml.getElementsByTagName(tagResult)[0].childNodes[0].nodeValue;
-
-            if (result.indexOf("[ERRO]") <= 0) {
-
+            const xmlDocument = xmlhttp.responseXML;
+            let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;                       
+            if (this.isError(result)) {              
               resolve(result);
-
             }
             else {
-
               reject(result);
-
             }
           }
         }
       }
 
       // Send the POST request.
-      xmlhttp.open('POST', this.url, true);
+      xmlhttp.open('POST', xml.url, true);
 
       xmlhttp.setRequestHeader('Content-Type', 'text/xml');
 
-      xmlhttp.send(xmlText);
+      xmlhttp.send(xml.xmlText);
 
     });
   }
 
+  //protocolo
+  //tipo documento
+  //dados celular (geo location)
+  //imagem  
+  sendImageFromOCR(protocolo: string, tipo_doc: string, extensao: string, hash: string, b64string: string): Promise<string> {
+
+    return new Promise((resolve, reject) => {
+
+      console.log("Autenticando!");
+      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+
+        console.log("Upload!");
+        this.postSOAP(this.xmlProvider.getXmlUpload(token, protocolo, tipo_doc, extensao, hash, b64string)).then((res) => {
+
+          resolve(tipo_doc + ": Envio finalizado!");
+
+        }, (err) => {
+          reject(tipo_doc + " Falha no upload: " + err);
+        })
+      }, (err) => {
+        reject("Falha na autentição: " + err);
+      });
+    });
+
+
+
+    // var contentType = this.imageHelper.getContentType(img);
+    // var objBlob = this.imageHelper.base64toBlob(img, contentType);
+    // var path = this.file.externalRootDirectory + "myapp";
+
+    // let nm_imagem = protocolo + "_" + tipo_doc + ".jpg";
+
+    // this.file.writeFile(path, nm_imagem, objBlob.blob);
+
+    // switch (tipo_doc) {
+    //   case "RG":
+    //     return {
+    //       protocolo: protocolo,
+    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
+    //       status: "OK",
+    //       tipo_doc: tipo_doc,
+    //       nm_imagem: nm_imagem,
+    //       path: path,
+    //       base64: "",
+    //       imgInfo: {
+    //         nr_rg: "0000000-9",
+    //         nm_nome: "Jonas Freitas",
+    //         dt_nascimento: "10/12/1996",
+    //         contentType: contentType,
+    //         blob_size: objBlob.blob,
+    //         blob: objBlob
+    //       }
+    //     };
+    //   case "CPF":
+    //     return {
+    //       protocolo: protocolo,
+    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
+    //       status: "OK",
+    //       tipo_doc: tipo_doc,
+    //       nm_imagem: nm_imagem,
+    //       path: path,
+    //       base64: "",
+    //       imgInfo: {
+    //         nr_cpf: "55555555866",
+    //         contentType: contentType,
+    //         blob_size: objBlob.blob,
+    //         blob: objBlob
+    //       }
+    //     };
+    //   case "COMP RESIDENCIA":
+    //     return {
+    //       protocolo: protocolo,
+    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
+    //       status: "OK",
+    //       tipo_doc: tipo_doc,
+    //       nm_imagem: nm_imagem,
+    //       path: path,
+    //       base64: "",
+    //       imgInfo: {
+    //         cep: "06226-120",
+    //         endereco: "Rua Goiania",
+    //         cidade: "Osasco",
+    //         estado: "SP",
+    //         contentType: contentType,
+    //         blob_size: objBlob.blob,
+    //         blob: objBlob
+    //       }
+    //     };
+    //   case "FOTO E DOC":
+    //     return {
+    //       protocolo: protocolo,
+    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
+    //       status: "OK",
+    //       tipo_doc: tipo_doc,
+    //       nm_imagem: nm_imagem,
+    //       path: path,
+    //       base64: "",
+    //       imgInfo: {
+    //         foto_status: "OK",
+    //         contentType: contentType,
+    //         blob_size: objBlob.blob,
+    //         blob: objBlob
+    //       }
+    //     };
+    // }
+  }
+
+
+  //vetor de documentos
+  //indice do objeto a ser enviado
+  //campos
   enviarDocumentos(vetDoc: any, index: number, campos: string): Promise<string> {
 
     return new Promise((resolve, reject) => {
 
       console.log("Autenticando!");
-      this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key), "AutenticarUsuarioResult").then((res) => {
+      this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
 
         this.token = res;
-        
+
         let doc = vetDoc[index];
 
         console.log(doc);
-        
+
         console.log("Iniciando Sincronismo!");
-        this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo), "SincronismoIniciarResult").then((res) => {
+        this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo)).then((res) => {
 
           console.log("Enviando Parte!");
-          this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.doc), "SincronismoEnviarParteResult").then((res) => {
+          this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
 
             console.log("Enviando arquivo!");
-            this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc), "SincronismoEnviarArquivoResult").then((res) => {
+            this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
 
               console.log("Finalizando!");
-              this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo), "SincronismoFinalizarResult").then((res) => {
+              this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
 
                 resolve(doc.modelo + ": Envio finalizado!");
 
@@ -193,145 +228,6 @@ export class E2docProvider {
 
         reject("Falha na autentição: " + err);
       });
-
-      // ctx.autenticar(function (res) {
-
-      //   var doc = vetDoc[4];
-
-      //   console.log(doc);
-
-      //   ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-      //     console.log("Sincronismo iniciar: " + res);
-      //     ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-      //       console.log("sincronismoEnviaParte: " + res);
-      //       ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-      //         console.log("sincronismoEnviarArquivo: " + res);
-      //         ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-      //           console.log("sincronismoFinalizar: " + res)
-      //           resolve("Envio finalizado");
-      //         });
-      //       });
-      //     });
-      //   });
-      // });
-
-      
-
-      //   console.log("------------------INICIO SYNC--------------------");
-
-      //   setTimeout(() => {
-
-
-      //   ctx.autenticar(function (res) {        
-
-      //     var doc = vetDoc[1];
-
-      //     ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-      //       console.log("Sincronismo iniciar: " + res);
-      //       ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-      //         console.log("sincronismoEnviaParte: " + res);
-      //         ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-      //           console.log("sincronismoEnviarArquivo: " + res);
-      //           ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-      //             console.log("sincronismoFinalizar: " + res)
-      //             resolve("Envio finalizado");
-      //           });
-      //         });
-      //       });
-      //     });
-      //   });      
-      // }, 5000);
-
-      // console.log("------------------FIM SYNC--------------------");
-
-      // console.log("------------------INICIO SYNC--------------------");
-
-      // setTimeout(() => {
-
-      //   ctx.autenticar(function (res) {
-
-      //     var doc = vetDoc[2];
-
-      //     ctx.sincronismoIniciar(doc, campos, function (res) { //Sincronismo iniciar
-      //       console.log("Sincronismo iniciar: " + res);
-      //       ctx.sincronismoEnviaParte(doc, function (res) { //Enviar parte
-      //         console.log("sincronismoEnviaParte: " + res);
-      //         ctx.sincronismoEnviarArquivo(doc, function (res) { //Enviar arquivo
-      //           console.log("sincronismoEnviarArquivo: " + res);
-      //           ctx.sincronismoFinalizar(doc.protocolo, function (res) { //Finalizando
-      //             console.log("sincronismoFinalizar: " + res)
-      //             resolve("Envio finalizado");
-      //           });
-      //         });
-      //       });
-      //     });
-      //   });
-      // }, 5000);
-
-      // console.log("------------------FIM SYNC--------------------");
-
-      // ctx.autenticar(function (res) {
-
-      //   if (res.indexOf("[ERRO]") <= 0) {
-      //     vetDoc.forEach((element, index) => {            
-
-      //       setTimeout(() => {
-
-      //         ctx.sincronismoIniciar(element, campos, function (res) { //Sincronismo iniciar
-
-      //           console.log("------------------INICIO SYNC " + element.modelo + "--------------------");
-
-      //           if (res.indexOf("[ERRO]") <= 0) {
-      //             console.log("[" + element.modelo + "] Sincronismo iniciar: " + res);                  
-      //           }
-      //           else {
-      //             console.log("[" + element.modelo + "]" + " Sincronismo iniciar: OK");                  
-      //           }                
-
-
-      //           ctx.sincronismoEnviaParte(element, function (res) { //Enviar parte
-
-      //             if (res.indexOf("[ERRO]") <= 0) {
-      //               console.log("[" + element.modelo + "]" +" sincronismoEnviaParte: " + res);
-      //             }
-      //             else {
-      //               console.log("[" + element.modelo + "]" +" sincronismoEnviaParte: OK");            
-      //             }                  
-
-
-      //             ctx.sincronismoEnviarArquivo(element, function (res) { //Enviar arquivo
-
-      //               if (res.indexOf("[ERRO]") <= 0) {
-      //                 console.log("[" + element.modelo + "]" + "sincronismoEnviarArquivo: " + res)
-      //               }
-      //               else {
-      //                 console.log("[" + element.modelo + "]" +" sincronismoEnviarArquivo: OK");            
-      //               }
-
-      //               ctx.sincronismoFinalizar(element.protocolo, function (res) { //Finalizando                      
-
-      //                 if (res.indexOf("[ERRO]") <= 0) {
-      //                   console.log("[" + element.modelo + "]" +" sincronismoFinalizar: " + res)
-      //                 }
-      //                 else {
-      //                   console.log("[" + element.modelo + "]" +" sincronismoFinalizar: " + element.modelo );            
-      //                 }                     
-
-      //                 console.log("------------------FIM SYNC " + element.modelo + "--------------------");
-
-      //               });
-      //             });
-      //           });
-      //         });              
-
-      //         resolve(msg);
-      //       }, 10000);
-      //     });          
-      //   }
-      //   else {
-      //     reject(res);
-      //   }
-      // });
     });
   }
 }
