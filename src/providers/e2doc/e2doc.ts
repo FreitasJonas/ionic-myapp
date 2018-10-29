@@ -53,8 +53,8 @@ export class E2docProvider {
         if (xmlhttp.readyState == 4) {
           if (xmlhttp.status == 200) {
             const xmlDocument = xmlhttp.responseXML;
-            let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;                       
-            if (this.isError(result)) {              
+            let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;
+            if (this.isError(result)) {
               resolve(result);
             }
             else {
@@ -85,7 +85,7 @@ export class E2docProvider {
       console.log("Autenticando!");
       this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
 
-        console.log("Upload!");
+        console.log("Fazendo Upload!");
         this.postSOAP(this.xmlProvider.getXmlUpload(token, protocolo, tipo_doc, extensao, hash, b64string)).then((res) => {
 
           resolve(tipo_doc + ": Envio finalizado!");
@@ -97,90 +97,33 @@ export class E2docProvider {
         reject("Falha na autentição: " + err);
       });
     });
-
-
-
-    // var contentType = this.imageHelper.getContentType(img);
-    // var objBlob = this.imageHelper.base64toBlob(img, contentType);
-    // var path = this.file.externalRootDirectory + "myapp";
-
-    // let nm_imagem = protocolo + "_" + tipo_doc + ".jpg";
-
-    // this.file.writeFile(path, nm_imagem, objBlob.blob);
-
-    // switch (tipo_doc) {
-    //   case "RG":
-    //     return {
-    //       protocolo: protocolo,
-    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
-    //       status: "OK",
-    //       tipo_doc: tipo_doc,
-    //       nm_imagem: nm_imagem,
-    //       path: path,
-    //       base64: "",
-    //       imgInfo: {
-    //         nr_rg: "0000000-9",
-    //         nm_nome: "Jonas Freitas",
-    //         dt_nascimento: "10/12/1996",
-    //         contentType: contentType,
-    //         blob_size: objBlob.blob,
-    //         blob: objBlob
-    //       }
-    //     };
-    //   case "CPF":
-    //     return {
-    //       protocolo: protocolo,
-    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
-    //       status: "OK",
-    //       tipo_doc: tipo_doc,
-    //       nm_imagem: nm_imagem,
-    //       path: path,
-    //       base64: "",
-    //       imgInfo: {
-    //         nr_cpf: "55555555866",
-    //         contentType: contentType,
-    //         blob_size: objBlob.blob,
-    //         blob: objBlob
-    //       }
-    //     };
-    //   case "COMP RESIDENCIA":
-    //     return {
-    //       protocolo: protocolo,
-    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
-    //       status: "OK",
-    //       tipo_doc: tipo_doc,
-    //       nm_imagem: nm_imagem,
-    //       path: path,
-    //       base64: "",
-    //       imgInfo: {
-    //         cep: "06226-120",
-    //         endereco: "Rua Goiania",
-    //         cidade: "Osasco",
-    //         estado: "SP",
-    //         contentType: contentType,
-    //         blob_size: objBlob.blob,
-    //         blob: objBlob
-    //       }
-    //     };
-    //   case "FOTO E DOC":
-    //     return {
-    //       protocolo: protocolo,
-    //       location: geoLocation.latitude + "_" + geoLocation.longitude,
-    //       status: "OK",
-    //       tipo_doc: tipo_doc,
-    //       nm_imagem: nm_imagem,
-    //       path: path,
-    //       base64: "",
-    //       imgInfo: {
-    //         foto_status: "OK",
-    //         contentType: contentType,
-    //         blob_size: objBlob.blob,
-    //         blob: objBlob
-    //       }
-    //     };
-    // }
   }
 
+  getResponse(protocolo: string): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+      console.log("Autenticando!");
+      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+
+        console.log("Obtendo resposta");
+        this.postSOAP(this.xmlProvider.getXmlResponse(token, protocolo)).then((res) => {
+
+          resolve(res);
+
+        }, (err) => {
+
+          reject("Falha ao obter resposta: " + err);
+
+        });
+
+      }, (err) => {
+
+        reject("Falha na autentição: " + err);
+
+      });
+    });
+  }
 
   //vetor de documentos
   //indice do objeto a ser enviado
@@ -189,45 +132,49 @@ export class E2docProvider {
 
     return new Promise((resolve, reject) => {
 
-      console.log("Autenticando!");
-      this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
+      let doc = vetDoc[index];
 
-        this.token = res;
+      if (typeof (doc) === "undefined") {
+        reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
+      }
+      else {
 
-        let doc = vetDoc[index];
+        console.log("Autenticando!");
+        this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
 
-        console.log(doc);
+          this.token = res;
 
-        console.log("Iniciando Sincronismo!");
-        this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo)).then((res) => {
+          console.log("Iniciando Sincronismo!");
+          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo)).then((res) => {
 
-          console.log("Enviando Parte!");
-          this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
+            console.log("Enviando Parte!");
+            this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
 
-            console.log("Enviando arquivo!");
-            this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
+              console.log("Enviando arquivo!");
+              this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
 
-              console.log("Finalizando!");
-              this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
+                console.log("Finalizando!");
+                this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
 
-                resolve(doc.modelo + ": Envio finalizado!");
+                  resolve(doc.modelo + ": Envio finalizado!");
 
+                }, (err) => {
+                  reject(doc.modelo + "Falha finalizando: " + err);
+                })
               }, (err) => {
-                reject(doc.modelo + "Falha finalizando: " + err);
+                reject(doc.modelo + "Falha enviando arquivo: " + err);
               })
             }, (err) => {
-              reject(doc.modelo + "Falha enviando arquivo: " + err);
+              reject(doc.modelo + "Falha enviando parte: " + err);
             })
           }, (err) => {
-            reject(doc.modelo + "Falha enviando parte: " + err);
+            reject(doc.modelo + "Falha iniciando sincronismo: " + err);
           })
         }, (err) => {
-          reject(doc.modelo + "Falha iniciando sincronismo: " + err);
-        })
-      }, (err) => {
 
-        reject("Falha na autentição: " + err);
-      });
+          reject("Falha na autentição: " + err);
+        });
+      }
     });
   }
 }

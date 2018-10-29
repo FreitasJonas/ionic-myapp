@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
@@ -18,6 +18,8 @@ import { Hasher } from '../../app/Hasher';
   ]
 })
 export class IntroPage {
+
+  @ViewChild(Slides) slides: Slides;
 
   //icone da camera
   public imgIcoPhoto = "assets/imgs/cam.png";
@@ -58,7 +60,7 @@ export class IntroPage {
   //obj onde será guardo as informações das imagens que retornarem do ws
   public info = [];
 
-  public vetTemp = [];  
+  public vetTemp = [];
 
   //testar no sispositivo, se false não chama a camera
   public testInDevice = true;
@@ -69,6 +71,13 @@ export class IntroPage {
   //utilizado para gerar hash com base em base64
   private hasher = new Hasher();
 
+  //habilita botão assinar
+  public validade = false;
+
+  public showBtnPossuoRG = true;
+  public showbtnPossuoCpf = true;
+  public showbtnPossuoComp = true;
+  
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
@@ -125,15 +134,28 @@ export class IntroPage {
       this.checkCpf == this.checked &&
       this.checkCompR == this.checked &&
       this.checkFotoComRg == this.checked) {
-      
-      console.log(this.vetTemp);
+
+      var info = {
+        protocolo: this.protocolo,
+        indices: {
+          nome: "Jonas",
+          rg: "000000009",
+          cpf: "00000000088",
+          dt_nascimento: "10/12/1996",
+          cep: "06226120",
+          rua: "Rua Goiania",
+          cidade: "Osasco - SP",
+          validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
+        },
+        imgs: this.vetTemp
+      }
 
       //guardo o retorno no storage  
-      this.storage.set(this.storageKey, this.vetTemp);
+      //this.storage.set(this.storageKey, this.vetTemp);
 
       //chama DocFichaPage passando a chave do storage
       this.navCtrl.push(DocFichaPage, {
-        key: this.storageKey
+        info: info
       });
     }
     else {
@@ -141,7 +163,7 @@ export class IntroPage {
     }
   }
 
-  async getPictureRG() {
+  getPictureRG() {
     this.getPicture(this.RG);
   }
 
@@ -157,64 +179,9 @@ export class IntroPage {
     this.getPicture(this.FOTO_DOC);
   }
 
-  //JSON de teste, retirar quando o webservice estiver pronto
-  public getJsonTest(tipo_doc: string, b64string: string) {
-
-    switch (tipo_doc) {
-      case this.RG:
-        return {
-          protocolo: this.protocolo,
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
-          base64: b64string,
-          imgInfo: {
-            nr_rg: "0000000-9",
-            nm_nome: "Jonas Freitas",
-            dt_nascimento: "10/12/1996"
-          }
-        };
-      case this.CPF:
-        return {
-          protocolo: this.protocolo,
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
-          base64: b64string,
-          imgInfo: {
-            nr_cpf: "55555555866"
-          }
-        };
-      case this.COMP_RES:
-        return {
-          protocolo: this.protocolo,
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
-          base64: b64string,
-          imgInfo: {
-            cep: "06226-120",
-            endereco: "Rua Goiania",
-            cidade: "Osasco",
-            estado: "SP"
-          }
-        };
-      case this.FOTO_DOC:
-        return {
-          protocolo: this.protocolo,
-          location: this.geoPosition.latitude + "_" + this.geoPosition.longitude,
-          status: "OK",
-          tipo_doc: tipo_doc,
-          nm_imagem: this.protocolo + "_" + tipo_doc + ".jpg",
-          base64: b64string,
-          imgInfo: {
-            foto_status: "OK"
-          }
-        };
-    }
+  slideNext(tipoDoc){
+    this.setValuesFromDoc(tipoDoc);
+    this.slides.slideNext();
   }
 
   getPicture(tipoDoc: string): any {
@@ -226,7 +193,7 @@ export class IntroPage {
 
       let loading = this.loadingCtrl.create({
         spinner: 'dots',
-        content: 'Aguarde, processando imagem!'
+        content: 'Aguarde, enviando imagem!'
       });
 
       //apresenta o loading
@@ -234,37 +201,27 @@ export class IntroPage {
 
       let b64string = this.hasher.getBase64Example();
 
-      ctx.hasher.getHash(b64string, function (res) {
+      ctx.hasher.getHash(b64string, function (hasher) {
 
         //enviar imagem               
-        ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", res.hash, b64string).
+        ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
           then((res) => {
 
             //guardo retorno
-            ctx.info.push({ modelo: tipoDoc, status: res });
+            ctx.vetTemp.push({
+              tipo_doc: tipoDoc,
+              b64string: b64string,
+              size: hasher.size,
+              hash: hasher.hash,
+              extensao: ".JPG"
+            });
 
             //fechar loading
             loading.dismiss();
+            ctx.slideNext(tipoDoc);
 
-            //mostra mensagem de envio com sucesso e marca o checkbox
-            switch (tipoDoc) {
-              case ctx.RG:
-                ctx.checkRG = ctx.checked;
-                ctx.showMsgRg = true;
-                break;
-              case ctx.CPF:
-                ctx.checkCpf = ctx.checked;
-                ctx.showMsgCpf = true;
-                break;
-              case ctx.COMP_RES:
-                ctx.checkCompR = ctx.checked;
-                ctx.showMsgComp = true;
-                break;
-              case ctx.FOTO_DOC:
-                ctx.checkFotoComRg = ctx.checked;
-                ctx.showMsgFoto = true;
-                break;
-            }
+            ctx.getInfo(tipoDoc, ctx.protocolo);
+
           }, (err) => {
 
             ctx.msgHelper.presentToast2(err);
@@ -276,7 +233,7 @@ export class IntroPage {
 
       //configura opções da camera
       const options: CameraOptions = {
-        quality: 100,
+        quality: 80,
         destinationType: this.camera.DestinationType.DATA_URL,
         encodingType: this.camera.EncodingType.JPEG,
         sourceType: this.camera.PictureSourceType.CAMERA,
@@ -296,47 +253,90 @@ export class IntroPage {
         //apresenta o loading
         loading.present();
 
-        ctx.hasher.getHash(b64string, function (hash) {
+        ctx.hasher.getHash(b64string, function (hasher) {
 
           //enviar imagem               
-          ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hash.hash, b64string).
+          ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
             then((res) => {
 
-              ctx.vetTemp.push(ctx.getJsonTest(tipoDoc, b64string));
-
-              //guardo retorno
-              ctx.info.push({ modelo: tipoDoc, status: res });
+              ctx.vetTemp.push({
+                tipo_doc: tipoDoc,
+                b64string: b64string,
+                size: hasher.size,
+                hash: hasher.hash,
+                extensao: ".JPG"
+              });
 
               //fechar loading
               loading.dismiss();
 
-              //mostra mensagem de envio com sucesso e marca o checkbox
-              switch (tipoDoc) {
-                case ctx.RG:
-                ctx.checkRG = ctx.checked;
-                ctx.showMsgRg = true;
-                  break;
-                case ctx.CPF:
-                ctx.checkCpf = ctx.checked;
-                ctx.showMsgCpf = true;
-                  break;
-                case ctx.COMP_RES:
-                ctx.checkCompR = ctx.checked;
-                ctx.showMsgComp = true;
-                  break;
-                case ctx.FOTO_DOC:
-                ctx.checkFotoComRg = ctx.checked;
-                ctx.showMsgFoto = true;
-                  break;
-              }
+              ctx.slideNext(tipoDoc);
+
+              ctx.getInfo(tipoDoc, ctx.protocolo);
+
             }, (err) => {
               ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
               loading.dismiss();
             });
         });
       }, (err) => {
-        ctx.msgHelper.presentToast("Imagem não capturada!");        
+        ctx.msgHelper.presentToast("Imagem não capturada!");
       });
+    }
+  }
+
+  getInfo(tipoDoc: string, protocolo: string) {
+    let ctx = this;
+
+    ctx.e2doc.getResponse(protocolo).then((res) => {
+
+      this.setValuesFromDoc(tipoDoc);
+
+      ctx.validade = ctx.validate();
+
+    }, (err) => {
+      ctx.msgHelper.presentToast2(err);
+    });    
+  }
+
+  validate(): boolean {
+
+    if (this.checkRG == this.checked &&
+      this.checkCpf == this.checked &&
+      this.checkCompR == this.checked &&
+      this.checkFotoComRg == this.checked) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  setValuesFromDoc(tipoDoc: string) {
+
+    let ctx = this;
+
+    //mostra mensagem de envio com sucesso e marca o checkbox
+    switch (tipoDoc) {
+      case ctx.RG:
+        ctx.checkRG = ctx.checked;
+        ctx.showMsgRg = true;
+        ctx.showBtnPossuoRG = false;
+        break;
+      case ctx.CPF:
+        ctx.checkCpf = ctx.checked;
+        ctx.showMsgCpf = true;
+        ctx.showbtnPossuoCpf = false;
+        break;
+      case ctx.COMP_RES:
+        ctx.checkCompR = ctx.checked;
+        ctx.showMsgComp = true;
+        ctx.showbtnPossuoComp = false;
+        break;
+      case ctx.FOTO_DOC:
+        ctx.checkFotoComRg = ctx.checked;
+        ctx.showMsgFoto = true;          
+        break;
     }
   }
 }

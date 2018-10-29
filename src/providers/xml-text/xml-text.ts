@@ -139,4 +139,19 @@ export class XmlTextProvider {
 
     return { xmlText: text, tagResult: "AutenticarUsuarioResult", url: this.urlApp }
   }
+
+  getXmlResponse(token: string, protocolo: string): any {
+    
+    let text = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <Resp xmlns="http://www.e2doc.com.br/">
+          <token>` + token + `</token>
+          <protocolo>` + protocolo + `</protocolo>
+        </Resp>
+      </soap:Body>
+    </soap:Envelope>`;
+
+    return { xmlText: text, tagResult: "RespResult", url: this.urlApp }
+  }
 }

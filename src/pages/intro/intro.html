@@ -2,91 +2,122 @@
 
   <ion-slides pager>
 
-    <ion-slide class="myapp-slide" (click)="getPictureRG()">
-      <div class="myapp-slide-icon">
-        <p>Clique para tirar uma foto</p>
-        <img [src]="imgIcoPhoto" alt="">        
-      </div>      
-      <h2>RG</h2>
-      <br>
-      <div>
-        <p>
-          Tire uma foto da parte de trás do seu RG onde constam os
-          seu dados, certifique-se de que os dados
-          apareçam bem na foto.
-        </p>
+    <ion-slide class="myapp-slide">
+      <div (click)="getPictureRG()">
+
+        <div class="myapp-slide-icon">
+          <p>Clique para tirar uma foto</p>
+          <img [src]="imgIcoPhoto" alt="">
+        </div>
+        <h2>Identidade</h2>
+        <br>
+        <div>
+          <p>
+            Tire uma foto da sua identidade onde constam os
+            seu dados, certifique-se de que os dados
+            apareçam bem na foto.
+          </p>
+        </div>
+
+        <div id="msgEnvioRg" class="msgOk" *ngIf="showMsgRg">
+          <ion-icon name="md-checkmark"></ion-icon>
+          <br>
+          Documento Enviado
+        </div>
+
       </div>
 
-      <div id="msgEnvioRg" class="msgOk" *ngIf="showMsgRg">
-        <ion-icon name="md-checkmark"></ion-icon>
-        <br>
-        Documento Enviado
-      </div>
+      <button ion-button icon-start color="danger" (click)="slideNext('RG')" *ngIf="showBtnPossuoRG" >
+        Não possuo &nbsp;&nbsp;
+        <ion-icon name="md-arrow-forward"></ion-icon>
+      </button>
 
     </ion-slide>
 
-    <ion-slide class="myapp-slide" (click)="getPictureCpf()">
+    <ion-slide class="myapp-slide">
+      <div (click)="getPictureCpf()">
         <div class="myapp-slide-icon">
-      <p>Clique para tirar uma foto</p>
-      <img [src]="imgIcoPhoto" alt="">
-      </div>
-      <h2>CPF</h2>
-      <br>
-      <div>
-        <p>
-          Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
-        </p>
+          <p>Clique para tirar uma foto</p>
+          <img [src]="imgIcoPhoto" alt="">
+        </div>
+        <h2>CPF</h2>
+        <br>
+        <div>
+          <p>
+            Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa
+          </p>
+        </div>
+
+        <div id="msgEnvioCpf" class="msgOk" *ngIf="showMsgCpf">
+          <ion-icon name="md-checkmark"></ion-icon>
+          <br>
+          Documento Enviado
+        </div>
       </div>
 
-      <div id="msgEnvioCpf" class="msgOk" *ngIf="showMsgCpf">
-        <ion-icon name="md-checkmark"></ion-icon>
-        <br>
-        Documento Enviado
-      </div>
+      <button ion-button icon-start color="danger" (click)="slideNext('CPF')" *ngIf="showbtnPossuoCpf" >
+        Não possuo &nbsp;&nbsp;
+        <ion-icon name="md-arrow-forward"></ion-icon>
+      </button>
 
     </ion-slide>
 
-    <ion-slide class="myapp-slide" (click)="getPictureCompR()">
+    <ion-slide class="myapp-slide">
+
+      <div (click)="getPictureCompR()">
+
         <div class="myapp-slide-icon">
-      <p>Clique para tirar uma foto</p>
-      <img [src]="imgIcoPhoto" alt="">
-      </div>
-      <h2>Comprovante de residência</h2>
-      <br>
-      <div>
-        <p>
-          Tire uma foto do seu comprovante de residência,
-          certifique-se de que os dados do endereço e do nome
-          estejam aparecendo bem na foto.
-        </p>
+          <p>Clique para tirar uma foto</p>
+          <img [src]="imgIcoPhoto" alt="">
+        </div>
+        <h2>Comprovante de residência</h2>
+        <br>
+        <div>
+          <p>
+            Tire uma foto do seu comprovante de residência,
+            certifique-se de que os dados do endereço e do nome
+            estejam aparecendo bem na foto.
+          </p>
+        </div>
+
+        <div id="msgEnvioCompR" class="msgOk" *ngIf="showMsgComp">
+          <ion-icon name="md-checkmark"></ion-icon>
+          <br>
+          Documento Enviado
+        </div>
+
       </div>
 
-      <div id="msgEnvioCompR" class="msgOk" *ngIf="showMsgComp">
-        <ion-icon name="md-checkmark"></ion-icon>
-        <br>
-        Documento Enviado
-      </div>
+      <button ion-button icon-start color="danger" (click)="slideNext('COMP RESIDENCIA')" *ngIf="showbtnPossuoComp">
+        Não possuo &nbsp;&nbsp;
+        <ion-icon name="md-arrow-forward"></ion-icon>
+      </button>
 
     </ion-slide>
 
-    <ion-slide class="myapp-slide" (click)="getPictureFotoComRg()">
-        <div class="myapp-slide-icon">
-      <p>Clique para tirar uma foto</p>
-      <img [src]="imgIcoPhoto" alt="">
-      </div>
-      <h2>Foto com o documento</h2>
-      <br>
-      <div>
-        <p>
-          Tire uma foto sua segurando o seu RG com a parte de trás virada para a câmera,
-          certifique-se de estar bonito na foto! <strong>:)</strong>
-        </p>
-      </div>
+    <ion-slide class="myapp-slide">
 
-      <div id="msgEnvioFotoComRg" class="msgOk" *ngIf="showMsgFoto">
-        <ion-icon name="md-checkmark"></ion-icon>
+      <div (click)="getPictureFotoComRg()">
+
+        <div class="myapp-slide-icon">
+          <p>Clique para tirar uma foto</p>
+          <img [src]="imgIcoPhoto" alt="">
+        </div>
+        <h2>Foto com o documento</h2>
         <br>
-        Documento Enviado
+        <div>
+          <p>
+            Tire uma foto sua segurando a sua identidade com a parte de trás virada para a câmera,
+            certifique-se de estar bonito na foto! <strong>:)</strong>
+          </p>
+        </div>
+
+        <div id="msgEnvioFotoComRg" class="msgOk" *ngIf="showMsgFoto">
+          <ion-icon name="md-checkmark"></ion-icon>
+          <br>
+          Documento Enviado
+        </div>
+
       </div>
 
     </ion-slide>
@@ -98,55 +129,46 @@
 
       <!-- md-checkmark -->
       <ion-grid>
-          <ion-row>            
-            <ion-col>
-                <ion-label><ion-icon [name]="checkRG"></ion-icon> RG </ion-label>          
-            </ion-col>            
-          </ion-row>
-          <ion-row>
-              <ion-col>
-                  <ion-label><ion-icon [name]="checkCpf"></ion-icon> CPF </ion-label>          
-              </ion-col>
-          </ion-row>
-          <ion-row>
-              <ion-col>
-                  <ion-label><ion-icon [name]="checkCompR"></ion-icon> Comprovante Res </ion-label>          
-              </ion-col>
-          </ion-row>
-          <ion-row>
-              <ion-col>
-                  <ion-label><ion-icon [name]="checkFotoComRg"></ion-icon> Foto com RG </ion-label>          
-              </ion-col>
-          </ion-row>
-        </ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-label>
+              <ion-icon [name]="checkRG"></ion-icon> RG
+            </ion-label>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-label>
+              <ion-icon [name]="checkCpf"></ion-icon> CPF
+            </ion-label>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-label>
+              <ion-icon [name]="checkCompR"></ion-icon> Comprovante Res
+            </ion-label>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-label>
+              <ion-icon [name]="checkFotoComRg"></ion-icon> Foto com RG
+            </ion-label>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
 
-      <!-- <ion-item>
-        <ion-label>RG</ion-label>
-        <ion-checkbox color="secondary" [checked]="checkRG" disabled></ion-checkbox>
-      </ion-item>
-
-      <ion-item>
-        <ion-label>Cpf</ion-label>
-        <ion-checkbox color="secondary" [checked]="checkCpf" disabled></ion-checkbox>
-      </ion-item>
-
-      <ion-item>
-        <ion-label>Comprocante Res</ion-label>
-        <ion-checkbox color="secondary" [checked]="checkCompR" disabled></ion-checkbox>
-      </ion-item>
-
-      <ion-item>
-        <ion-label>Foto com RG</ion-label>
-        <ion-checkbox color="secondary" [checked]="checkFotoComRg" disabled></ion-checkbox>
-      </ion-item> -->
+      <h5 [hidden]="validade">Processando, por favor aguarde!</h5>
+      <ion-spinner name="bubbles" id="bubbles" [hidden]="validade"></ion-spinner>
 
       <br>
 
-      <button ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
-
-      <br>
-      <br>
+      <button [hidden]="!validade" ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
       
+      <br>
+      <br>
+
     </ion-slide>
 
   </ion-slides>

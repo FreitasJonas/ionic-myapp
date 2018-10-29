@@ -24,10 +24,9 @@ export class DocFichaPage {
   public cpf = "";
   public dt_nascimento = "";
   public cep = "";
-  public endereco = "";
+  public rua = "";
   public cidade = "";
-  public estado = "";
-
+  
   //protocolo
   public protocolo: string;
 
@@ -37,8 +36,8 @@ export class DocFichaPage {
   //base64 da assinatura
   public signatureImage: string;
 
-  //objeto onse é guardado as informações do storage
-  public jObj: any;
+  //objeto onse é guardado as informações
+  public info: any;
 
   //canvas da assinatura
   public signatureCanvas;
@@ -69,27 +68,41 @@ export class DocFichaPage {
   ionViewDidLoad() {
 
     //obtem a chave do storage recebido por parametro
-    let key = this.navParams.get('key');
+    this.info = this.navParams.get('info');
 
-    //obtem dados do storage
-    this.storage.get(key).then((res) => {
+    //seta os valores dos campos via binding (valores são atualizados automaticamente)
+    this.protocolo = this.info.protocolo;
+    this.nome = this.info.indices.nome;
+    this.rg = this.info.indices.rg;
+    this.dt_nascimento = this.info.indices.dt_nascimento;
 
-      //guarda as informações
-      this.jObj = res;
+    this.cpf = this.info.indices.cpf;
 
-      //seta os valores dos campos via binding (valores são atualizados automaticamente)
-      this.protocolo = res[0].protocolo;
-      this.nome = res[0].imgInfo.nm_nome;
-      this.rg = res[0].imgInfo.nr_rg;
-      this.dt_nascimento = res[0].imgInfo.dt_nascimento;
+    this.cep = this.info.indices.cep;
+    this.rua = this.info.indices.rua;
+    this.cidade = this.info.indices.cidade;
 
-      this.cpf = res[1].imgInfo.nr_cpf;
+    console.log(this.info.imgs[0]);
+  }
 
-      this.cep = res[2].imgInfo.cep;
-      this.endereco = res[2].imgInfo.endereco;
-      this.cidade = res[2].imgInfo.cidade;
-      this.estado = res[2].imgInfo.estado;
-    });
+  goToIntoPage(mensagem: string) {
+
+    //exibe alert
+    this.alertCtrl.create({
+      title: '',
+      message: mensagem,
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel',
+          handler: () => {
+            //retorna para intro
+            this.navCtrl.push(IntroPage);
+          }
+        }                    
+      ]
+    }).present();   
+    
   }
 
   //limpa canvas da assinatura
@@ -171,37 +184,28 @@ export class DocFichaPage {
 
                 //exibe toast com mensagem
                 ctx.msgHelper.presentToast2(res);
-                
-                //exibe alert
-                this.alertCtrl.create({
-                  title: '',
-                  message: 'Envio finalizado com sucesso!',
-                  buttons: [
-                    {
-                      text: 'OK',
-                      role: 'cancel',
-                      handler: () => {
-                        //retorna para intro
-                        this.navCtrl.push(IntroPage);
-                      }
-                    }                    
-                  ]
-                }).present();                
 
-              }, (err) => {
-                ctx.msgHelper.presentToast2(err);
+                ctx.goToIntoPage("Envio finalizado com sucesso!");
+
+              }, (err) => {       
+                loading.dismiss();         
+                ctx.goToIntoPage(err);
               });
-            }, (err) => {
-              ctx.msgHelper.presentToast2(err);
+            }, (err) => {         
+              loading.dismiss();     
+              ctx.goToIntoPage(err);
             });
           }, (err) => {
-            ctx.msgHelper.presentToast2(err);
+            loading.dismiss();
+            ctx.goToIntoPage(err);
           });
         }, (err) => {
-          ctx.msgHelper.presentToast2(err);
+          loading.dismiss();
+          ctx.goToIntoPage(err);
         });
       }, (err) => {
-        ctx.msgHelper.presentToast2(err);
+        loading.dismiss();
+        ctx.goToIntoPage(err);
       });      
     });
   }
@@ -219,35 +223,37 @@ export class DocFichaPage {
       let vetDoc = [];
 
       //itera sobre os dados passados da intro
-      this.jObj.forEach((element, index) => {
+      ctx.info.imgs.forEach((element, index) => {
 
         //substituir por
-        this.hasher.getHash(element.base64, function (res) {
+        // this.hasher.getHash(element.b64string, function (res) {
 
         // this.hasher.getHash(base64, function (res) {
+          
+          var fileName = ctx.info.protocolo + "_" + index + ".JPG";
 
           vetDoc.push({                                 
             modelo: element.tipo_doc,                       //modelo de documento
             descricao: element.tipo_doc,                    //modelo de documento
-            path: element.path,                             //caminho do arquivo, não possui por que não é salvo no disposiivo
-            fileString: res.base64,                         //string binaria do arquivo         
-            length: res.size,                               //tamanho em bytes do arquivo
+            path: "/myapp/" + fileName,                     //caminho do arquivo, não possui por que não é salvo no disposiivo
+            fileString: element.b64string,                  //string binaria do arquivo         
+            length: element.size,                           //tamanho em bytes do arquivo
             paginas: 1,                                     //arquivo sempre será de 1 pagina
-            hash: res.hash,                                 //hash gerado a partir da string binaria
-            extensao: ".jpg",                               //sempre .jpg
+            hash: element.hash,                             //hash gerado a partir da string binaria
+            extensao: element.extensao,                     //sempre .jpg
             id_doc: index,                                  //ordem do documento, indice do loop
-            protocolo: element.protocolo + "_" + index,     //protocolo + ordem do documento
-            fileNamePart: element.protocolo + "_1.jpg"      //nome da parte, será sempre apenas uma parte
-          });
+            protocolo: ctx.info.protocolo + "_" + index,     //protocolo + ordem do documento
+            fileNamePart: ctx.info.protocolo + "_" + index + ".JPG" //nome da parte, será sempre apenas uma parte
+          // });
         });
       });
 
       //base64 da imagem do canvas(assinatura)
-      this.signatureImage = this.signaturePad.toDataURL().split(",")[1];
+      ctx.signatureImage = ctx.signaturePad.toDataURL().split(",")[1];
 
-      this.hasher.getHash(this.signatureImage, function (res) {
+      ctx.hasher.getHash(ctx.signatureImage, function (res) {
 
-        var fileName = vetDoc[0].protocolo + "_1.png";
+        var fileName = ctx.info.protocolo + "_" + vetDoc.length + ".PNG";
 
         vetDoc.push({
           modelo: "ASSINATURA",                     //modelo de documento
@@ -257,10 +263,10 @@ export class DocFichaPage {
           length: res.size,                         //tamanho em bytes do arquivo
           paginas: 1,                               //arquivo sempre será de 1 pagina
           hash: res.hash,                           //hash gerado a partir da string binaria
-          extensao: ".png",                         //sempre .jpg
+          extensao: ".PNG",                         //sempre .jpg
           id_doc: vetDoc.length,                    //ordem do documento, indice do loop
-          protocolo: ctx.protocolo + "_5",          //protocolo + ordem do documento
-          fileNamePart: fileName                    //nome da parte, será sempre apenas uma parte
+          protocolo: ctx.protocolo + "_" + vetDoc.length,         //protocolo + ordem do documento
+          fileNamePart: fileName    //nome da parte, será sempre apenas uma parte
         });
       });
 
@@ -284,9 +290,9 @@ export class DocFichaPage {
     campos = campos.replace("{2}", this.cpf);
     campos = campos.replace("{3}", this.dt_nascimento);
     campos = campos.replace("{4}", this.cep);
-    campos = campos.replace("{5}", this.endereco);
+    campos = campos.replace("{5}", this.rua);
     campos = campos.replace("{6}", this.cidade);
-    campos = campos.replace("{7}", this.jObj[0].location);
+    campos = campos.replace("{7}", this.info.indices.validacao);
 
     return campos;
   }
