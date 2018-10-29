@@ -63,7 +63,7 @@ export class IntroPage {
   public vetTemp = [];
 
   //testar no sispositivo, se false não chama a camera
-  public testInDevice = true;
+  public testInDevice = false;
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
