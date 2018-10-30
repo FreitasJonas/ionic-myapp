@@ -60,7 +60,7 @@ export class IntroPage {
   //obj onde será guardo as informações das imagens que retornarem do ws
   public info = [];
 
-  public vetTemp = [];
+  public vetImgs = [];
 
   //testar no sispositivo, se false não chama a camera
   public testInDevice = false;
@@ -74,10 +74,23 @@ export class IntroPage {
   //habilita botão assinar
   public validade = false;
 
+  //indices
+  public indices = {
+    nome: "",
+    rg: "",
+    cpf: "",
+    dt_nascimento: "",
+    cep: "",
+    rua: "",
+    cidade: "",
+    validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
+
+  };
+
   public showBtnPossuoRG = true;
   public showbtnPossuoCpf = true;
   public showbtnPossuoComp = true;
-  
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
@@ -134,6 +147,12 @@ export class IntroPage {
       this.checkCpf == this.checked &&
       this.checkCompR == this.checked &&
       this.checkFotoComRg == this.checked) {
+        
+      // var info = {
+      //   protocolo: this.protocolo,
+      //   indices: this.indices,
+      //   imgs: this.vetTemp
+      // }
 
       var info = {
         protocolo: this.protocolo,
@@ -147,13 +166,13 @@ export class IntroPage {
           cidade: "Osasco - SP",
           validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
         },
-        imgs: this.vetTemp
+        imgs: this.vetImgs
       }
 
       //guardo o retorno no storage  
       //this.storage.set(this.storageKey, this.vetTemp);
 
-      //chama DocFichaPage passando a chave do storage
+      //chama DocFichaPage passando as informações das imagens
       this.navCtrl.push(DocFichaPage, {
         info: info
       });
@@ -179,7 +198,7 @@ export class IntroPage {
     this.getPicture(this.FOTO_DOC);
   }
 
-  slideNext(tipoDoc){
+  slideNext(tipoDoc) {
     this.setValuesFromDoc(tipoDoc);
     this.slides.slideNext();
   }
@@ -208,7 +227,7 @@ export class IntroPage {
           then((res) => {
 
             //guardo retorno
-            ctx.vetTemp.push({
+            ctx.vetImgs.push({
               tipo_doc: tipoDoc,
               b64string: b64string,
               size: hasher.size,
@@ -239,7 +258,7 @@ export class IntroPage {
         sourceType: this.camera.PictureSourceType.CAMERA,
         mediaType: this.camera.MediaType.PICTURE,
         allowEdit: true,
-        saveToPhotoAlbum: true
+        saveToPhotoAlbum: false
       }
 
       //chama a camera e aguada o retorno
@@ -259,7 +278,7 @@ export class IntroPage {
           ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
             then((res) => {
 
-              ctx.vetTemp.push({
+              ctx.vetImgs.push({
                 tipo_doc: tipoDoc,
                 b64string: b64string,
                 size: hasher.size,
@@ -288,15 +307,34 @@ export class IntroPage {
   getInfo(tipoDoc: string, protocolo: string) {
     let ctx = this;
 
-    ctx.e2doc.getResponse(protocolo).then((res) => {
+    //executa a cada 6 segundos    
+    let times = 1;
+    var interval = setInterval(() => {
+      times++;
+      console.log(tipoDoc + " " + times);
 
-      this.setValuesFromDoc(tipoDoc);
+      //Pede resposta
+      ctx.e2doc.getResponse(protocolo).then((res) => {
+        
+        //se vier "[OK]" a imagem ainda não foi processada
+        if (res != "[OK]") {          
+          
+          //extrair informações e colocar em indices
+          //ctx.indices.nome = res.nome;
 
-      ctx.validade = ctx.validate();
+          //seta valores do checkbox e de mensagem
+          this.setValuesFromDoc(tipoDoc);
 
-    }, (err) => {
-      ctx.msgHelper.presentToast2(err);
-    });    
+          ctx.validade = ctx.validate();
+
+          clearInterval(interval);
+        }
+
+      }, (err) => {
+        ctx.msgHelper.presentToast2(err);
+      });
+
+    }, 6000);
   }
 
   validate(): boolean {
@@ -316,7 +354,7 @@ export class IntroPage {
 
     let ctx = this;
 
-    //mostra mensagem de envio com sucesso e marca o checkbox
+    //mostra mensagem de envio com sucesso, marca o checkbox e esconde botão de não possuo
     switch (tipoDoc) {
       case ctx.RG:
         ctx.checkRG = ctx.checked;
@@ -335,7 +373,7 @@ export class IntroPage {
         break;
       case ctx.FOTO_DOC:
         ctx.checkFotoComRg = ctx.checked;
-        ctx.showMsgFoto = true;          
+        ctx.showMsgFoto = true;
         break;
     }
   }
