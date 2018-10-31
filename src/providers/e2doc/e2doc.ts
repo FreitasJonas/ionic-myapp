@@ -1,17 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MsgHelper } from '../../app/MsgHelper';
+import { MsgHelper } from '../../helpers/classes/MsgHelper';
 import { ToastController } from 'ionic-angular';
-import { ImageHelper } from '../../app/ImageHelper';
-import { File } from '@ionic-native/file';
 import { XmlTextProvider } from '../xml-text/xml-text';
+import { Pasta } from '../../helpers/classes/e2doc/Pasta';
+import { Indices } from '../../helpers/classes/e2doc/Indices';
+import { Documento } from '../../helpers/classes/e2doc/Documento';
 
 @Injectable()
 export class E2docProvider {
-
-  public user = "jonas";
-  public pas = "Hoje01!";
-  public key = "XXMP";
+  
+  private user = "jonas";
+  private pas = "Hoje01!";
+  private key = "XXMP";
 
   public token = "";
   public retorno = "";
@@ -19,13 +20,10 @@ export class E2docProvider {
   public OK = -1;
   public ERRO = -0;
 
-  public msgHelper = new MsgHelper(this.toastCtrl);
-
-  private imageHelper = new ImageHelper();
+  public msgHelper = new MsgHelper(this.toastCtrl);  
 
   constructor(public http: HttpClient,
     public toastCtrl: ToastController,
-    private file: File,
     private xmlProvider: XmlTextProvider) {
   }
 
@@ -176,5 +174,63 @@ export class E2docProvider {
         });
       }
     });
+  }
+
+  getConfigPasta(): Pasta {
+
+    //carregar configuração do webservice
+    let pasta = new Pasta("CONTRATACAO");
+    
+    //indices
+    let indice1 = new Indices("NOME", "String", 100, true, "");
+    let indice2 = new Indices("RG", "String", 100, true, "");
+    let indice3 = new Indices("CPF", "String", 100, true, "");
+    let indice4 = new Indices("DATA NASCIMENTO", "String", 100, true, "");
+    let indice5 = new Indices("CEP", "String", 100, true, "");
+    let indice6 = new Indices("RUA", "String", 100, true, "");
+    let indice7 = new Indices("CIDADE", "String", 100, true, "");
+    let indice8 = new Indices("VALIDACAO", "String", 100, true, "");
+
+    pasta.pastaIndices.push(indice1);
+    pasta.pastaIndices.push(indice2);
+    pasta.pastaIndices.push(indice3);
+    pasta.pastaIndices.push(indice4);
+    pasta.pastaIndices.push(indice5);
+    pasta.pastaIndices.push(indice6);
+    pasta.pastaIndices.push(indice7);
+    pasta.pastaIndices.push(indice8);
+
+    //documentos
+    //let doc1 = new Documento("ASSINATURA", "", false);
+
+    // let doc4 = new Documento("FICHA", true);
+    // doc4.docDesc = `Tire uma foto da sua identidade onde constam os
+    // seu dados, certifique-se de que os dados
+    // apareçam bem na foto.`;
+
+    let docRG = new Documento("RG", false);
+    docRG.docDesc = `Tire uma foto da sua identidade onde constam os
+    seu dados, certifique-se de que os dados
+    apareçam bem na foto.`;
+
+    let docCPF = new Documento("CPF", true);
+    docCPF.docDesc = `Tire uma foto do seu CPF, caso já conste no seu RG, igonore esta etapa`;
+
+    let docCOMP = new Documento("COMP RESIDENCIA", false);
+    docCOMP.docDesc = `Tire uma foto do seu comprovante de residência,
+    certifique-se de que os dados do endereço e do nome
+    estejam aparecendo bem na foto.`;    
+
+    let docFOTO = new Documento("FOTO E DOC", false);
+    docFOTO.docDesc = `Tire uma foto sua segurando a sua identidade com a parte de trás virada para a câmera,
+    certifique-se de estar bonito na foto!`;    
+
+    //pasta.pastaDocumentos.push(doc1);
+    pasta.pastaDocumentos.push(docRG);
+    pasta.pastaDocumentos.push(docCPF);
+    pasta.pastaDocumentos.push(docCOMP);    
+    pasta.pastaDocumentos.push(docFOTO);    
+
+    return pasta;
   }
 }

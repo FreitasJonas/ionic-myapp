@@ -2,12 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
-import { MsgHelper } from '../../app/MsgHelper';
+import { MsgHelper } from '../../helpers/classes/MsgHelper';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { File } from '@ionic-native/file';
-import { ImageHelper } from '../../app/ImageHelper';
 import { IntroPage } from '../intro/intro';
-import { Hasher } from '../../app/Hasher';
+import { Hasher } from '../../helpers/classes/Hasher';
 
 @IonicPage()
 @Component({
@@ -41,13 +40,7 @@ export class DocFichaPage {
 
   //canvas da assinatura
   public signatureCanvas;
-
-  //utilizado para pegar o blob da imagem
-  private imageHelper = new ImageHelper();
-
-  //utilizado para gerar hash com base em base64
-  private hasher = new Hasher();
-
+  
   //Opções do canvas da assinatura
   public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
     'minWidth': 2,
@@ -215,7 +208,7 @@ export class DocFichaPage {
     let ctx = this;
 
     //obtem base64 de exemplo
-    let base64 = this.hasher.getBase64Example();
+    //let base64 = Hasher.getBase64Example();
 
     return new Promise((resolve) => {
 
@@ -251,7 +244,7 @@ export class DocFichaPage {
       //base64 da imagem do canvas(assinatura)
       ctx.signatureImage = ctx.signaturePad.toDataURL().split(",")[1];
 
-      ctx.hasher.getHash(ctx.signatureImage, function (res) {
+      Hasher.getHash(ctx.signatureImage, function (res) {
 
         var fileName = ctx.info.protocolo + "_" + vetDoc.length + ".PNG";
 

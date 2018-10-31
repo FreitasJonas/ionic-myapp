@@ -1,13 +1,13 @@
 export class ImageHelper {
     
-    public getContentType(base64Data: any) {
+    public static getContentType(base64Data: any) {
         let block = base64Data.split(";");
         let contentType = block[0].split(":")[1];
         return contentType;
     }
 
     //here is the method is used to convert base64 data to blob data  
-    public base64toBlob(b64Data, contentType) {
+    public static base64toBlob(b64Data, contentType) {
         contentType = contentType || '';
         let sliceSize = 512;
         let byteCharacters = atob(b64Data);
@@ -35,7 +35,7 @@ export class ImageHelper {
     }
 
     //here is the method is used to convert base64 data to blob data  
-    public base64toByteArray(b64Data, contentType) {
+    public static base64toByteArray(b64Data, contentType) {
         contentType = contentType || '';
         let sliceSize = 512;
         let byteCharacters = atob(b64Data);
@@ -53,7 +53,7 @@ export class ImageHelper {
         return byteArray;
     }
 
-    _base64ToArrayBuffer(base64) {
+    public static _base64ToArrayBuffer(base64) {
         var binary_string =  window.atob(base64);        
         var len = binary_string.length;
         var bytes = new Uint8Array( len );

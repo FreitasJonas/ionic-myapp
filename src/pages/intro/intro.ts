@@ -3,10 +3,12 @@ import { IonicPage, NavController, NavParams, ToastController, LoadingController
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
-import { Storage } from '@ionic/storage';
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
-import { MsgHelper } from '../../app/MsgHelper';
-import { Hasher } from '../../app/Hasher';
+import { MsgHelper } from '../../helpers/classes/MsgHelper';
+import { Hasher } from '../../helpers/classes/Hasher';
+import { Pasta } from '../../helpers/classes/e2doc/Pasta';
+import { SlideModel } from '../../helpers/interfaces/slideModel';
+import { SlideModelConverter } from '../../helpers/interfaces/SlideModelConverter';
 
 @IonicPage()
 @Component({
@@ -32,28 +34,6 @@ export class IntroPage {
     longitude: "00000"
   }
 
-  //classe do checkbox para checado e não checado
-  public checked = "md-checkbox-outline";
-  public unChecked = "md-close";
-
-  //inicia checkbox não checado
-  public checkRG = this.unChecked;
-  public checkCpf = this.unChecked;
-  public checkCompR = this.unChecked;
-  public checkFotoComRg = this.unChecked;
-
-  //esconde mensagem
-  public showMsgRg = false;
-  public showMsgCpf = false;
-  public showMsgComp = false;
-  public showMsgFoto = false;
-
-  //modelos de documento
-  public RG = "RG";
-  public CPF = "CPF";
-  public COMP_RES = "COMP RESIDENCIA";
-  public FOTO_DOC = "FOTO E DOC";
-
   //chava do storage
   public storageKey = "e2docKeyStorage";
 
@@ -67,10 +47,7 @@ export class IntroPage {
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
-
-  //utilizado para gerar hash com base em base64
-  private hasher = new Hasher();
-
+  
   //habilita botão assinar
   public validade = false;
 
@@ -86,27 +63,33 @@ export class IntroPage {
     validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
 
   };
-
+  
   public showBtnPossuoRG = true;
   public showbtnPossuoCpf = true;
   public showbtnPossuoComp = true;
 
+  public pasta: Pasta;  
+
+  public docs: Array<SlideModel>;
+  
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
     private e2doc: E2docProvider,
     private geolocation: Geolocation,
-    private storage: Storage,
     public toastCtrl: ToastController,
     public loadingCtrl: LoadingController
   ) {
-  }
 
+    //obtem configuração da pasta, modelos e indices
+    //refatorar depois da criação do login
+    this.pasta = e2doc.getConfigPasta();
+
+    this.docs = SlideModelConverter.converter(this.pasta);
+  }
+  
   //quando a tela é carregada
   ionViewDidLoad() {
-
-    this.storage.clear();
-    this.reset();
 
     //define protocolo
     let dt = new Date();
@@ -127,27 +110,8 @@ export class IntroPage {
     });
   }
 
-  reset() {
-
-    this.showMsgRg = false;
-    this.showMsgCpf = false;
-    this.showMsgFoto = false;
-    this.showMsgComp = false;
-
-    this.checkRG = this.unChecked;
-    this.checkCpf = this.unChecked;
-    this.checkCompR = this.unChecked;
-    this.checkFotoComRg = this.unChecked;
-  }
-
   goToDocFichaPage() {
 
-    //verifica se todos os documentos foram enviados
-    if (this.checkRG == this.checked &&
-      this.checkCpf == this.checked &&
-      this.checkCompR == this.checked &&
-      this.checkFotoComRg == this.checked) {
-        
       // var info = {
       //   protocolo: this.protocolo,
       //   indices: this.indices,
@@ -175,39 +139,18 @@ export class IntroPage {
       //chama DocFichaPage passando as informações das imagens
       this.navCtrl.push(DocFichaPage, {
         info: info
-      });
-    }
-    else {
-      this.msgHelper.presentToast("Por favor envie todos os documentos!");
-    }
+      });   
   }
 
-  getPictureRG() {
-    this.getPicture(this.RG);
-  }
-
-  getPictureCpf() {
-    this.getPicture(this.CPF);
-  }
-
-  getPictureCompR() {
-    this.getPicture(this.COMP_RES);
-  }
-
-  getPictureFotoComRg() {
-    this.getPicture(this.FOTO_DOC);
-  }
-
-  slideNext(tipoDoc) {
-    this.setValuesFromDoc(tipoDoc);
+  slideNext() {    
     this.slides.slideNext();
   }
-
+  
   getPicture(tipoDoc: string): any {
 
     let ctx = this;
 
-    //Se estiver testando no dispositivo, isto por que ao testar no PC ao chamar a camera da erro       
+    //Se estiver testando no dispositivo, isto por que testando no PC ao chamar a camera da erro       
     if (!this.testInDevice) {
 
       let loading = this.loadingCtrl.create({
@@ -218,28 +161,38 @@ export class IntroPage {
       //apresenta o loading
       loading.present();
 
-      let b64string = this.hasher.getBase64Example();
+      let b64string = Hasher.getBase64Example();
 
-      ctx.hasher.getHash(b64string, function (hasher) {
+      Hasher.getHash(b64string, function (hasher) {
 
         //enviar imagem               
         ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
           then((res) => {
 
             //guardo retorno
-            ctx.vetImgs.push({
-              tipo_doc: tipoDoc,
-              b64string: b64string,
-              size: hasher.size,
-              hash: hasher.hash,
-              extensao: ".JPG"
-            });
+            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == tipoDoc));
+
+            documento.docFileBase64 = b64string;
+            documento.docFileTam = hasher.size;
+            documento.docFileHash = hasher.hash;
+            documento.docFileExtensao = ".JPG";
+            
+            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == tipoDoc));            
+            ctx.pasta.pastaDocumentos.splice(index, 1, documento);
+
+            console.log(ctx.pasta);
+            
+            //mostra o resultado
+            ctx.setResult(tipoDoc);
 
             //fechar loading
             loading.dismiss();
-            ctx.slideNext(tipoDoc);
 
+            //aguarda o retorno
             ctx.getInfo(tipoDoc, ctx.protocolo);
+
+            //passa para o proximo slide
+            ctx.slideNext();            
 
           }, (err) => {
 
@@ -272,26 +225,36 @@ export class IntroPage {
         //apresenta o loading
         loading.present();
 
-        ctx.hasher.getHash(b64string, function (hasher) {
+        Hasher.getHash(b64string, function (hasher) {
 
           //enviar imagem               
           ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
             then((res) => {
 
-              ctx.vetImgs.push({
-                tipo_doc: tipoDoc,
-                b64string: b64string,
-                size: hasher.size,
-                hash: hasher.hash,
-                extensao: ".JPG"
-              });
+               //guardo retorno
+            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == tipoDoc));
 
-              //fechar loading
-              loading.dismiss();
+            documento.docFileBase64 = b64string;
+            documento.docFileTam = hasher.size;
+            documento.docFileHash = hasher.hash;
+            documento.docFileExtensao = ".JPG";
+            
+            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == tipoDoc));            
+            ctx.pasta.pastaDocumentos.splice(index, 1, documento);
 
-              ctx.slideNext(tipoDoc);
+            console.log(ctx.pasta);
+            
+            //mostra o resultado
+            ctx.setResult(tipoDoc);
 
-              ctx.getInfo(tipoDoc, ctx.protocolo);
+            //fechar loading
+            loading.dismiss();
+
+            //aguarda o retorno
+            ctx.getInfo(tipoDoc, ctx.protocolo);
+
+            //passa para o proximo slide
+            ctx.slideNext();       
 
             }, (err) => {
               ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
@@ -307,24 +270,19 @@ export class IntroPage {
   getInfo(tipoDoc: string, protocolo: string) {
     let ctx = this;
 
-    //executa a cada 6 segundos    
-    let times = 1;
+    //executa a cada 6 vezes por minuto    
     var interval = setInterval(() => {
-      times++;
-      console.log(tipoDoc + " " + times);
 
       //Pede resposta
       ctx.e2doc.getResponse(protocolo).then((res) => {
         
         //se vier "[OK]" a imagem ainda não foi processada
-        if (res != "[OK]") {          
-          
+        // if (res != "[OK]") {
+        if (res == "[OK]") {
+
           //extrair informações e colocar em indices
           //ctx.indices.nome = res.nome;
-
-          //seta valores do checkbox e de mensagem
-          this.setValuesFromDoc(tipoDoc);
-
+          
           ctx.validade = ctx.validate();
 
           clearInterval(interval);
@@ -339,42 +297,20 @@ export class IntroPage {
 
   validate(): boolean {
 
-    if (this.checkRG == this.checked &&
-      this.checkCpf == this.checked &&
-      this.checkCompR == this.checked &&
-      this.checkFotoComRg == this.checked) {
+    console.log(this.docs);
+
+    //obtem vetor de documentos obrigatórios que não foram enviados
+    let faltante = this.docs.filter((doc => doc.obrigatorio == true && doc.enviado != true));
+
+    if(faltante.length == 0){
       return true;
     }
-    else {
+    else{      
       return false;
     }
   }
 
-  setValuesFromDoc(tipoDoc: string) {
-
-    let ctx = this;
-
-    //mostra mensagem de envio com sucesso, marca o checkbox e esconde botão de não possuo
-    switch (tipoDoc) {
-      case ctx.RG:
-        ctx.checkRG = ctx.checked;
-        ctx.showMsgRg = true;
-        ctx.showBtnPossuoRG = false;
-        break;
-      case ctx.CPF:
-        ctx.checkCpf = ctx.checked;
-        ctx.showMsgCpf = true;
-        ctx.showbtnPossuoCpf = false;
-        break;
-      case ctx.COMP_RES:
-        ctx.checkCompR = ctx.checked;
-        ctx.showMsgComp = true;
-        ctx.showbtnPossuoComp = false;
-        break;
-      case ctx.FOTO_DOC:
-        ctx.checkFotoComRg = ctx.checked;
-        ctx.showMsgFoto = true;
-        break;
-    }
-  }
+  setResult(modelo: string) { 
+    this.docs.find((doc => doc.modelo == modelo)).enviado = true;
+  }  
 }

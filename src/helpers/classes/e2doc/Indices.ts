@@ -1,10 +1,12 @@
 export class Indices {
 
-    public indiceNome: string;
-    public indiceTipo: string;
-    public indiceTam: number;
-    public indiceObrigatorio: boolean;
-    private indiceValue: string;
+    constructor(
+        public indiceNome: string,
+        public indiceTipo: string,
+        public indiceTam: number,
+        public indiceObrigatorio: boolean,
+        private indiceValue: string
+    ){ }
 
     get value() {
         return this.indiceValue;
@@ -15,7 +17,7 @@ export class Indices {
             this.indiceValue = value;
         }
         else{
-            throw Error("Valor não validado");
+            alert("Valor não validado!");
         }
     }
 

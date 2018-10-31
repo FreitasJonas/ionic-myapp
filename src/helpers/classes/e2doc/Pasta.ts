@@ -3,14 +3,14 @@ import { Indices } from "./Indices";
 
 export class Pasta {
 
-  constructor(
-    public pastaNome: string,
-    public pastaIndices: Array<Indices>,
-    public pastaDocumentos: Array<Documento>) {
+  public pastaIndices: Array<Indices> = new Array<Indices>();
+  public pastaDocumentos: Array<Documento> = new Array<Documento>();
+
+  constructor(public pastaNome: string) {
   }
 
   public stringfyIndices() {
-
+    
     var strIndices = "";
 
     this.pastaIndices.forEach((indice, index) => {
