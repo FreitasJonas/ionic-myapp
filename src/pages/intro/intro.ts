@@ -7,7 +7,7 @@ import { DocFichaPage } from '../doc-ficha/doc-ficha';
 import { MsgHelper } from '../../helpers/classes/MsgHelper';
 import { Hasher } from '../../helpers/classes/Hasher';
 import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { SlideModel } from '../../helpers/interfaces/slideModel';
+import { SlideModel, Status } from '../../helpers/interfaces/slideModel';
 import { SlideModelConverter } from '../../helpers/interfaces/SlideModelConverter';
 
 @IonicPage()
@@ -34,44 +34,21 @@ export class IntroPage {
     longitude: "00000"
   }
 
-  //chava do storage
-  public storageKey = "e2docKeyStorage";
-
-  //obj onde será guardo as informações das imagens que retornarem do ws
-  public info = [];
-
-  public vetImgs = [];
-
   //testar no sispositivo, se false não chama a camera
   public testInDevice = false;
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
-  
+
   //habilita botão assinar
   public validade = false;
 
-  //indices
-  public indices = {
-    nome: "",
-    rg: "",
-    cpf: "",
-    dt_nascimento: "",
-    cep: "",
-    rua: "",
-    cidade: "",
-    validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
-
-  };
-  
-  public showBtnPossuoRG = true;
-  public showbtnPossuoCpf = true;
-  public showbtnPossuoComp = true;
-
-  public pasta: Pasta;  
+  public pasta: Pasta;
 
   public docs: Array<SlideModel>;
-  
+
+  public interval: any;
+
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
@@ -87,13 +64,13 @@ export class IntroPage {
 
     this.docs = SlideModelConverter.converter(this.pasta);
   }
-  
+
   //quando a tela é carregada
   ionViewDidLoad() {
 
     //define protocolo
     let dt = new Date();
-    this.protocolo =
+    this.pasta.protocolo =
       dt.getFullYear().toString() +
       (dt.getMonth() + 1).toString() +
       dt.getDate().toString() +
@@ -108,45 +85,36 @@ export class IntroPage {
     }).catch((error) => {
       this.msgHelper.presentToast(error);
     });
+
+    //inicia fila
+    this.getResponse();
   }
 
   goToDocFichaPage() {
+    this.pasta.setValueIndice("VALIDACAO", this.geoPosition.latitude + "_" + this.geoPosition.longitude);
 
-      // var info = {
-      //   protocolo: this.protocolo,
-      //   indices: this.indices,
-      //   imgs: this.vetTemp
-      // }
+    clearInterval(this.interval);
 
-      var info = {
-        protocolo: this.protocolo,
-        indices: {
-          nome: "Jonas",
-          rg: "000000009",
-          cpf: "00000000088",
-          dt_nascimento: "10/12/1996",
-          cep: "06226120",
-          rua: "Rua Goiania",
-          cidade: "Osasco - SP",
-          validacao: this.geoPosition.latitude + "_" + this.geoPosition.longitude
-        },
-        imgs: this.vetImgs
-      }
-
-      //guardo o retorno no storage  
-      //this.storage.set(this.storageKey, this.vetTemp);
-
-      //chama DocFichaPage passando as informações das imagens
-      this.navCtrl.push(DocFichaPage, {
-        info: info
-      });   
+    //chama DocFichaPage passando as informações das imagens
+    this.navCtrl.push(DocFichaPage, {
+      pasta: this.pasta
+    });
   }
 
-  slideNext() {    
+  slideNext() {
     this.slides.slideNext();
   }
-  
-  getPicture(tipoDoc: string): any {
+
+  setStatus(modelo: string) {    
+    let index = this.docs.findIndex((d => d.modelo == modelo));
+
+    this.docs[index].status = Status.Aguandando;
+    this.docs[index].obrigatorio = true;   
+    
+    this.validade = false;
+  }
+
+  getPicture(modelo: string): any {
 
     let ctx = this;
 
@@ -166,33 +134,31 @@ export class IntroPage {
       Hasher.getHash(b64string, function (hasher) {
 
         //enviar imagem               
-        ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
+        ctx.e2doc.sendImageFromOCR(ctx.pasta.protocolo, modelo, ".JPG", hasher.hash, b64string).
           then((res) => {
 
             //guardo retorno
-            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == tipoDoc));
+            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == modelo));
 
             documento.docFileBase64 = b64string;
             documento.docFileTam = hasher.size;
             documento.docFileHash = hasher.hash;
             documento.docFileExtensao = ".JPG";
             
-            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == tipoDoc));            
+            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == modelo));
             ctx.pasta.pastaDocumentos.splice(index, 1, documento);
 
-            console.log(ctx.pasta);
-            
             //mostra o resultado
-            ctx.setResult(tipoDoc);
+            ctx.setResult(modelo);
 
             //fechar loading
             loading.dismiss();
 
-            //aguarda o retorno
-            ctx.getInfo(tipoDoc, ctx.protocolo);
-
+            //adiciona na fila para aguardar retorno do OCR     
+            ctx.setStatus(modelo);
+            
             //passa para o proximo slide
-            ctx.slideNext();            
+            ctx.slideNext();
 
           }, (err) => {
 
@@ -228,33 +194,31 @@ export class IntroPage {
         Hasher.getHash(b64string, function (hasher) {
 
           //enviar imagem               
-          ctx.e2doc.sendImageFromOCR(ctx.protocolo, tipoDoc, ".JPG", hasher.hash, b64string).
+          ctx.e2doc.sendImageFromOCR(ctx.pasta.protocolo, modelo, ".JPG", hasher.hash, b64string).
             then((res) => {
 
-               //guardo retorno
-            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == tipoDoc));
+              //guardo retorno
+              let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == modelo));
 
-            documento.docFileBase64 = b64string;
-            documento.docFileTam = hasher.size;
-            documento.docFileHash = hasher.hash;
-            documento.docFileExtensao = ".JPG";
-            
-            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == tipoDoc));            
-            ctx.pasta.pastaDocumentos.splice(index, 1, documento);
+              documento.docFileBase64 = b64string;
+              documento.docFileTam = hasher.size;
+              documento.docFileHash = hasher.hash;
+              documento.docFileExtensao = ".JPG";
 
-            console.log(ctx.pasta);
-            
-            //mostra o resultado
-            ctx.setResult(tipoDoc);
+              let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == modelo));
+              ctx.pasta.pastaDocumentos.splice(index, 1, documento);
 
-            //fechar loading
-            loading.dismiss();
+              //mostra o resultado
+              ctx.setResult(modelo);
 
-            //aguarda o retorno
-            ctx.getInfo(tipoDoc, ctx.protocolo);
+              //fechar loading
+              loading.dismiss();
 
-            //passa para o proximo slide
-            ctx.slideNext();       
+              //adiciona na fila para aguardar retorno do OCR     
+              ctx.setStatus(modelo);
+
+              //passa para o proximo slide
+              ctx.slideNext();
 
             }, (err) => {
               ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
@@ -267,50 +231,96 @@ export class IntroPage {
     }
   }
 
-  getInfo(tipoDoc: string, protocolo: string) {
+  getResponse() {
+
     let ctx = this;
 
-    //executa a cada 6 vezes por minuto    
-    var interval = setInterval(() => {
+    //executa 6 vezes por minuto    
+    ctx.interval = setInterval(() => {
 
-      //Pede resposta
-      ctx.e2doc.getResponse(protocolo).then((res) => {
-        
-        //se vier "[OK]" a imagem ainda não foi processada
-        // if (res != "[OK]") {
-        if (res == "[OK]") {
+      console.log("Verificando!");
 
-          //extrair informações e colocar em indices
-          //ctx.indices.nome = res.nome;
-          
-          ctx.validade = ctx.validate();
+      let docs = ctx.docs.filter((d => d.status == Status.Aguandando));
 
-          clearInterval(interval);
-        }
+      docs.forEach((element) => {
 
-      }, (err) => {
-        ctx.msgHelper.presentToast2(err);
+        //seta os valores no indice
+        ctx.setValueIndice(element.modelo);
+
+        //valida os dados
+        ctx.validade = ctx.validate();           
       });
 
-    }, 6000);
+      // //verifica se há itens na fila
+      // if (ctx.fila.length > 0) {
+
+      //   //retira um da fila
+      //   let element = ctx.fila.pop();
+
+      //   //seta os valores no indice
+      //   this.setValueIndice(element.model.modelo);
+
+      //   //valida os dados
+      //   ctx.validade = ctx.validate();        
+      // }
+
+      //Pede resposta
+      // ctx.e2doc.getResponse(protocolo).then((res) => {
+
+      //   //se vier "[OK]" a imagem ainda não foi processada
+      //   if (res != "[OK]") {      
+
+      //     //extrair informações e colocar em indices
+      //     //ctx.indices.nome = res.nome;
+
+      //     ctx.validade = ctx.validate();
+
+      //     clearInterval(interval);
+      //   }
+
+      // }, (err) => {
+      //   ctx.msgHelper.presentToast2(err);
+      // });
+
+    }, 3000);
   }
 
   validate(): boolean {
 
-    console.log(this.docs);
-
     //obtem vetor de documentos obrigatórios que não foram enviados
     let faltante = this.docs.filter((doc => doc.obrigatorio == true && doc.enviado != true));
 
-    if(faltante.length == 0){
+    if (faltante.length == 0) {
       return true;
     }
-    else{      
+    else {
       return false;
     }
   }
 
-  setResult(modelo: string) { 
+  setResult(modelo: string) {
     this.docs.find((doc => doc.modelo == modelo)).enviado = true;
-  }  
+  }
+
+  setValueIndice(modelo: string) {
+
+    if (modelo == "RG") {
+
+      this.pasta.setValueIndice("RG", "000000009");
+
+      this.pasta.setValueIndice("NOME", "Jonas Freitas");
+
+      this.pasta.setValueIndice("DATA NASCIMENTO", "10/12/1996");
+    }
+    else if (modelo == "CPF") {
+
+      this.pasta.setValueIndice("CPF", "00000000099");
+    }
+    else if (modelo == "COMP RESIDENCIA") {
+
+      this.pasta.setValueIndice("CEP", "06226120");
+      this.pasta.setValueIndice("RUA", "Rua Goiania");
+      this.pasta.setValueIndice("CIDADE", "Osasco");
+    }
+  }
 }

@@ -19,7 +19,12 @@
 
   <ion-list>
 
-    <ion-item>
+    <ion-item *ngFor="let indice of indices">
+      <ion-label floating>{{indice.nome}}</ion-label>
+      <ion-input type="text" [(ngModel)]="indice.valor"></ion-input>
+    </ion-item>
+
+    <!-- <ion-item>
       <ion-label floating>Nome</ion-label>
       <ion-input type="text" [(ngModel)]="nome"></ion-input>
     </ion-item>
@@ -35,8 +40,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-label floating>Data de nascimento</ion-label>
-      <!-- <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="dt_nascimento"></ion-datetime> -->
+      <ion-label floating>Data de nascimento</ion-label>      
       <ion-input type="text" [(ngModel)]="dt_nascimento"></ion-input>
     </ion-item>
 
@@ -53,7 +57,7 @@
     <ion-item>
       <ion-label floating>Cidade</ion-label>
       <ion-input type="text" [(ngModel)]="cidade"></ion-input>
-    </ion-item>
+    </ion-item> -->
 
     <br>
 

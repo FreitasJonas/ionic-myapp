@@ -208,7 +208,7 @@ export class E2docProvider {
     // seu dados, certifique-se de que os dados
     // apareçam bem na foto.`;
 
-    let docRG = new Documento("RG", false);
+    let docRG = new Documento("RG", true);
     docRG.docDesc = `Tire uma foto da sua identidade onde constam os
     seu dados, certifique-se de que os dados
     apareçam bem na foto.`;

@@ -5,25 +5,26 @@ export class Pasta {
 
   public pastaIndices: Array<Indices> = new Array<Indices>();
   public pastaDocumentos: Array<Documento> = new Array<Documento>();
+  public protocolo: string;
 
   constructor(public pastaNome: string) {
   }
 
-  public stringfyIndices() {
-    
-    var strIndices = "";
+  public setValueIndice(nome: string, value: string): Boolean {
 
-    this.pastaIndices.forEach((indice, index) => {
+    let index = this.pastaIndices.findIndex(i => i.indiceNome == nome);
 
-      var strTemp = "<indice{0}>{1}</indice{0}><valor{0}>{2}</valor{0}>";
-      strTemp = strTemp.replace("{0}", index.toString());
-      strTemp = strTemp.replace("{1}", indice.indiceNome);
-      strTemp = strTemp.replace("{2}", indice.value);
-      strIndices += strTemp;
-    });
+    let indice = this.pastaIndices[index];
 
-    var campos = `<![CDATA[` + strIndices + `]]>`;
+    let validate = indice.setValue(value);    
 
-    return campos;
-  }
+    if (validate) {
+      //substitui no vetor
+      this.pastaIndices.splice(index, 1, indice);
+      return true;
+    }
+    else {
+      return false;
+    }
+  } 
 }

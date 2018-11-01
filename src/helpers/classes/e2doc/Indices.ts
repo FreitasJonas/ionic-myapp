@@ -8,27 +8,28 @@ export class Indices {
         private indiceValue: string
     ){ }
 
-    get value() {
+    getValue() {
         return this.indiceValue;
     }
 
-    set value(value) {
+    setValue(value) : boolean {
         if(this.validateValue(value)){
             this.indiceValue = value;
+            return true;
         }
         else{
-            alert("Valor não validado!");
+            return false;
         }
     }
 
-    private validateValue(value) {
+    private validateValue(value: string) {
 
         //validar informação de acordo com o tipo e tamanho
-        if (value.lengh <= this.indiceTam) {
-            return true;
+        if (value.length <= this.indiceTam) {
+            return true;            
         }
         else {
-            return false;
+            return false;            
         }
     }
 }

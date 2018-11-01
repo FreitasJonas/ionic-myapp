@@ -7,6 +7,9 @@ import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { File } from '@ionic-native/file';
 import { IntroPage } from '../intro/intro';
 import { Hasher } from '../../helpers/classes/Hasher';
+import { Pasta } from '../../helpers/classes/e2doc/Pasta';
+import { IndiceModel } from '../../helpers/interfaces/IndiceModel';
+import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConverter';
 
 @IonicPage()
 @Component({
@@ -40,6 +43,12 @@ export class DocFichaPage {
 
   //canvas da assinatura
   public signatureCanvas;
+
+  //pasta
+  public pasta: Pasta; 
+
+  //Indice Model
+  public indices: Array<IndiceModel>;
   
   //Opções do canvas da assinatura
   public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
@@ -53,31 +62,17 @@ export class DocFichaPage {
     public storage: Storage,
     public toastCtrl: ToastController,
     private e2doc: E2docProvider,
-    private file: File,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController) {
+
+      //obtem a chave do storage recebido por parametro
+      this.pasta = this.navParams.get('pasta');      
+
+      console.log(this.pasta);
+
+      this.indices = IndiceModelConverter.converter(this.pasta);      
   }
-
-  ionViewDidLoad() {
-
-    //obtem a chave do storage recebido por parametro
-    this.info = this.navParams.get('info');
-
-    //seta os valores dos campos via binding (valores são atualizados automaticamente)
-    this.protocolo = this.info.protocolo;
-    this.nome = this.info.indices.nome;
-    this.rg = this.info.indices.rg;
-    this.dt_nascimento = this.info.indices.dt_nascimento;
-
-    this.cpf = this.info.indices.cpf;
-
-    this.cep = this.info.indices.cep;
-    this.rua = this.info.indices.rua;
-    this.cidade = this.info.indices.cidade;
-
-    console.log(this.info.imgs[0]);
-  }
-
+  
   goToIntoPage(mensagem: string) {
 
     //exibe alert
@@ -143,7 +138,9 @@ export class DocFichaPage {
     this.getVetDoc().then((vetDoc) => {
 
       //obtem string dos campos com os valores
-      var campos = this.getStringCampos();
+      var campos = this.stringfyIndices();
+
+      console.log(campos);
 
       //feito desta forma por que de forma assincrona as multiplas requisições
       //davam erro no servidor, desta forma é necessário encadear as funções 
@@ -216,27 +213,27 @@ export class DocFichaPage {
       let vetDoc = [];
 
       //itera sobre os dados passados da intro
-      ctx.info.imgs.forEach((element, index) => {
+      ctx.pasta.pastaDocumentos.forEach((element, index) => {
 
         //substituir por
         // this.hasher.getHash(element.b64string, function (res) {
 
         // this.hasher.getHash(base64, function (res) {
           
-          var fileName = ctx.info.protocolo + "_" + index + ".JPG";
+          var fileName = ctx.pasta.protocolo + "_" + index + ".JPG";
 
           vetDoc.push({                                 
-            modelo: element.tipo_doc,                       //modelo de documento
-            descricao: element.tipo_doc,                    //modelo de documento
+            modelo: element.docNome,                       //modelo de documento
+            descricao: element.docNome,                    //modelo de documento
             path: "/myapp/" + fileName,                     //caminho do arquivo, não possui por que não é salvo no disposiivo
-            fileString: element.b64string,                  //string binaria do arquivo         
-            length: element.size,                           //tamanho em bytes do arquivo
+            fileString: element.docFileBase64,                  //string binaria do arquivo         
+            length: element.docFileTam,                           //tamanho em bytes do arquivo
             paginas: 1,                                     //arquivo sempre será de 1 pagina
-            hash: element.hash,                             //hash gerado a partir da string binaria
-            extensao: element.extensao,                     //sempre .jpg
+            hash: element.docFileHash,                             //hash gerado a partir da string binaria
+            extensao: element.docFileExtensao,                     //sempre .jpg
             id_doc: index,                                  //ordem do documento, indice do loop
-            protocolo: ctx.info.protocolo + "_" + index,     //protocolo + ordem do documento
-            fileNamePart: ctx.info.protocolo + "_" + index + ".JPG" //nome da parte, será sempre apenas uma parte
+            protocolo: ctx.pasta.protocolo + "_" + index,     //protocolo + ordem do documento
+            fileNamePart: ctx.pasta.protocolo + "_" + index + ".JPG" //nome da parte, será sempre apenas uma parte
           // });
         });
       });
@@ -246,7 +243,7 @@ export class DocFichaPage {
 
       Hasher.getHash(ctx.signatureImage, function (res) {
 
-        var fileName = ctx.info.protocolo + "_" + vetDoc.length + ".PNG";
+        var fileName = ctx.pasta.protocolo + "_" + vetDoc.length + ".PNG";
 
         vetDoc.push({
           modelo: "ASSINATURA",                     //modelo de documento
@@ -258,34 +255,32 @@ export class DocFichaPage {
           hash: res.hash,                           //hash gerado a partir da string binaria
           extensao: ".PNG",                         //sempre .jpg
           id_doc: vetDoc.length,                    //ordem do documento, indice do loop
-          protocolo: ctx.protocolo + "_" + vetDoc.length,         //protocolo + ordem do documento
+          protocolo: ctx.pasta.protocolo + "_" + vetDoc.length,         //protocolo + ordem do documento
           fileNamePart: fileName    //nome da parte, será sempre apenas uma parte
         });
       });
 
       resolve(vetDoc);
     });
-  }
+  } 
+  
+  public stringfyIndices() {
 
-  private getStringCampos(): string {
+    var strIndices = "";
 
-    var campos = `<![CDATA[<indice0>NOME</indice0><valor0>{0}</valor0>
-      <indice1>RG</indice1><valor1>{1}</valor1>
-      <indice2>CPF</indice2><valor2>{2}</valor2>
-      <indice3>DATA NASCIMENTO</indice3><valor3>{3}</valor3>
-      <indice4>CEP</indice4><valor4>{4}</valor4>
-      <indice5>RUA</indice5><valor5>{5}</valor5>
-      <indice6>CIDADE</indice6><valor6>{6}</valor6>
-      <indice7>VALIDACAO</indice7><valor7>{7}</valor7>]]>`;
+    this.indices.forEach((indice, index) => {
 
-    campos = campos.replace("{0}", this.nome);
-    campos = campos.replace("{1}", this.rg);
-    campos = campos.replace("{2}", this.cpf);
-    campos = campos.replace("{3}", this.dt_nascimento);
-    campos = campos.replace("{4}", this.cep);
-    campos = campos.replace("{5}", this.rua);
-    campos = campos.replace("{6}", this.cidade);
-    campos = campos.replace("{7}", this.info.indices.validacao);
+      console.log(index);
+
+      var strTemp = `<indice` + index + `> {1} </indice` + index + `> 
+                     <valor` + index + `> {2} </valor` + index + `>`;
+      
+      strTemp = strTemp.replace("{1}", indice.nome);
+      strTemp = strTemp.replace("{2}", indice.valor);
+      strIndices += strTemp;
+    });
+
+    var campos = `<![CDATA[` + strIndices + `]]>`;
 
     return campos;
   }

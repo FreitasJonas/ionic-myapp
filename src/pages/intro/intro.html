@@ -26,8 +26,7 @@
 
       </div>
 
-      <button ion-button icon-start color="danger" [disabled]="doc.enviado" (click)="slideNext(doc.modelo)"
-        *ngIf="!doc.obrigatorio">
+      <button ion-button icon-start color="danger" [disabled]="doc.enviado" (click)="slideNext(doc.modelo)" *ngIf="!doc.obrigatorio">
         Não possuo &nbsp;&nbsp;
         <ion-icon name="md-arrow-forward"></ion-icon>
       </button>
@@ -40,24 +39,31 @@
 
       <ion-grid>
 
-          <ion-row *ngFor="let doc of docs">
+        <ion-row *ngFor="let doc of docs">
           <ion-col>
-              <ion-item>
-                  <ion-label>{{doc.modelo}}</ion-label>
-                  <ion-checkbox [checked]="doc.enviado" disabled="true"></ion-checkbox>
-                </ion-item>
-            </ion-col> 
-          </ion-row>
+            <ion-item>
+              <ion-label>{{doc.modelo}}</ion-label>
+              <ion-checkbox color="secondary" [checked]="doc.enviado" disabled="true"></ion-checkbox>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
       </ion-grid>
 
-      <h5 [hidden]="validade">Aguardando resposta, por favor aguarde!</h5>
-      <ion-spinner name="bubbles" id="bubbles" [hidden]="validade"></ion-spinner>
-
       <br>
 
-      <button [hidden]="!validade" ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
+      <div *ngIf="!validade">
+        <h5>Aguardando resposta, por favor aguarde!</h5>
+        <ion-spinner name="bubbles" id="bubbles"></ion-spinner>
+      </div>
 
+      <br>
+      <br>
+
+      <div *ngIf="validade">
+        <button ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
+      </div>
+      
       <br>
       <br>
 
