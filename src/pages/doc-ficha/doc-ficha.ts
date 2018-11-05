@@ -4,12 +4,12 @@ import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 import { MsgHelper } from '../../helpers/classes/MsgHelper';
 import { E2docProvider } from '../../providers/e2doc/e2doc';
-import { File } from '@ionic-native/file';
 import { IntroPage } from '../intro/intro';
 import { Hasher } from '../../helpers/classes/Hasher';
 import { Pasta } from '../../helpers/classes/e2doc/Pasta';
 import { IndiceModel } from '../../helpers/interfaces/IndiceModel';
 import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConverter';
+import { Status } from '../../helpers/interfaces/slideModel';
 
 @IonicPage()
 @Component({
@@ -19,15 +19,6 @@ import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConver
 export class DocFichaPage {
 
   @ViewChild(SignaturePad) signaturePad: SignaturePad;
-
-  //campos do form
-  public nome = "";
-  public rg = "";
-  public cpf = "";
-  public dt_nascimento = "";
-  public cep = "";
-  public rua = "";
-  public cidade = "";
   
   //protocolo
   public protocolo: string;
@@ -140,8 +131,6 @@ export class DocFichaPage {
       //obtem string dos campos com os valores
       var campos = this.stringfyIndices();
 
-      console.log(campos);
-
       //feito desta forma por que de forma assincrona as multiplas requisições
       //davam erro no servidor, desta forma é necessário encadear as funções 
       //para que uma requisição não atropele a outra
@@ -204,37 +193,28 @@ export class DocFichaPage {
 
     let ctx = this;
 
-    //obtem base64 de exemplo
-    //let base64 = Hasher.getBase64Example();
-
     return new Promise((resolve) => {
 
       //cria vetor onde será armazenado os dados do arquivo
       let vetDoc = [];
 
-      //itera sobre os dados passados da intro
-      ctx.pasta.pastaDocumentos.forEach((element, index) => {
-
-        //substituir por
-        // this.hasher.getHash(element.b64string, function (res) {
-
-        // this.hasher.getHash(base64, function (res) {
+      //itera sobre os documentos que foram enviados e verificados
+      ctx.pasta.pastaDocumentos.filter((d => d.status == Status.Verificado)).forEach((element, index) => {
           
           var fileName = ctx.pasta.protocolo + "_" + index + ".JPG";
 
           vetDoc.push({                                 
-            modelo: element.docNome,                       //modelo de documento
-            descricao: element.docNome,                    //modelo de documento
-            path: "/myapp/" + fileName,                     //caminho do arquivo, não possui por que não é salvo no disposiivo
-            fileString: element.docFileBase64,                  //string binaria do arquivo         
-            length: element.docFileTam,                           //tamanho em bytes do arquivo
-            paginas: 1,                                     //arquivo sempre será de 1 pagina
-            hash: element.docFileHash,                             //hash gerado a partir da string binaria
-            extensao: element.docFileExtensao,                     //sempre .jpg
-            id_doc: index,                                  //ordem do documento, indice do loop
-            protocolo: ctx.pasta.protocolo + "_" + index,     //protocolo + ordem do documento
-            fileNamePart: ctx.pasta.protocolo + "_" + index + ".JPG" //nome da parte, será sempre apenas uma parte
-          // });
+            modelo: element.docNome,                                  //modelo de documento
+            descricao: element.docNome,                               //modelo de documento
+            path: "/myapp/" + fileName,                               //caminho do arquivo, não possui por que não é salvo no disposiivo
+            fileString: element.docFileBase64,                        //string binaria do arquivo         
+            length: element.docFileTam,                               //tamanho em bytes do arquivo
+            paginas: 1,                                               //arquivo sempre será de 1 pagina
+            hash: element.docFileHash,                                //hash gerado a partir da string binaria
+            extensao: element.docFileExtensao,                        //sempre .jpg
+            id_doc: index,                                            //ordem do documento, indice do loop
+            protocolo: ctx.pasta.protocolo + "_" + index,             //protocolo + ordem do documento
+            fileNamePart: ctx.pasta.protocolo + "_" + index + ".JPG"  //nome da parte, será sempre apenas uma parte
         });
       });
 
@@ -246,17 +226,17 @@ export class DocFichaPage {
         var fileName = ctx.pasta.protocolo + "_" + vetDoc.length + ".PNG";
 
         vetDoc.push({
-          modelo: "ASSINATURA",                     //modelo de documento
-          descricao: "ASSINATURA",                  //modelo de documento
-          path: "/myapp/" + fileName,               //caminho do arquivo, não possui por que não é salvo no disposiivo
-          fileString: res.base64,                   //string binaria do arquivo         
-          length: res.size,                         //tamanho em bytes do arquivo
-          paginas: 1,                               //arquivo sempre será de 1 pagina
-          hash: res.hash,                           //hash gerado a partir da string binaria
-          extensao: ".PNG",                         //sempre .jpg
-          id_doc: vetDoc.length,                    //ordem do documento, indice do loop
-          protocolo: ctx.pasta.protocolo + "_" + vetDoc.length,         //protocolo + ordem do documento
-          fileNamePart: fileName    //nome da parte, será sempre apenas uma parte
+          modelo: "ASSINATURA",                                     //modelo de documento
+          descricao: "ASSINATURA",                                  //modelo de documento
+          path: "/myapp/" + fileName,                               //caminho do arquivo, não possui por que não é salvo no disposiivo
+          fileString: res.base64,                                   //string binaria do arquivo         
+          length: res.size,                                         //tamanho em bytes do arquivo
+          paginas: 1,                                               //arquivo sempre será de 1 pagina
+          hash: res.hash,                                           //hash gerado a partir da string binaria
+          extensao: ".PNG",                                         //sempre .jpg
+          id_doc: vetDoc.length,                                    //ordem do documento, indice do loop
+          protocolo: ctx.pasta.protocolo + "_" + vetDoc.length,     //protocolo + ordem do documento
+          fileNamePart: fileName                                    //nome da parte, será sempre apenas uma parte
         });
       });
 

@@ -35,7 +35,7 @@ export class IntroPage {
   }
 
   //testar no sispositivo, se false não chama a camera
-  public testInDevice = false;
+  public testInDevice = true;
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
@@ -144,6 +144,7 @@ export class IntroPage {
             documento.docFileTam = hasher.size;
             documento.docFileHash = hasher.hash;
             documento.docFileExtensao = ".JPG";
+            documento.status = Status.Aguandando;
             
             let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == modelo));
             ctx.pasta.pastaDocumentos.splice(index, 1, documento);
@@ -204,6 +205,7 @@ export class IntroPage {
               documento.docFileTam = hasher.size;
               documento.docFileHash = hasher.hash;
               documento.docFileExtensao = ".JPG";
+              documento.status = Status.Aguandando;
 
               let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == modelo));
               ctx.pasta.pastaDocumentos.splice(index, 1, documento);
@@ -241,7 +243,7 @@ export class IntroPage {
       console.log("Verificando!");
 
       let docs = ctx.docs.filter((d => d.status == Status.Aguandando));
-
+      
       docs.forEach((element) => {
 
         //seta os valores no indice
@@ -249,6 +251,16 @@ export class IntroPage {
 
         //valida os dados
         ctx.validade = ctx.validate();           
+
+        //Atualiza elemento no vetor slideModel
+        let iDoc = ctx.docs.findIndex((d => d.modelo == element.modelo));
+        element.status = Status.Verificado;
+        
+        ctx.docs[iDoc] = element;
+
+        //Atualiza elemento no vetor de documentos da pasta
+        let _iDoc = ctx.pasta.pastaDocumentos.findIndex((d => d.docNome == element.modelo));
+        ctx.pasta.pastaDocumentos[_iDoc].status = Status.Verificado;        
       });
 
       // //verifica se há itens na fila
