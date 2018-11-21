@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { TarefaPage } from '../tarefa/tarefa';
-import { E2docProvider } from '../../providers/e2doc/e2doc';
-import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { Helper } from '../../providers/e2doc/helpers/helper';
+import { Pasta } from '../../helpers/e2doc/Pasta';
+import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
+import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 
 @IonicPage()
 @Component({
@@ -16,11 +16,11 @@ export class TarefasPage {
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private e2doc: E2docProvider) {
+    private e2doc: E2docSincronismoProvider) {
 
     //obtem configuração da pasta, modelos e indices
     //refatorar depois da criação do login
-    this.pasta = Helper.getConfigPasta("MAGNA - CONTRATACAO");    
+    this.pasta = e2docHelper.getConfigPastaMAGNA("MAGNA - CONTRATACAO");    
   }
 
   goToTarefaPage() {

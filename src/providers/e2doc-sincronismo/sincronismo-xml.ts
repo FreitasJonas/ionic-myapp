@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable()
-export class XmlTextProvider {
+export class SincronismoXmlProvider {
 
   public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
   public urlApp = "https://www.e2doc.com.br/e2doc_webservice/App.asmx?wsdl";

@@ -1,14 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
-import { E2docProvider } from '../../providers/e2doc/e2doc';
 import { Geolocation } from "@ionic-native/geolocation";
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
-import { MsgHelper } from '../../helpers/classes/MsgHelper';
-import { Hasher } from '../../helpers/classes/Hasher';
-import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { SlideModel, Status } from '../../helpers/interfaces/slideModel';
-import { SlideModelConverter } from '../../helpers/interfaces/SlideModelConverter';
+import { MsgHelper } from '../../helpers/MsgHelper';
+import { Hasher } from '../../helpers/Hasher';
+import { Pasta } from '../../helpers/e2doc/Pasta';
+import { SlideModelConverter } from '../../helpers/SlideModelConverter';
+import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
+import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
+import { SlideModel, Status } from '../../helpers/SlideModel';
 
 @IonicPage()
 @Component({
@@ -16,7 +17,7 @@ import { SlideModelConverter } from '../../helpers/interfaces/SlideModelConverte
   templateUrl: 'intro.html',
   providers: [
     Camera,
-    E2docProvider
+    E2docSincronismoProvider
   ]
 })
 export class IntroPage {
@@ -55,7 +56,7 @@ export class IntroPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private camera: Camera,
-    private e2doc: E2docProvider,
+    private e2doc: E2docSincronismoProvider,
     private geolocation: Geolocation,
     public toastCtrl: ToastController,
     public loadingCtrl: LoadingController
@@ -63,11 +64,9 @@ export class IntroPage {
 
     //obtem configuração da pasta, modelos e indices
     //refatorar depois da criação do login
-    this.pasta = e2doc.getConfigPasta();
+    this.pasta = e2docHelper.getConfigPastaRH();
 
     this.slideModels = SlideModelConverter.converter(this.pasta);    
-
-    console.log(this.pasta);
   }
 
   //quando a tela é carregada
@@ -135,8 +134,6 @@ export class IntroPage {
 
             //guardo retorno
             let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == strModeloDocumento));
-            
-            console.log(documento);
                         
             documento.docFileBase64 = b64string;
             documento.docFileTam = hasher.size;

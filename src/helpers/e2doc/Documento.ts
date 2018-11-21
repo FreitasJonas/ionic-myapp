@@ -1,4 +1,4 @@
-import { Status } from "../../interfaces/slideModel";
+import { Status } from "../SlideModel";
 
 export class Documento {
 

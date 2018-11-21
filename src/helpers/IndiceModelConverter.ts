@@ -1,4 +1,4 @@
-import { Pasta } from "../classes/e2doc/Pasta";
+import { Pasta } from "./e2doc/Pasta";
 import { IndiceModel } from "./IndiceModel";
 
 export class IndiceModelConverter{

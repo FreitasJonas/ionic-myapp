@@ -1,13 +1,13 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, LoadingController, AlertController } from 'ionic-angular';
-import { IndiceModel } from '../../helpers/interfaces/IndiceModel';
-import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConverter';
+import { IndiceModel } from '../../helpers/IndiceModel';
+import { Pasta } from '../../helpers/e2doc/Pasta';
+import { IndiceModelConverter } from '../../helpers/IndiceModelConverter';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
-import { E2docProvider } from '../../providers/e2doc/e2doc';
-import { Helper } from '../../providers/e2doc/helpers/helper';
 import { MenuPage } from '../menu/menu';
-import { Hasher } from '../../helpers/classes/Hasher';
+import { Hasher } from '../../helpers/Hasher';
+import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
+import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 
 @IonicPage()
 @Component({
@@ -41,7 +41,7 @@ export class TarefaPage {
     public navParams: NavParams,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private e2doc: E2docProvider
+    private e2doc: E2docSincronismoProvider
   ) {
 
     //obtem a chave do storage recebido por parametro
@@ -106,7 +106,7 @@ export class TarefaPage {
         fileNamePart: self.pasta.protocolo + "_" + 1 + ".PNG"  //nome da parte, será sempre apenas uma parte
       });
 
-      var campos = Helper.getStringIndices(self.indices);
+      var campos = e2docHelper.getStringIndices(self.indices);
       
       self.e2doc.enviarDocumentos(vetDoc, 0, campos).then(res => {
 

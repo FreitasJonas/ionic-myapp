@@ -2,16 +2,16 @@ import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
-import { MsgHelper } from '../../helpers/classes/MsgHelper';
-import { E2docProvider } from '../../providers/e2doc/e2doc';
+import { MsgHelper } from '../../helpers/MsgHelper';
 import { IntroPage } from '../intro/intro';
-import { Hasher } from '../../helpers/classes/Hasher';
-import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { IndiceModel } from '../../helpers/interfaces/IndiceModel';
-import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConverter';
-import { Status } from '../../helpers/interfaces/slideModel';
-import { Helper } from '../../providers/e2doc/helpers/helper';
+import { Hasher } from '../../helpers/Hasher';
+import { Pasta } from '../../helpers/e2doc/Pasta';
+import { IndiceModel } from '../../helpers/IndiceModel';
+import { IndiceModelConverter } from '../../helpers/IndiceModelConverter';
+import { Status } from '../../helpers/SlideModel';
 import { MenuPage } from '../menu/menu';
+import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
+import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 
 @IonicPage()
 @Component({
@@ -54,7 +54,7 @@ export class DocFichaPage {
     public navParams: NavParams,
     public storage: Storage,
     public toastCtrl: ToastController,
-    private e2doc: E2docProvider,
+    private e2doc: E2docSincronismoProvider,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController) {
 
@@ -129,7 +129,7 @@ export class DocFichaPage {
     this.getVetDoc().then((vetDoc) => {
 
       //obtem string dos campos com os valores
-      var campos = Helper.getStringIndices(this.indices);
+      var campos = e2docHelper.getStringIndices(this.indices);
 
       //feito desta forma por que de forma assincrona as multiplas requisições
       //davam erro no servidor, desta forma é necessário encadear as funções 

@@ -1,4 +1,4 @@
-export class HelperXmlPesquisa {
+export class PesquisaXmlProvider {
 
     public static getXmlAutenticar(user, pass, key) {
 

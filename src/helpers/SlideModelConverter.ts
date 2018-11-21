@@ -1,5 +1,5 @@
-import { Pasta } from "../classes/e2doc/Pasta";
-import { SlideModel } from "./slideModel";
+import { Pasta } from "./e2doc/Pasta";
+import { SlideModel } from "./SlideModel";
 
 export class SlideModelConverter{
     public static converter(pasta: Pasta) : Array<SlideModel> {

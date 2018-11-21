@@ -1,27 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MsgHelper } from '../../helpers/classes/MsgHelper';
 import { ToastController } from 'ionic-angular';
-import { XmlTextProvider } from '../xml-text/xml-text';
-import { Pasta } from '../../helpers/classes/e2doc/Pasta';
-import { Indices } from '../../helpers/classes/e2doc/Indices';
-import { Documento } from '../../helpers/classes/e2doc/Documento';
-import { Helper } from '../../providers/e2doc/helpers/helper';
+import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 
 @Injectable()
-export class E2docPesquiaProvider {
+export class E2docPesquisaProvider {
 
-    private user = "jonas";
-    private pas = "Hoje01%";
-    private key = "XXMP";
-
-    public token = "";
-    public retorno = "";
-    public host = "https://www.e2doc.com.br/e2doc_webservice/pesquisa.asmx?wsdl";
+    private host = "https://www.e2doc.com.br/e2doc_webservice/pesquisa.asmx?wsdl";
 
     constructor(public http: HttpClient,
         public toastCtrl: ToastController,
-        private xmlProvider: XmlTextProvider) {
+        ) {
     }
 
     autenticar(xml) {
@@ -39,7 +28,7 @@ export class E2docPesquiaProvider {
                         const xmlDocument = xmlhttp.responseXML;
                         let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;
 
-                        if (Helper.isError(result)) {
+                        if (e2docHelper.isError(result)) {
                             resolve(result);
                         }
                         else {
@@ -116,7 +105,7 @@ export class E2docPesquiaProvider {
 
                         let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;
 
-                        if (Helper.isError(result)) {
+                        if (e2docHelper.isError(result)) {
 
                             reject(result);
 
@@ -140,3 +129,5 @@ export class E2docPesquiaProvider {
         });
     }
 }
+
+
