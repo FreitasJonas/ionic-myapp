@@ -26,14 +26,14 @@ export class XmlTextProvider {
     return { xmlText: text, tagResult: "AutenticarUsuarioResult", url: this.url }
   }
 
-  getXmlSincIniciar(token: string, campos: string, user: string, protocolo: string) {
+  getXmlSincIniciar(token: string, modeloPasta: string, campos: string, user: string, protocolo: string) {
 
     let text = `<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
         <SincronismoIniciar xmlns="http://www.e2doc.com.br/">
           <id>` + token + `</id>
-          <modelo>CONTRATACAO</modelo>
+          <modelo>` + modeloPasta + `</modelo>
           <campos>` + campos + `</campos>
           <usuario>` + user + `</usuario>
           <protocolo>` + protocolo + `</protocolo>

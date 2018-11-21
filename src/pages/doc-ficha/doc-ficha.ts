@@ -10,6 +10,8 @@ import { Pasta } from '../../helpers/classes/e2doc/Pasta';
 import { IndiceModel } from '../../helpers/interfaces/IndiceModel';
 import { IndiceModelConverter } from '../../helpers/interfaces/IndiceModelConverter';
 import { Status } from '../../helpers/interfaces/slideModel';
+import { Helper } from '../../providers/e2doc/helpers/helper';
+import { MenuPage } from '../menu/menu';
 
 @IonicPage()
 @Component({
@@ -58,9 +60,7 @@ export class DocFichaPage {
 
       //obtem a chave do storage recebido por parametro
       this.pasta = this.navParams.get('pasta');      
-
-      console.log(this.pasta);
-
+            
       this.indices = IndiceModelConverter.converter(this.pasta);      
   }
   
@@ -76,7 +76,7 @@ export class DocFichaPage {
           role: 'cancel',
           handler: () => {
             //retorna para intro
-            this.navCtrl.push(IntroPage);
+            this.navCtrl.push(MenuPage);
           }
         }                    
       ]
@@ -129,7 +129,7 @@ export class DocFichaPage {
     this.getVetDoc().then((vetDoc) => {
 
       //obtem string dos campos com os valores
-      var campos = this.stringfyIndices();
+      var campos = Helper.getStringIndices(this.indices);
 
       //feito desta forma por que de forma assincrona as multiplas requisições
       //davam erro no servidor, desta forma é necessário encadear as funções 
@@ -203,7 +203,8 @@ export class DocFichaPage {
           
           var fileName = ctx.pasta.protocolo + "_" + index + ".JPG";
 
-          vetDoc.push({                                 
+          vetDoc.push({                   
+            modeloPasta: ctx.pasta.pastaNome,              
             modelo: element.docNome,                                  //modelo de documento
             descricao: element.docNome,                               //modelo de documento
             path: "/myapp/" + fileName,                               //caminho do arquivo, não possui por que não é salvo no disposiivo
@@ -226,6 +227,7 @@ export class DocFichaPage {
         var fileName = ctx.pasta.protocolo + "_" + vetDoc.length + ".PNG";
 
         vetDoc.push({
+          modeloPasta: ctx.pasta.pastaNome,              
           modelo: "ASSINATURA",                                     //modelo de documento
           descricao: "ASSINATURA",                                  //modelo de documento
           path: "/myapp/" + fileName,                               //caminho do arquivo, não possui por que não é salvo no disposiivo
@@ -243,25 +245,4 @@ export class DocFichaPage {
       resolve(vetDoc);
     });
   } 
-  
-  public stringfyIndices() {
-
-    var strIndices = "";
-
-    this.indices.forEach((indice, index) => {
-
-      console.log(index);
-
-      var strTemp = `<indice` + index + `> {1} </indice` + index + `> 
-                     <valor` + index + `> {2} </valor` + index + `>`;
-      
-      strTemp = strTemp.replace("{1}", indice.nome);
-      strTemp = strTemp.replace("{2}", indice.valor);
-      strIndices += strTemp;
-    });
-
-    var campos = `<![CDATA[` + strIndices + `]]>`;
-
-    return campos;
-  }
 }

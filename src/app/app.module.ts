@@ -16,6 +16,9 @@ import { File } from '@ionic-native/file';
 import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
 import { SignaturePadModule } from 'angular2-signaturepad';
 import { XmlTextProvider } from '../providers/xml-text/xml-text';
+import { MenuPageModule } from '../pages/menu/menu.module';
+import { TarefasPageModule } from '../pages/tarefas/tarefas.module';
+import { TarefaPageModule } from '../pages/tarefa/tarefa.module';
 
 
 @NgModule({
@@ -28,6 +31,9 @@ import { XmlTextProvider } from '../providers/xml-text/xml-text';
     IonicStorageModule.forRoot(),
     DocFichaPageModule,
     IntroPageModule,
+    MenuPageModule,
+    TarefasPageModule,
+    TarefaPageModule,
     HttpClientModule,    
     SignaturePadModule
   ],

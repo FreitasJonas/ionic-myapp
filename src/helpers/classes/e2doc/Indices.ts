@@ -1,35 +1,43 @@
 export class Indices {
 
+    public msgValidado: string;
+    public isValid: boolean;
+    private indiceValue: string;
+
     constructor(
         public indiceNome: string,
         public indiceTipo: string,
         public indiceTam: number,
         public indiceObrigatorio: boolean,
-        private indiceValue: string
-    ){ }
+        value: string
+    ) {
+        this.setValue(value);
+    }
 
     getValue() {
         return this.indiceValue;
     }
 
-    setValue(value) : boolean {
-        if(this.validateValue(value)){
+    setValue(value): boolean {
+        this.validateValue(value);
+
+        if (this.isValid) {
             this.indiceValue = value;
-            return true;
         }
-        else{
-            return false;
-        }
+
+        return this.isValid;
     }
 
     private validateValue(value: string) {
 
         //validar informação de acordo com o tipo e tamanho
         if (value.length <= this.indiceTam) {
-            return true;            
+            this.msgValidado = "";
+            this.isValid = true;
         }
         else {
-            return false;            
+            this.msgValidado = "Limite de caracteres atingido!";
+            this.isValid = false;
         }
     }
 }

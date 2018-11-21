@@ -10,21 +10,25 @@ export class Pasta {
   constructor(public pastaNome: string) {
   }
 
-  public setValueIndice(nome: string, value: string): Boolean {
+  public getIndice(nome: string) : Indices {
+    return this.pastaIndices.find((i => i.indiceNome == nome));
+  }
 
-    let index = this.pastaIndices.findIndex(i => i.indiceNome == nome);
+  // public setValueIndice(nome: string, value: string): Boolean {
 
-    let indice = this.pastaIndices[index];
+  //   let index = this.pastaIndices.findIndex(i => i.indiceNome == nome);
 
-    let validate = indice.setValue(value);    
+  //   let indice = this.pastaIndices[index];
 
-    if (validate) {
-      //substitui no vetor
-      this.pastaIndices.splice(index, 1, indice);
-      return true;
-    }
-    else {
-      return false;
-    }
-  } 
+  //   let validate = indice.setValue(value);    
+
+  //   if (validate) {
+  //     //substitui no vetor
+  //     this.pastaIndices.splice(index, 1, indice);
+  //     return true;
+  //   }
+  //   else {
+  //     return false;
+  //   }
+  // } 
 }

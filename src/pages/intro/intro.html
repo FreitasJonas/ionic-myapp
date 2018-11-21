@@ -2,23 +2,23 @@
 
   <ion-slides pager>
 
-    <ion-slide class="myapp-slide" *ngFor="let doc of docs">
+    <ion-slide class="myapp-slide" *ngFor="let model of slideModels">
 
-      <div (click)="getPicture(doc.modelo)">
+      <div (click)="getPicture(model.modelo)">
 
         <div class="myapp-slide-icon">
           <p>Clique para tirar uma foto</p>
           <img [src]="imgIcoPhoto" alt="">
         </div>
-        <h2>{{doc.modelo}}</h2>
+        <h2>{{model.modelo}}</h2>
         <br>
         <div>
           <p>
-            {{doc.descricao}}
+            {{model.descricao}}
           </p>
         </div>
 
-        <div class="msgOk" [hidden]="!doc.enviado">
+        <div class="msgOk" [hidden]="!model.enviado">
           <ion-icon name="md-checkmark"></ion-icon>
           <br>
           Documento Enviado
@@ -26,7 +26,7 @@
 
       </div>
 
-      <button ion-button icon-start color="danger" [disabled]="doc.enviado" (click)="slideNext(doc.modelo)" *ngIf="!doc.obrigatorio">
+      <button ion-button icon-start color="danger" [disabled]="model.enviado" (click)="slideNext(model.modelo)" *ngIf="!model.obrigatorio">
         Não possuo &nbsp;&nbsp;
         <ion-icon name="md-arrow-forward"></ion-icon>
       </button>
@@ -39,11 +39,11 @@
 
       <ion-grid>
 
-        <ion-row *ngFor="let doc of docs">
+        <ion-row *ngFor="let model of slideModels">
           <ion-col>
             <ion-item>
-              <ion-label>{{doc.modelo}}</ion-label>
-              <ion-checkbox color="secondary" [checked]="doc.enviado" disabled="true"></ion-checkbox>
+              <ion-label>{{model.modelo}}</ion-label>
+              <ion-checkbox color="secondary" [checked]="model.enviado" disabled="true"></ion-checkbox>
             </ion-item>
           </ion-col>
         </ion-row>
@@ -52,7 +52,7 @@
 
       <br>
 
-      <div *ngIf="!validade">
+      <div *ngIf="!docsIsValid">
         <h5>Aguardando resposta, por favor aguarde!</h5>
         <ion-spinner name="bubbles" id="bubbles"></ion-spinner>
       </div>
@@ -60,7 +60,7 @@
       <br>
       <br>
 
-      <div *ngIf="validade">
+      <div *ngIf="docsIsValid">
         <button ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
       </div>
       

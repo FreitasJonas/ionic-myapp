@@ -6,20 +6,18 @@ import { XmlTextProvider } from '../xml-text/xml-text';
 import { Pasta } from '../../helpers/classes/e2doc/Pasta';
 import { Indices } from '../../helpers/classes/e2doc/Indices';
 import { Documento } from '../../helpers/classes/e2doc/Documento';
+import { Helper } from '../../providers/e2doc/helpers/helper';
 
 @Injectable()
 export class E2docProvider {
   
   private user = "jonas";
-  private pas = "Hoje01!";
+  private pas = "Hoje01%";
   private key = "XXMP";
 
   public token = "";
   public retorno = "";
-
-  public OK = -1;
-  public ERRO = -0;
-
+  
   public msgHelper = new MsgHelper(this.toastCtrl);  
 
   constructor(public http: HttpClient,
@@ -27,22 +25,10 @@ export class E2docProvider {
     private xmlProvider: XmlTextProvider) {
   }
 
-  isError(str: string): boolean {
-
-    var msg = str.indexOf("[ERRO]");
-
-    if (msg == this.OK) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
   //texto xml
   //tag de resultado para obter valor
   postSOAP(xml: any): Promise<string> {
-
+    
     return new Promise((resolve, reject) => {
 
       const xmlhttp = new XMLHttpRequest();
@@ -52,7 +38,7 @@ export class E2docProvider {
           if (xmlhttp.status == 200) {
             const xmlDocument = xmlhttp.responseXML;
             let result = xmlDocument.getElementsByTagName(xml.tagResult)[0].childNodes[0].nodeValue;
-            if (this.isError(result)) {
+            if (Helper.isError(result)) {
               resolve(result);
             }
             else {
@@ -143,7 +129,7 @@ export class E2docProvider {
           this.token = res;
 
           console.log("Iniciando Sincronismo!");
-          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, campos, this.user, doc.protocolo)).then((res) => {
+          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, this.user, doc.protocolo)).then((res) => {
 
             console.log("Enviando Parte!");
             this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {

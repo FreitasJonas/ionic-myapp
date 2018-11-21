@@ -1,0 +1,52 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Tarefa</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content padding>
+
+    <ion-list>
+
+        <ion-card>
+
+            <ion-card-header>
+                <h1>Dados da solicitação.</h1>
+              </ion-card-header>
+
+            <ion-card-content>
+
+                <ion-item *ngFor="let indice of indices">                    
+                    <ion-label floating>{{indice.nome}}</ion-label>
+                    <ion-input type="text" [(ngModel)]="indice.valor"></ion-input>
+                  </ion-item>
+
+            </ion-card-content>
+          </ion-card>
+
+        <br>
+    
+        <div text-center>
+          <p ion-text color="danger">Assinatura</p>
+        </div>
+        <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
+    
+        <ion-grid>
+          <ion-row>
+            <ion-col col-12>
+              <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
+            </ion-col>
+            <ion-col col-12>
+              <button ion-button full color="light" (click)="drawClear()">Limpar</button>
+            </ion-col>
+            <ion-col col-12>
+              <button ion-button full color="danger" (click)="cancelar()">Cencelar</button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+    
+      </ion-list>
+
+</ion-content>
