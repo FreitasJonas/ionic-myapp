@@ -23,6 +23,8 @@ import { E2docSincronismoProvider } from '../providers/e2doc-sincronismo/e2doc-s
 import { E2docPesquisaProvider } from '../providers/e2doc-pesquisa/e2doc-pesquisa';
 import { PesquisaXmlProvider } from '../providers/e2doc-pesquisa/pesquisa-xml';
 import { SincronismoXmlProvider } from '../providers/e2doc-sincronismo/sincronismo-xml';
+import { LoginPageModule } from '../pages/login/login.module';
+import { HttpProvider } from '../providers/http/http';
 
 
 @NgModule({
@@ -33,13 +35,14 @@ import { SincronismoXmlProvider } from '../providers/e2doc-sincronismo/sincronis
     BrowserModule,
     IonicModule.forRoot(MyApp),
     IonicStorageModule.forRoot(),
+    LoginPageModule,
     DocFichaPageModule,
     IntroPageModule,
     MenuPageModule,
     TarefasPageModule,
     TarefaPageModule,
     HttpClientModule,    
-    SignaturePadModule
+    SignaturePadModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -57,7 +60,8 @@ import { SincronismoXmlProvider } from '../providers/e2doc-sincronismo/sincronis
     PesquisaXmlProvider,
     SincronismoXmlProvider,
     E2docSincronismoProvider,
-    E2docPesquisaProvider
+    E2docPesquisaProvider,    
+    HttpProvider
   ]
 })
 export class AppModule {}
