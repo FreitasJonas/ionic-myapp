@@ -6,10 +6,6 @@ export class SincronismoXmlProvider {
   public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
   public urlApp = "https://www.e2doc.com.br/e2doc_webservice/App.asmx?wsdl";
 
-  constructor() {
-
-  }
-
   getXmlAutenticar(user: string, password: string, key: string) {
 
     let text = `<?xml version="1.0" encoding="utf-8"?>
@@ -153,5 +149,24 @@ export class SincronismoXmlProvider {
     </soap:Envelope>`;
 
     return { xmlText: text, tagResult: "RespResult", url: this.urlApp }
+  }
+
+  getXmlConfiguracao(token: string, cmd: number, pr1: string, pr2: string, pr3: string, pr4: string): any {
+    
+    let text = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <Configuracao xmlns="http://www.e2doc.com.br/">
+          <id>` + token + `</id>
+          <cmd>` + cmd + `</cmd>
+          <pr1>` + pr1 + `</pr1>
+          <pr2>` + pr2 + `</pr2>
+          <pr3>` + pr3 + `</pr3>
+          <pr4>` + pr4 + `</pr4>
+        </Configuracao>
+      </soap:Body>
+    </soap:Envelope>`;
+
+    return { xmlText: text, tagResult: "ConfiguracaoResult", url: this.url }
   }
 }

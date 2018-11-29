@@ -9,9 +9,9 @@ import { Pasta } from '../../helpers/e2doc/Pasta';
 import { IndiceModel } from '../../helpers/IndiceModel';
 import { IndiceModelConverter } from '../../helpers/IndiceModelConverter';
 import { Status } from '../../helpers/SlideModel';
-import { MenuPage } from '../menu/menu';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
+import { HomePage } from '../home/home';
 
 @IonicPage()
 @Component({
@@ -76,7 +76,7 @@ export class DocFichaPage {
           role: 'cancel',
           handler: () => {
             //retorna para intro
-            this.navCtrl.push(MenuPage);
+            this.navCtrl.push(HomePage);
           }
         }                    
       ]

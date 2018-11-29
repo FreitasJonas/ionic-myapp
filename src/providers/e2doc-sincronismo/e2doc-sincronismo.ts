@@ -7,15 +7,15 @@ import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 
 @Injectable()
 export class E2docSincronismoProvider {
-  
+
   private user = "jonas";
   private pas = "Hoje01%";
   private key = "XXMP";
 
   public token = "";
   public retorno = "";
-  
-  public msgHelper = new MsgHelper(this.toastCtrl);  
+
+  public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public http: HttpClient,
     public toastCtrl: ToastController,
@@ -25,7 +25,7 @@ export class E2docSincronismoProvider {
   //texto xml
   //tag de resultado para obter valor
   postSOAP(xml: any): Promise<string> {
-    
+
     return new Promise((resolve, reject) => {
 
       const xmlhttp = new XMLHttpRequest();
@@ -41,6 +41,35 @@ export class E2docSincronismoProvider {
             else {
               reject(result);
             }
+          }
+        }
+      }
+
+      // Send the POST request.
+      xmlhttp.open('POST', xml.url, true);
+
+      xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+
+      xmlhttp.send(xml.xmlText);
+
+    });
+  }
+
+  //texto xml
+  //tag de resultado para obter valor
+  postConfig(xml: any): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+      const xmlhttp = new XMLHttpRequest();
+
+      xmlhttp.onreadystatechange = () => {
+        if (xmlhttp.readyState == 4) {
+          if (xmlhttp.status == 200) {
+            const xmlDocument = xmlhttp.responseXML;
+            //let result = xmlDocument.getElementsByTagName(xml.tagResult);
+
+            resolve(xmlDocument);
           }
         }
       }
@@ -156,6 +185,30 @@ export class E2docSincronismoProvider {
           reject("Falha na autentição: " + err);
         });
       }
+    });
+  }
+
+  getConfiguracao(cmd: number, pr1: string, pr2: string, pr3: string, pr4: string): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+
+        this.postConfig(this.xmlProvider.getXmlConfiguracao(token, cmd, pr1, pr2, pr3, pr4)).then((res) => {
+
+          resolve(res);
+
+        }, (err) => {
+
+          reject("Falha ao obter resposta: " + err);
+
+        });
+
+      }, (err) => {
+
+        reject("Falha na autentição: " + err);
+
+      });
     });
   }
 }

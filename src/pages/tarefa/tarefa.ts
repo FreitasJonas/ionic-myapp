@@ -4,10 +4,10 @@ import { IndiceModel } from '../../helpers/IndiceModel';
 import { Pasta } from '../../helpers/e2doc/Pasta';
 import { IndiceModelConverter } from '../../helpers/IndiceModelConverter';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
-import { MenuPage } from '../menu/menu';
 import { Hasher } from '../../helpers/Hasher';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
+import { HomePage } from '../home/home';
 
 @IonicPage()
 @Component({
@@ -123,7 +123,7 @@ export class TarefaPage {
               role: 'cancel',
               handler: () => {
                 //retorna para o menu
-                self.navCtrl.push(MenuPage);
+                self.navCtrl.push(HomePage);
               }
             }
           ]

@@ -3,9 +3,9 @@ import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angu
 import { FormBuilder, Validators } from '@angular/forms';
 import { CryptoAES } from '../../helpers/CryptoAES';
 import { HttpProvider } from '../../providers/http/http';
-import { MenuPage } from '../menu/menu';
 import { Storage } from '@ionic/storage';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { HomePage } from '../home/home';
 
 @IonicPage()
 @Component({
@@ -17,14 +17,10 @@ export class LoginPage {
   public ivBytes = [97, 15, 21, 52, 12, 14, 47, 62, 25, 24, 13, 20, 63, 16, 13, 24];
   public keyBytes = [54, 51, 49, 49, 54, 55, 53, 54, 49, 54, 55, 57, 102, 99, 98, 54, 102, 99, 57, 49, 54, 57, 49, 97, 97, 55, 97, 55, 99, 55, 101, 53];
 
-  //Cria a string de verificação e de envio
-  public url = "https://www.e2doc.com.br/login/loginapp?c=a";             //Cria url que será enviada ao nevegador
-  public urlVerificacao = "https://www.e2doc.com.br/login/checkapp?c=a";  //Cria que será verificada
-
   public keyStorage = AutenticationHelper.getKeyStorage();
 
   public loginForm: any;
-  messageBase = ""
+  messageBase = "";
   messageUser = "";
   messagePassword = "";
   errorBase = false;
@@ -47,12 +43,10 @@ export class LoginPage {
 
       if (AutenticationHelper.isAutenticated(storageContent)) {
 
-        console.log("Login");
-        this.navCtrl.push(MenuPage);
+        this.navCtrl.push(HomePage);
       }
       else {
 
-        console.log("N Login");
         this.storage.clear();
       }
     });
@@ -95,11 +89,11 @@ export class LoginPage {
 
       let dadosEncod = CryptoAES.crypt(dados, this.keyBytes, this.ivBytes);
 
-      var e2docResponse = this.http.getValidationTokenApp(this.urlVerificacao + dadosEncod);
+      var e2docResponse = this.http.getValidationTokenApp(AutenticationHelper.urlValidateUser + dadosEncod);
 
       if (e2docResponse == "1") {
         this.saveToStorage(dadosEncod);
-        return this.navCtrl.push(MenuPage);
+        return this.navCtrl.push(HomePage);
       }
       else {
 
