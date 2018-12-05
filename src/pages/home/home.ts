@@ -14,6 +14,8 @@ import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento'
 })
 export class HomePage {
 
+  public userName = "";
+
   constructor(public navCtrl: NavController, public navParams: NavParams, public platform: Platform, private storage: Storage) {
 
     platform.registerBackButtonAction(() => {
@@ -22,14 +24,21 @@ export class HomePage {
     });
   }
 
+  ionViewDidEnter() {
+
+    let key = AutenticationHelper.getKeyStorage();
+
+    this.storage.get(key).then((storageContent) => {
+      this.userName = AutenticationHelper.getUserName(storageContent);
+    });
+  }
+
+
   goToRHPage() {
-
     this.navCtrl.push(IntroPage);
-
   }
 
   goToTarefaPage() {
-
     this.navCtrl.push(TarefasPage);
   }
 
@@ -46,7 +55,7 @@ export class HomePage {
       this.platform.ready().then(() => {
         const browser = new InAppBrowser().create(url, '_system');
       });
-      
+
     });
   }
 

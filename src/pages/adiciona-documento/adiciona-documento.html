@@ -1,14 +1,99 @@
-<ion-header>
+<!-- <ion-header>
 
   <ion-navbar>
     <ion-title>Adicionar Documento</ion-title>
   </ion-navbar>
 
-</ion-header>
+</ion-header> -->
 
+<ion-content padding class="fundo">
+  <ion-slides>
+    <ion-slide>
 
-<ion-content padding>
+      <h4 class="slide-title">Arquivo</h4>
 
-  
+      <button ion-button class="btn" style="background-color: #FF6700" (click)="goToCamera()">
+        <ion-col>
+          <span class="btn-icon" style="color: white">
+            <ion-icon name="md-camera" style="zoom:4.0;"> </ion-icon>
+          </span>
+          <br>
+          CÂMERA
+        </ion-col>
+        
+      </button>
+
+      <button ion-button class="btn" style="background-color: #00C802" (click)="goToGaleria()">
+        <ion-col>
+          <span class="btn-icon" style="color: white">
+            <ion-icon name="md-image" style="zoom:4.0;"> </ion-icon>
+          </span>
+          <br>
+          GALERIA
+        </ion-col>        
+      </button>
+
+    </ion-slide>
+    <ion-slide padding>
+
+      <h4 class="slide-title">Modelos</h4>
+
+      <ion-item class="e2-input">
+        <ion-label>Modelo</ion-label>
+        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()">
+          <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="e2-input">
+        <ion-label>Documento</ion-label>
+        <ion-select [(ngModel)]="documento" (ionChange)="onDocSelect()">
+          <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}}</ion-option>
+        </ion-select>
+      </ion-item>
+
+    </ion-slide>
+    <ion-slide>
+
+        <h4 class="slide-title">Índices</h4>
+        <br>
+
+        <div *ngIf="indicesReady">
+
+          <form (submit)="sincronizar()" novalidate>
+
+            <div *ngFor="let indice of indices">
+
+              <div *ngIf="!indice.hasDic; else hasDic">
+                <ion-item class="e2-input">
+                  <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}"></ion-input>
+                </ion-item>                
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </div>
+
+              <ng-template #hasDic>
+                <ion-item class="e2-input">
+                  <ion-label>{{indice.nameLabel}}</ion-label>
+                  <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}">
+                    <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
+                  </ion-select>
+                </ion-item>
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </ng-template>
+
+            </div>
+
+            <button ion-button block class="btn-sync" style="background-color: #00C802">
+              <span class="btn-icon" style="color: white">
+                <ion-icon name="md-cloud-upload" style="zoom:2.0;"> </ion-icon>
+              </span>
+            </button>
+
+          </form>
+
+        </div>
+    </ion-slide>
+
+  </ion-slides>
 
 </ion-content>

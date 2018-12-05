@@ -14,9 +14,6 @@ import { HomePage } from '../home/home';
 })
 export class LoginPage {
 
-  public ivBytes = [97, 15, 21, 52, 12, 14, 47, 62, 25, 24, 13, 20, 63, 16, 13, 24];
-  public keyBytes = [54, 51, 49, 49, 54, 55, 53, 54, 49, 54, 55, 57, 102, 99, 98, 54, 102, 99, 57, 49, 54, 57, 49, 97, 97, 55, 97, 55, 99, 55, 101, 53];
-
   public keyStorage = AutenticationHelper.getKeyStorage();
 
   public loginForm: any;
@@ -87,7 +84,7 @@ export class LoginPage {
 
       let dados = user.value + "||" + password.value + "||" + base.value + "||" + data + "||" + hora + "||android||1.0.0.0||" + "";
 
-      let dadosEncod = CryptoAES.crypt(dados, this.keyBytes, this.ivBytes);
+      let dadosEncod = CryptoAES.crypt(dados, AutenticationHelper.keyBytes, AutenticationHelper.ivBytes);
 
       var e2docResponse = this.http.getValidationTokenApp(AutenticationHelper.urlValidateUser + dadosEncod);
 

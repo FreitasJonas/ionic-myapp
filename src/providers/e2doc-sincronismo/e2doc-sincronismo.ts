@@ -24,7 +24,9 @@ export class E2docSincronismoProvider {
 
   //texto xml
   //tag de resultado para obter valor
-  postSOAP(xml: any): Promise<string> {
+  postSOAP(xml: any): Promise<string> { 
+
+    console.log(xml.xmlText);
 
     return new Promise((resolve, reject) => {
 
@@ -179,6 +181,55 @@ export class E2docSincronismoProvider {
             })
           }, (err) => {
             reject(doc.modelo + "Falha iniciando sincronismo: " + err);
+          })
+        }, (err) => {
+
+          reject("Falha na autentição: " + err);
+        });
+      }
+    });
+  }
+
+  enviarDocumento(doc: any, campos: string): Promise<any> {
+
+    return new Promise((resolve, reject) => {
+
+      if (typeof (doc) === "undefined") {
+        reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
+      }
+      else {
+
+        console.log("Autenticando!");
+        this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
+
+          this.token = res;
+
+          console.log("Iniciando Sincronismo! ");
+
+          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, this.user, doc.protocolo)).then((res) => {
+
+            console.log("Enviando Parte!");
+            this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
+
+              console.log("Enviando arquivo!");
+              this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
+
+                console.log("Finalizando!");
+                this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
+
+                  resolve(doc.modelo + ": Envio finalizado!");
+
+                }, (err) => {
+                  reject(doc.modelo + ": Falha finalizando: " + err);
+                })
+              }, (err) => {
+                reject(doc.modelo + ": Falha enviando arquivo: " + err);
+              })
+            }, (err) => {
+              reject(doc.modelo + ": Falha enviando parte: " + err);
+            })
+          }, (err) => {
+            reject(doc.modelo + ": Falha iniciando sincronismo: " + err);
           })
         }, (err) => {
 

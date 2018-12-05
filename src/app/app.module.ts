@@ -36,7 +36,10 @@ import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adicion
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp),
+    IonicModule.forRoot(MyApp,  {
+      scrollAssist: false, 
+      autoFocusAssist: false
+  }),
     IonicStorageModule.forRoot(),
     LoginPageModule,
     DocFichaPageModule,
@@ -47,7 +50,7 @@ import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adicion
     TarefaPageModule,
     AdicionaDocumentoPageModule,
     HttpClientModule,    
-    SignaturePadModule,
+    SignaturePadModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [

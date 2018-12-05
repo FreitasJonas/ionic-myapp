@@ -11,18 +11,18 @@
   <ion-card class="card">
 
     <ion-card-header>
-      <img src="assets/imgs/estec.png" class="center" name="estec">
+      <img src="assets/imgs/logo_e2doc.png" class="center" name="estec">
     </ion-card-header>
 
     <ion-card-content class="primary-font" >
 
-      <h2 text-center>
+      <h2 text-center style="color:#ffffff;">
           Acesse o e2Doc Enterprise
       </h2>
 
         <form padding [formGroup]="loginForm" (submit)="login()" novalidate>
 
-          <ion-item>
+          <ion-item class="e2-input">
             <ion-label> <ion-icon name="md-grid"></ion-icon>  </ion-label>
             <ion-input [(ngModel)]="base" formControlName="base" placeholder="Empresa" type="text" clearInput
               clearOnEdit="false">
@@ -30,7 +30,7 @@
           </ion-item>
           <h6 *ngIf="errorBase" class="error"> {{messageBase}}</h6>
 
-          <ion-item>
+          <ion-item class="e2-input">
               <ion-label> <ion-icon name="md-person"></ion-icon>  </ion-label>
             <ion-input [(ngModel)]="user" formControlName="user"  placeholder="Usuário" type="text" clearInput
               clearOnEdit="false">
@@ -38,7 +38,7 @@
           </ion-item>
           <h6 *ngIf="errorUser" class="error"> {{messageUser}}</h6>
 
-          <ion-item>
+          <ion-item class="e2-input">
               <ion-label> <ion-icon name="md-key"></ion-icon>  </ion-label>
             <ion-input [(ngModel)]="password" formControlName="password" type="password" placeholder="Senha" clearInput
               clearOnEdit="false">

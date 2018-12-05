@@ -31,6 +31,18 @@ export class AutenticationHelper {
     }
   }
 
+  static getUserName(storageContent) {
+
+    if (storageContent !== null) {
+
+      let decryptStr = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes);
+
+      let vetDados = decryptStr.split("||");
+
+      return vetDados[0];
+    }
+  }
+
   static getKeyStorage() {
     return "AutSorage";
   }

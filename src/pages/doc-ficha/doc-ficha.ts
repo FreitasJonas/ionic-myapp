@@ -64,7 +64,7 @@ export class DocFichaPage {
       this.indices = IndiceModelConverter.converter(this.pasta);      
   }
   
-  goToIntoPage(mensagem: string) {
+  goToHomePage(mensagem: string) {
 
     //exibe alert
     this.alertCtrl.create({
@@ -164,27 +164,27 @@ export class DocFichaPage {
                 //exibe toast com mensagem
                 ctx.msgHelper.presentToast2(res);
 
-                ctx.goToIntoPage("Envio finalizado com sucesso!");
+                ctx.goToHomePage("Envio finalizado com sucesso!");
 
               }, (err) => {       
                 loading.dismiss();         
-                ctx.goToIntoPage(err);
+                ctx.goToHomePage(err);
               });
             }, (err) => {         
               loading.dismiss();     
-              ctx.goToIntoPage(err);
+              ctx.goToHomePage(err);
             });
           }, (err) => {
             loading.dismiss();
-            ctx.goToIntoPage(err);
+            ctx.goToHomePage(err);
           });
         }, (err) => {
           loading.dismiss();
-          ctx.goToIntoPage(err);
+          ctx.goToHomePage(err);
         });
       }, (err) => {
         loading.dismiss();
-        ctx.goToIntoPage(err);
+        ctx.goToHomePage(err);
       });      
     });
   }

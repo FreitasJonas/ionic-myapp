@@ -77,7 +77,7 @@ export class SincronismoXmlProvider {
             <string>`+ info.extensao + `</string>
             <string>`+ info.id_doc + `</string>            
           </vDadosDocumento>
-          <modelo> CONTRATACAO </modelo>
+          <modelo> ` + info.modeloPasta + ` </modelo>
           <protocolo>`+ info.protocolo + `</protocolo>
         </SincronismoEnviarArquivo>
       </soap12:Body>
