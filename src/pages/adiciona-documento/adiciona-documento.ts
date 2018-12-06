@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController, Platform } from 'ionic-angular';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
 import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
@@ -36,6 +36,7 @@ export class AdicionaDocumentoPage {
   public documentos = new Array<ModeloDoc>();
 
   constructor(public navCtrl: NavController,
+    public platform: Platform,
     public navParams: NavParams,
     private e2doc: E2docSincronismoProvider,
     private alertCtrl: AlertController,
@@ -71,7 +72,7 @@ export class AdicionaDocumentoPage {
   goToCamera() {
 
     let cameraOptions = {
-      quality: 80,
+      quality: 70,
       destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
       sourceType: this.camera.PictureSourceType.CAMERA,
@@ -86,13 +87,12 @@ export class AdicionaDocumentoPage {
   goToGaleria() {
 
     let cameraOptions = {
-      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
-      destinationType: this.camera.DestinationType.FILE_URI,
-      quality: 100,
-      targetWidth: 1000,
-      targetHeight: 1000,
+      quality: 70,
+      destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
-      correctOrientation: true
+      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
+      mediaType: this.camera.MediaType.PICTURE,      
+      allowEdit: true
     }
 
     this.getImage(cameraOptions);
@@ -100,43 +100,69 @@ export class AdicionaDocumentoPage {
 
   getImage(cameraOptions) {
 
-    this.camera.getPicture(cameraOptions).then((file_uri) => {
-      this.imageSrc = file_uri;
-      this.slides.slideNext();
-    },
-      err => {
-        this.alertError(err);
-      });
+    let cordova = this.platform.is('cordova');
 
-    // this.imageSrc = Hasher.getBase64Example();
-    // this.slides.slideNext();
+    if(cordova) {
+
+      this.camera.getPicture(cameraOptions).then((file_uri) => {
+        this.imageSrc = file_uri;
+        this.slides.slideNext();
+      },
+        err => {
+          this.alertError(err);
+        });
+    }
+    else {
+
+      this.imageSrc = Hasher.getBase64Example();
+      this.slides.slideNext();
+
+    }
   }
 
   onPastaSelect() {
+
+    let loadind = this.loadingCtrl.create({
+      spinner: 'circles',
+      content: "Carregando documentos!"
+    });
+
+    loadind.present();
 
     this.getConfigDocumento(this.pasta).then(docs => {
 
       this.documentos = docs;
       this.indicesReady = false;
 
+      loadind.dismiss();
+
     }, err => {
+      loadind.dismiss();
       this.alertError(err);
     });
   }
 
   onDocSelect() {
 
+    let loadind = this.loadingCtrl.create({
+      spinner: 'circles',
+      content: "Carregando índices!"
+    });
+
+    loadind.present();
+
     this.getIndices(this.pasta).then(indices => {
 
       this.indices = indices;
       this.indicesReady = true;
-      console.log(this.indices);
 
+      loadind.dismiss();
+      this.slides.slideNext();
+      
     }, err => {
+      loadind.dismiss();
       this.alertError(err);
-    });
-
-    this.slides.slideNext();
+    });    
   }
 
   sincronizar() {

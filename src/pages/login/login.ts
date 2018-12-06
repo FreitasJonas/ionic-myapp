@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, Platform } from 'ionic-angular';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CryptoAES } from '../../helpers/CryptoAES';
 import { HttpProvider } from '../../providers/http/http';
@@ -13,9 +13,7 @@ import { HomePage } from '../home/home';
   templateUrl: 'login.html',
 })
 export class LoginPage {
-
-  public keyStorage = AutenticationHelper.getKeyStorage();
-
+ 
   public loginForm: any;
   messageBase = "";
   messageUser = "";
@@ -24,7 +22,13 @@ export class LoginPage {
   errorUser = false;
   errorPassword = false;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public formBuilder: FormBuilder, public http: HttpProvider, private storage: Storage, private alertCtrl: AlertController) {
+  constructor(public navCtrl: NavController,
+    private platform: Platform,
+    public navParams: NavParams,
+    public formBuilder: FormBuilder,
+    public http: HttpProvider,
+    private storage: Storage,
+    private alertCtrl: AlertController) {
 
     this.loginForm = this.formBuilder.group({
       base: ['', Validators.required],
@@ -34,22 +38,17 @@ export class LoginPage {
     });
   }
 
-  ionViewWillEnter() {
+  ionViewDidLoad() {
 
-    this.storage.get(this.keyStorage).then(storageContent => {
+    AutenticationHelper.isAutenticated(this.storage).then(isAutenticate => {
+      
+      if(isAutenticate) { this.navCtrl.push(HomePage); } else { this.storage.clear(); }
 
-      if (AutenticationHelper.isAutenticated(storageContent)) {
-
-        this.navCtrl.push(HomePage);
-      }
-      else {
-
-        this.storage.clear();
-      }
     });
   }
 
   login() {
+
     let { base, user, password } = this.loginForm.controls;
 
     if (!this.loginForm.valid) {
@@ -81,15 +80,17 @@ export class LoginPage {
 
       let data = dt.getDate().toString() + "/" + (dt.getMonth() + 1).toString() + "/" + dt.getFullYear();
       let hora = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+      
+      let so = this.platform.is('android') == true ? 'android' : 'ios';
 
-      let dados = user.value + "||" + password.value + "||" + base.value + "||" + data + "||" + hora + "||android||1.0.0.0||" + "";
+      let dados = user.value + "||" + password.value + "||" + base.value + "||" + data + "||" + hora + "||" + so + "||1.0.0.0||" + "";
 
       let dadosEncod = CryptoAES.crypt(dados, AutenticationHelper.keyBytes, AutenticationHelper.ivBytes);
 
-      var e2docResponse = this.http.getValidationTokenApp(AutenticationHelper.urlValidateUser + dadosEncod);
+      var e2docResponse = AutenticationHelper.validateData(this.http, dadosEncod);
 
       if (e2docResponse == "1") {
-        this.saveToStorage(dadosEncod);
+        AutenticationHelper.saveToStorage(this.storage, dadosEncod);
         return this.navCtrl.push(HomePage);
       }
       else {
@@ -109,10 +110,5 @@ export class LoginPage {
 
       }
     }
-  }
-  saveToStorage(dadosEncod: string): any {
-
-    this.storage.set(this.keyStorage, dadosEncod);
-
   }
 }

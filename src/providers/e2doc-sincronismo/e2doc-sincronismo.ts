@@ -50,7 +50,7 @@ export class E2docSincronismoProvider {
       // Send the POST request.
       xmlhttp.open('POST', xml.url, true);
 
-      xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+      xmlhttp.setRequestHeader('Content-Type', 'text/xml;charset=utf-8');
 
       xmlhttp.send(xml.xmlText);
 
@@ -79,7 +79,7 @@ export class E2docSincronismoProvider {
       // Send the POST request.
       xmlhttp.open('POST', xml.url, true);
 
-      xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+      xmlhttp.setRequestHeader('Content-Type', 'text/xml;charset=utf-8');
 
       xmlhttp.send(xml.xmlText);
 

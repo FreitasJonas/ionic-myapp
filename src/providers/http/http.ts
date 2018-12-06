@@ -8,7 +8,7 @@ export class HttpProvider {
 
   }
 
-  getValidationTokenApp(url) {
+  getValidationApp(url) {
 
     // this.http.get(url, {}).subscribe(data => {
 

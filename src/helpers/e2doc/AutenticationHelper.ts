@@ -1,4 +1,6 @@
 import { CryptoAES } from "../CryptoAES";
+import { Storage } from '@ionic/storage';
+import { HttpProvider } from "../../providers/http/http";
 
 export class AutenticationHelper {
 
@@ -9,26 +11,43 @@ export class AutenticationHelper {
   public static urlBrowser = "https://www.e2doc.com.br/login/loginapp?c=a";             //Cria url que será enviada ao nevegador
   public static urlValidateUser = "https://www.e2doc.com.br/login/checkapp?c=a";  //Cria que será verificada
 
-  static isAutenticated(storageContent) {
+  static isAutenticated(storage: Storage): Promise<boolean> {
 
-    if (storageContent !== null) {
+    return new Promise((resolve) => {
 
-      let decryptStr = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes);
+      storage.get(this.getKeyStorage()).then(storageContent => {
 
-      let vetDados = decryptStr.split("||");
+        if (storageContent !== null) {
 
-      let data = vetDados[3].split("/");
-      let hora = vetDados[4].split(":");
+          let vetDados = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes).split("||");
 
-      var dateStorage = new Date(data[2], data[1] - 1, data[0], hora[0], hora[1], hora[2]);
+          let data = vetDados[3].split("/");
+          let hora = vetDados[4].split(":");
 
-      var now = new Date();
+          //ano, mes, dia, hora, minuto, segundo
+          var dateStorage = new Date(data[2], data[1] - 1, data[0], hora[0], hora[1], hora[2]);
 
-      var timeDiff = Math.abs(now.getTime() - dateStorage.getTime());
-      var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          var now = new Date();
 
-      return diffDays <= 30;
-    }
+          var timeDiff = Math.abs(now.getTime() - dateStorage.getTime());
+          var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+          resolve(diffDays <= 30);
+        }
+      });
+    });
+  }
+
+  static validateData( http: HttpProvider, dadosEncod : string ) : string {
+
+    return http.getValidationApp(AutenticationHelper.urlValidateUser + dadosEncod);
+
+  }
+
+  static saveToStorage(storage: Storage, dadosEncod: string): any {
+
+    storage.set(AutenticationHelper.getKeyStorage(), dadosEncod);
+
   }
 
   static getUserName(storageContent) {

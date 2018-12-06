@@ -22,7 +22,10 @@ export class MyApp {
 
   pages: Array<{ title: string, component: any }>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, private storage: Storage) {
+  constructor(public platform: Platform,
+    public statusBar: StatusBar,
+    public splashScreen: SplashScreen,
+    private storage: Storage) {
 
     this.initializeApp();
 
@@ -65,7 +68,7 @@ export class MyApp {
     this.storage.get(AutenticationHelper.getKeyStorage()).then(dados => {
 
       url = AutenticationHelper.urlBrowser + dados;
-      
+
       this.platform.ready().then(() => {
         const browser = new InAppBrowser().create(url, '_system');
       });

@@ -41,7 +41,7 @@ export class E2docPesquisaProvider {
             // Send the POST request.
             xmlhttp.open('POST', self.host, true);
 
-            xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+            xmlhttp.setRequestHeader('Content-Type', 'text/xml;charset=utf-8');
 
             xmlhttp.send(xml.xmlText);
 
@@ -83,7 +83,7 @@ export class E2docPesquisaProvider {
             // Send the POST request.
             xmlhttp.open('POST', self.host, true);
 
-            xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+            xmlhttp.setRequestHeader('Content-Type', 'text/xml;charset=utf-8');
 
             xmlhttp.send(xml.xmlText);
 
@@ -122,7 +122,7 @@ export class E2docPesquisaProvider {
             // Send the POST request.
             xmlhttp.open('POST', self.host, true);
 
-            xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+            xmlhttp.setRequestHeader('Content-Type', 'text/xml;charset=utf-8');
 
             xmlhttp.send(xml.xmlText);
 
