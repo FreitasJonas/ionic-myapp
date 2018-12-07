@@ -40,7 +40,7 @@ export class LoginPage {
 
   ionViewDidLoad() {
 
-    AutenticationHelper.isAutenticated(this.storage).then(isAutenticate => {
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
       
       if(isAutenticate) { this.navCtrl.push(HomePage); } else { this.storage.clear(); }
 
@@ -76,18 +76,10 @@ export class LoginPage {
     }
     else {
 
-      let dt = new Date();
-
-      let data = dt.getDate().toString() + "/" + (dt.getMonth() + 1).toString() + "/" + dt.getFullYear();
-      let hora = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-      
       let so = this.platform.is('android') == true ? 'android' : 'ios';
-
-      let dados = user.value + "||" + password.value + "||" + base.value + "||" + data + "||" + hora + "||" + so + "||1.0.0.0||" + "";
-
+      let dados = AutenticationHelper.getDados(user.value, password.value, base.value, so);
       let dadosEncod = CryptoAES.crypt(dados, AutenticationHelper.keyBytes, AutenticationHelper.ivBytes);
-
-      var e2docResponse = AutenticationHelper.validateData(this.http, dadosEncod);
+      var e2docResponse = AutenticationHelper.isValidUser(this.http, dadosEncod);
 
       if (e2docResponse == "1") {
         AutenticationHelper.saveToStorage(this.storage, dadosEncod);

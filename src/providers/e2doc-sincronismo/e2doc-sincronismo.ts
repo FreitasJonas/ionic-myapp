@@ -26,8 +26,6 @@ export class E2docSincronismoProvider {
   //tag de resultado para obter valor
   postSOAP(xml: any): Promise<string> { 
 
-    console.log(xml.xmlText);
-
     return new Promise((resolve, reject) => {
 
       const xmlhttp = new XMLHttpRequest();

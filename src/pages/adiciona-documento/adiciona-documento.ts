@@ -10,6 +10,10 @@ import { Camera } from '@ionic-native/camera';
 import { Hasher } from '../../helpers/Hasher';
 import { IndiceValidator } from '../../helpers/e2docS/IndiceValidator';
 import { SyncHelper } from '../../helpers/e2docS/SyncHelper';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { Storage } from '@ionic/storage';
+import { LoginPage } from '../login/login';
+import { HttpProvider } from '../../providers/http/http';
 
 @IonicPage()
 @Component({
@@ -41,7 +45,9 @@ export class AdicionaDocumentoPage {
     private e2doc: E2docSincronismoProvider,
     private alertCtrl: AlertController,
     private camera: Camera,
-    private loadingCtrl: LoadingController) {
+    private loadingCtrl: LoadingController,
+    private storage: Storage,
+    public http: HttpProvider) {
 
     this.getConfigPasta().then(pst => {
       this.pastas = pst;
@@ -49,6 +55,15 @@ export class AdicionaDocumentoPage {
     }, err => {
 
       this.alertError(err);
+    });
+  }
+
+  ionViewDidLoad() {
+
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
+      
+      if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
+
     });
   }
 

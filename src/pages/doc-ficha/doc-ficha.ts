@@ -12,6 +12,9 @@ import { Status } from '../../helpers/SlideModel';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { HomePage } from '../home/home';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { LoginPage } from '../login/login';
+import { HttpProvider } from '../../providers/http/http';
 
 @IonicPage()
 @Component({
@@ -56,12 +59,22 @@ export class DocFichaPage {
     public toastCtrl: ToastController,
     private e2doc: E2docSincronismoProvider,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController) {
+    private alertCtrl: AlertController,
+    public http: HttpProvider) {
 
       //obtem a chave do storage recebido por parametro
       this.pasta = this.navParams.get('pasta');      
             
       this.indices = IndiceModelConverter.converter(this.pasta);      
+  }
+
+  ionViewDidLoad() {
+
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
+      
+      if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
+
+    });
   }
   
   goToHomePage(mensagem: string) {

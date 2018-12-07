@@ -8,6 +8,10 @@ import { Hasher } from '../../helpers/Hasher';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 import { HomePage } from '../home/home';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { Storage } from '@ionic/storage';
+import { LoginPage } from '../login/login';
+import { HttpProvider } from '../../providers/http/http';
 
 @IonicPage()
 @Component({
@@ -41,8 +45,9 @@ export class TarefaPage {
     public navParams: NavParams,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private e2doc: E2docSincronismoProvider
-  ) {
+    private e2doc: E2docSincronismoProvider,
+    private storage: Storage,
+    public http: HttpProvider) {
 
     //obtem a chave do storage recebido por parametro
     this.pasta = this.navParams.get('pasta');
@@ -60,6 +65,17 @@ export class TarefaPage {
 
 
     this.indices = IndiceModelConverter.converter(this.pasta);
+  }
+
+  //quando a tela é carregada
+  ionViewDidLoad() {
+
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
+
+      if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
+
+    });
+
   }
 
   //limpa canvas da assinatura
@@ -107,7 +123,7 @@ export class TarefaPage {
       });
 
       var campos = e2docHelper.getStringIndices(self.indices);
-      
+
       self.e2doc.enviarDocumentos(vetDoc, 0, campos).then(res => {
 
         //ao final o loading é finalizado                

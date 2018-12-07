@@ -10,6 +10,10 @@ import { SlideModelConverter } from '../../helpers/SlideModelConverter';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 import { SlideModel, Status } from '../../helpers/SlideModel';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { Storage } from '@ionic/storage';
+import { LoginPage } from '../login/login';
+import { HttpProvider } from '../../providers/http/http';
 
 @IonicPage()
 @Component({
@@ -59,7 +63,9 @@ export class IntroPage {
     private e2doc: E2docSincronismoProvider,
     private geolocation: Geolocation,
     public toastCtrl: ToastController,
-    public loadingCtrl: LoadingController
+    public loadingCtrl: LoadingController,
+    private storage: Storage,
+    public http: HttpProvider
   ) {
 
     //obtem configuração da pasta, modelos e indices
@@ -71,6 +77,12 @@ export class IntroPage {
 
   //quando a tela é carregada
   ionViewDidLoad() {
+
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
+      
+      if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
+
+    });
 
     //define protocolo
     let dt = new Date();

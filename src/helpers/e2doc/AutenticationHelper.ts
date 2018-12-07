@@ -1,6 +1,8 @@
 import { CryptoAES } from "../CryptoAES";
 import { Storage } from '@ionic/storage';
 import { HttpProvider } from "../../providers/http/http";
+import date from 'date-and-time';
+
 
 export class AutenticationHelper {
 
@@ -9,9 +11,20 @@ export class AutenticationHelper {
 
   //Cria a string de verificação e de envio
   public static urlBrowser = "https://www.e2doc.com.br/login/loginapp?c=a";             //Cria url que será enviada ao nevegador
-  public static urlValidateUser = "https://www.e2doc.com.br/login/checkapp?c=a";  //Cria que será verificada
+  public static urlValidateUser = "https://www.e2doc.com.br/login/checkapp?c=a";        //Cria que será verificada
 
-  static isAutenticated(storage: Storage): Promise<boolean> {
+  static getDados(user: string, password: string, base: string, platform: string) : string {
+
+    let dt = new Date();
+
+    let data = date.format(dt, 'DD/MM/YYYY');
+    let hora = date.format(dt, 'HH:mm:ss');
+
+    return user + "||" + password + "||" + base + "||" + data + "||" + hora + "||" + platform + "||1.0.0.0||" + "";
+
+  }
+
+  static getDadosFromStorage(storage: Storage) : Promise<any> {
 
     return new Promise((resolve) => {
 
@@ -19,20 +32,56 @@ export class AutenticationHelper {
 
         if (storageContent !== null) {
 
-          let vetDados = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes).split("||");
+          let strDados = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes);
 
-          let data = vetDados[3].split("/");
-          let hora = vetDados[4].split(":");
+          resolve(strDados);
+        }
+      });
+    });
+  }
 
-          //ano, mes, dia, hora, minuto, segundo
-          var dateStorage = new Date(data[2], data[1] - 1, data[0], hora[0], hora[1], hora[2]);
+  static isValidUser(http: HttpProvider, strData: string) : string {
 
-          var now = new Date();
+    return http.getValidationApp(AutenticationHelper.urlValidateUser + strData);
 
-          var timeDiff = Math.abs(now.getTime() - dateStorage.getTime());
-          var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  }
 
-          resolve(diffDays <= 30);
+  static isAutenticated(http: HttpProvider, storage: Storage): Promise<boolean> {
+
+    return new Promise((resolve) => {
+
+      storage.get(this.getKeyStorage()).then(dadosCodificados => {
+
+        if (dadosCodificados !== null) {
+
+          let vetDados = CryptoAES.decrypt(decodeURIComponent(dadosCodificados), this.keyBytes, this.ivBytes).split("||");
+
+          let data = vetDados[3].split("/");          
+          var dateStorage = new Date(data[2], data[1] - 1, data[0]);
+          
+          let agora = new Date();
+          
+          let diff = date.subtract(agora, dateStorage).toDays();   
+
+          //se estiver dentro do prazo de 30 dias
+          if (diff <= 30) {
+
+            let e2docRetorno = this.validateData(http, dadosCodificados);
+
+            //se estiver ok
+            if(e2docRetorno == "1") {
+              resolve(true);
+            }
+            else {
+              resolve(false);
+            }
+          }
+          else {
+            resolve(false);
+          }
+        }
+        else{
+          resolve(false);
         }
       });
     });

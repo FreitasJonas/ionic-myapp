@@ -7,6 +7,25 @@
 </ion-header> -->
 
 <ion-content padding class="fundo">
+
+  <ion-grid>
+    <ion-row>
+
+      <div col-12 class="page-header">
+
+        <ion-col col-2 style="float: left;">
+          <button class="btn-menu" ion-button menuToggle>
+            <ion-icon style="zoom:2.0; color: #00D0D4" name="md-menu">
+            </ion-icon>
+          </button>
+        </ion-col>
+
+      </div>
+
+    </ion-row>
+  </ion-grid>
+
+
   <ion-slides>
     <ion-slide>
 
@@ -20,7 +39,7 @@
           <br>
           CÂMERA
         </ion-col>
-        
+
       </button>
 
       <button ion-button class="btn" style="background-color: #00C802" (click)="goToGaleria()">
@@ -30,7 +49,7 @@
           </span>
           <br>
           GALERIA
-        </ion-col>        
+        </ion-col>
       </button>
 
     </ion-slide>
@@ -55,43 +74,44 @@
     </ion-slide>
     <ion-slide>
 
-        <h4 class="slide-title">Índices</h4>
-        <br>
+      <h4 class="slide-title">Índices</h4>
+      <br>
 
-        <div *ngIf="indicesReady">
+      <div *ngIf="indicesReady">
 
-          <form (submit)="sincronizar()" novalidate>
+        <form (submit)="sincronizar()" novalidate>
 
-            <div *ngFor="let indice of indices">
+          <div *ngFor="let indice of indices">
 
-              <div *ngIf="!indice.hasDic; else hasDic">
-                <ion-item class="e2-input">
-                  <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}"></ion-input>
-                </ion-item>                
-                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
-              </div>
-
-              <ng-template #hasDic>
-                <ion-item class="e2-input">
-                  <ion-label>{{indice.nameLabel}}</ion-label>
-                  <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}">
-                    <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
-                  </ion-select>
-                </ion-item>
-                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
-              </ng-template>
-
+            <div *ngIf="!indice.hasDic; else hasDic">
+              <ion-item class="e2-input">
+                <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}" clearInput
+                clearOnEdit="false"></ion-input>
+              </ion-item>
+              <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
             </div>
 
-            <button ion-button block class="btn-sync" style="background-color: #00C802">
-              <span class="btn-icon" style="color: white">
-                <ion-icon name="md-cloud-upload" style="zoom:2.0;"> </ion-icon>
-              </span>
-            </button>
+            <ng-template #hasDic>
+              <ion-item class="e2-input">
+                <ion-label>{{indice.nameLabel}}</ion-label>
+                <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}">
+                  <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
+                </ion-select>
+              </ion-item>
+              <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+            </ng-template>
 
-          </form>
+          </div>
 
-        </div>
+          <button ion-button block class="btn-sync" style="background-color: #00C802">
+            <span class="btn-icon" style="color: white">
+              <ion-icon name="md-cloud-upload" style="zoom:2.0;"> </ion-icon>
+            </span>
+          </button>
+
+        </form>
+
+      </div>
     </ion-slide>
 
   </ion-slides>
