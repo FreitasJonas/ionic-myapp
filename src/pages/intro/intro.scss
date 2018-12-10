@@ -1,21 +1,25 @@
 page-intro {
 
-    .myapp-slide p, h2{        
-        color: #000000;
+    .app-slide p, h2{        
+        color: #ffffff;
     }
 
-    .myapp-slide img {
+    .app-slide-icon, p{        
+        color: black;
+    }
+
+    .app-slide img {
         width: 150px;
         height: 150px;                    
     }
 
-    .myapp-slide-icon{
+    .app-slide-icon{
         padding-top: 10px; 
         border-radius: 10px;
         background-color: #fcfcfc;
     }
 
-    .myapp-slide .picture-icon {          
+    .app-slide .picture-icon {          
         background-color: #ffffff;                      
     }  
 
@@ -28,9 +32,9 @@ page-intro {
     .msgText {            
         color: green;
     }
-    
-    .myapp-slide-text{
-        margin-top: 60%;
+
+    ion-slide {
+        margin-top: -30px;    
         
     }
 }

@@ -1,12 +1,21 @@
-<ion-header>
+<ion-content padding class="fundo">
 
-  <ion-navbar>
-    <ion-title>Tarefas</ion-title>
-  </ion-navbar>
+    <ion-grid>
+        <ion-row>
+    
+          <div col-12 class="page-header">
+            <ion-col col-2 style="float: left;">
+              <button class="btn-menu" ion-button menuToggle>
+                <ion-icon style="zoom:2.0; color: #00D0D4" name="md-menu">
+                </ion-icon>
+              </button>
+            </ion-col>
+          </div>
+    
+        </ion-row>
+      </ion-grid>
 
-</ion-header>
 
-<ion-content padding>
 
     <ion-card (click) = "goToTarefaPage()">
         <ion-card-header>

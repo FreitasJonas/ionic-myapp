@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, Platform } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, Platform, MenuController } from 'ionic-angular';
 import { FormBuilder, Validators } from '@angular/forms';
 import { CryptoAES } from '../../helpers/CryptoAES';
 import { HttpProvider } from '../../providers/http/http';
@@ -28,7 +28,10 @@ export class LoginPage {
     public formBuilder: FormBuilder,
     public http: HttpProvider,
     private storage: Storage,
-    private alertCtrl: AlertController) {
+    private alertCtrl: AlertController,
+    public menuCtrl: MenuController) {
+
+      this.menuCtrl.enable(false, 'app_menu');
 
     this.loginForm = this.formBuilder.group({
       base: ['', Validators.required],

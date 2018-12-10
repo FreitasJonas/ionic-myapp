@@ -1,17 +1,42 @@
-<ion-menu [content]="content">
+<ion-menu id="app_menu" [content]="content">
 <ion-header>
-    <ion-toolbar>
-        <ion-title>Menu</ion-title>
-    </ion-toolbar>
+
+    <div class="menu-header">
+        <ion-row>
+
+        <div col-6>
+            <div class="menu-header-user">
+                    <ion-icon name="person"></ion-icon>
+            </div>
+        </div>
+
+        <div col-6>
+
+            <div class="menu-header-text"> 
+                    <p>Usuário: {{usuario}}</p>
+                    <p>Base: {{base}}</p>
+                    <p>Versão: {{versao}}</p>
+            </div>
+
+        </div>
+
+    </ion-row>
+    </div>
 </ion-header>
 
 <ion-content>
-    <ion-list>
-        <button ion-item menuClose *ngFor="let p of pages" (click)="openPage(p)" >
+    <ion-list class="menu-content-list">
+        <ion-item no-lines ion-item menuClose *ngFor="let p of pages" (click)="openPage(p)" >
+                <ion-icon name="{{p.icon}}" style="zoom: 1 .0;"></ion-icon>&nbsp;&nbsp;&nbsp;&nbsp;
             {{p.title}}
-        </button>
+        </ion-item>
     </ion-list>
 </ion-content>
+
+<ion-footer class="menu-footer">
+    <h6>Ajuda</h6>
+</ion-footer>
+
 </ion-menu>
 
 <ion-nav [root]="rootPage" type="overlay" #content swipeBackEnabled="false" ></ion-nav>

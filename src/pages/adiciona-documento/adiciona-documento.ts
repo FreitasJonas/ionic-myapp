@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController, Platform } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController, Platform, MenuController, ToastController } from 'ionic-angular';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
 import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
@@ -14,6 +14,7 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from '../../providers/http/http';
+import { MsgHelper } from '../../helpers/MsgHelper';
 
 @IonicPage()
 @Component({
@@ -29,7 +30,7 @@ export class AdicionaDocumentoPage {
 
   @ViewChild(Slides) slides: Slides;
 
-  imageSrc: any;
+  imageSrc: any = "";
   public indicesReady: boolean;
 
   public pasta: ModeloPasta;
@@ -39,6 +40,9 @@ export class AdicionaDocumentoPage {
   public pastas = new Array<ModeloPasta>();
   public documentos = new Array<ModeloDoc>();
 
+   //helper para exebir toast
+   public msgHelper = new MsgHelper(this.toastCtrl);
+
   constructor(public navCtrl: NavController,
     public platform: Platform,
     public navParams: NavParams,
@@ -47,7 +51,11 @@ export class AdicionaDocumentoPage {
     private camera: Camera,
     private loadingCtrl: LoadingController,
     private storage: Storage,
-    public http: HttpProvider) {
+    public http: HttpProvider,
+    public menuCtrl: MenuController,
+    public toastCtrl: ToastController) {
+
+    this.menuCtrl.enable(true, 'app_menu');
 
     this.getConfigPasta().then(pst => {
       this.pastas = pst;
@@ -61,10 +69,14 @@ export class AdicionaDocumentoPage {
   ionViewDidLoad() {
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
-      
-      if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
+
+      if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
     });
+  }
+
+  clearDateTime(id) {
+    this.indices.find(i => i.id == id).valor = null;
   }
 
   alertError(msg) {
@@ -106,7 +118,7 @@ export class AdicionaDocumentoPage {
       destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
       sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
-      mediaType: this.camera.MediaType.PICTURE,      
+      mediaType: this.camera.MediaType.PICTURE,
       allowEdit: true
     }
 
@@ -117,7 +129,7 @@ export class AdicionaDocumentoPage {
 
     let cordova = this.platform.is('cordova');
 
-    if(cordova) {
+    if (cordova) {
 
       this.camera.getPicture(cameraOptions).then((file_uri) => {
         this.imageSrc = file_uri;
@@ -173,33 +185,43 @@ export class AdicionaDocumentoPage {
 
       loadind.dismiss();
       this.slides.slideNext();
-      
+
+      console.log(indices);
+
     }, err => {
       loadind.dismiss();
       this.alertError(err);
-    });    
+    });
   }
 
   sincronizar() {
 
-    console.clear();
-    console.log(this.pasta);
-    console.log(this.documento);
+    // console.clear();
+    // console.log(this.pasta);
+    // console.log(this.documento);
+    // console.log(this.imageSrc);
 
-    this.indices.forEach((indice) => {
+    if (this.imageSrc != "") {
 
-      IndiceValidator.validade(indice);
+      this.indices.forEach((indice) => {
 
-    });
+        IndiceValidator.validade(indice);
 
-    let notValid = this.indices.some((i => i.validate == false));
+      });
 
-    if (!notValid) {
+      let notValid = this.indices.some((i => i.validate == false));
 
-      this.enviaDoc();
+      if (!notValid) {
 
+        this.enviaDoc();
+
+      }
     }
+    else {
 
+      this.msgHelper.presentToast2("Documento não selecionado!");
+      this.slides.slideTo(0);
+    }
   }
 
   getConfigPasta(): Promise<any> {
@@ -449,6 +471,9 @@ export class AdicionaDocumentoPage {
     SyncHelper.getVetDoc(this.pasta, this.documento, this.imageSrc).then(vetDoc => {
 
       this.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
+
+        //limpa base64 da imagem
+        this.imageSrc = "";
 
         loading.dismiss();
 

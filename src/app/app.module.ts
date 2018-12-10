@@ -28,6 +28,7 @@ import { HomePageModule } from '../pages/home/home.module';
 import { HomePage } from '../pages/home/home';
 import { LogoutPageModule } from '../pages/logout/logout.module';
 import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adiciona-documento.module';
+import { AppVersion } from '@ionic-native/app-version';
 
 
 @NgModule({
@@ -70,7 +71,8 @@ import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adicion
     SincronismoXmlProvider,
     E2docSincronismoProvider,
     E2docPesquisaProvider,    
-    HttpProvider
+    HttpProvider,
+    AppVersion
   ]
 })
 export class AppModule {}

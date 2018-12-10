@@ -18,8 +18,7 @@ export class MsgHelper {
   presentToast2(msg: string) {
     const toast = this.toastCtrl.create({
       message: msg,
-      duration: 8000,
-      position: "top"
+      duration: 5000
     });
     toast.present();
   }

@@ -1,52 +1,60 @@
-<ion-header>
+<ion-content padding class="fundo">
 
-  <ion-navbar>
-    <ion-title>Tarefa</ion-title>
-  </ion-navbar>
+  <ion-grid>
+    <ion-row>
 
-</ion-header>
+      <div col-12>
+        <ion-col col-2 style="float: left;">
+          <button class="btn-menu" ion-button menuToggle>
+            <ion-icon style="zoom:2.0; color: #00D0D4" name="md-menu">
+            </ion-icon>
+          </button>
+        </ion-col>
+      </div>
 
-<ion-content padding>
+    </ion-row>
+  </ion-grid>
 
-    <ion-list>
 
-        <ion-card>
+  <ion-list>
 
-            <ion-card-header>
-                <h1>Dados da solicitação.</h1>
-              </ion-card-header>
+    <ion-card>
 
-            <ion-card-content>
+      <ion-card-header>
+        <h1>Dados da solicitação.</h1>
+      </ion-card-header>
 
-                <ion-item *ngFor="let indice of indices">                    
-                    <ion-label floating>{{indice.nome}}</ion-label>
-                    <ion-input type="text" [(ngModel)]="indice.valor"></ion-input>
-                  </ion-item>
+      <ion-card-content>
 
-            </ion-card-content>
-          </ion-card>
+        <ion-item *ngFor="let indice of indices">
+          <ion-label floating>{{indice.nome}}</ion-label>
+          <ion-input type="text" [(ngModel)]="indice.valor"></ion-input>
+        </ion-item>
 
-        <br>
-    
-        <div text-center>
-          <p ion-text color="danger">Assinatura</p>
-        </div>
-        <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
-    
-        <ion-grid>
-          <ion-row>
-            <ion-col col-12>
-              <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
-            </ion-col>
-            <ion-col col-12>
-              <button ion-button full color="light" (click)="drawClear()">Limpar</button>
-            </ion-col>
-            <ion-col col-12>
-              <button ion-button full color="danger" (click)="cancelar()">Cencelar</button>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-    
-      </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <br>
+
+    <div text-center>
+      <p ion-text color="danger">Assinatura</p>
+    </div>
+    <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col col-12>
+          <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
+        </ion-col>
+        <ion-col col-12>
+          <button ion-button full color="light" (click)="drawClear()">Limpar</button>
+        </ion-col>
+        <ion-col col-12>
+          <button ion-button full color="danger" (click)="cancelar()">Cencelar</button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </ion-list>
 
 </ion-content>

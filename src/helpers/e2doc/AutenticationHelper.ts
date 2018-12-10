@@ -66,7 +66,8 @@ export class AutenticationHelper {
           //se estiver dentro do prazo de 30 dias
           if (diff <= 30) {
 
-            let e2docRetorno = this.validateData(http, dadosCodificados);
+            //verifica validade do usuário no servidor
+            let e2docRetorno = this.isValidUser(http, dadosCodificados);
 
             //se estiver ok
             if(e2docRetorno == "1") {
@@ -87,19 +88,12 @@ export class AutenticationHelper {
     });
   }
 
-  static validateData( http: HttpProvider, dadosEncod : string ) : string {
-
-    return http.getValidationApp(AutenticationHelper.urlValidateUser + dadosEncod);
-
-  }
-
   static saveToStorage(storage: Storage, dadosEncod: string): any {
 
     storage.set(AutenticationHelper.getKeyStorage(), dadosEncod);
-
   }
 
-  static getUserName(storageContent) {
+  static getDadosLogin(storageContent) {
 
     if (storageContent !== null) {
 
@@ -107,7 +101,7 @@ export class AutenticationHelper {
 
       let vetDados = decryptStr.split("||");
 
-      return vetDados[0];
+      return { usuario: vetDados[0], base: vetDados[2] }
     }
   }
 

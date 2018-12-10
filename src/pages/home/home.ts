@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Platform, MenuController, ToastController } from 'ionic-angular';
 import { IntroPage } from '../intro/intro';
 import { TarefasPage } from '../tarefas/tarefas';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
@@ -8,6 +8,7 @@ import { Storage } from '@ionic/storage';
 import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from "../../providers/http/http";
+import { MsgHelper } from '../../helpers/MsgHelper';
 
 @IonicPage()
 @Component({
@@ -16,10 +17,15 @@ import { HttpProvider } from "../../providers/http/http";
 })
 export class HomePage {
 
-  public userName = "";
+  //helper para exebir toast
+  public msgHelper = new MsgHelper(this.toastCtrl);
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public platform: Platform, private storage: Storage, 
-    public http: HttpProvider ) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public platform: Platform, private storage: Storage,
+    public http: HttpProvider,
+    public menuCtrl: MenuController,
+    public toastCtrl: ToastController) {
+
+    this.menuCtrl.enable(true, 'app_menu');
 
     platform.registerBackButtonAction(() => {
       this.platform.exitApp();
@@ -30,18 +36,9 @@ export class HomePage {
   ionViewDidLoad() {
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
-      
-      if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
-    });
-  }
+      if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
-  ionViewDidEnter() {
-
-    let key = AutenticationHelper.getKeyStorage();
-
-    this.storage.get(key).then((storageContent) => {
-      this.userName = AutenticationHelper.getUserName(storageContent);
     });
   }
 
@@ -65,11 +62,11 @@ export class HomePage {
 
     this.storage.get(AutenticationHelper.getKeyStorage()).then(dados => {
 
-      console.log(AutenticationHelper.urlValidateUser + dados);      
+      console.log(AutenticationHelper.urlValidateUser + dados);
 
       url = AutenticationHelper.urlBrowser + dados;
 
-      console.log(url);      
+      console.log(url);
 
       this.platform.ready().then(() => {
         const browser = new InAppBrowser().create(url, '_system');

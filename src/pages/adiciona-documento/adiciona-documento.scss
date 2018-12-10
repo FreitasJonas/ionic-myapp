@@ -1,17 +1,5 @@
 page-adiciona-documento {
 
-    .fundo {
-
-        background: rgba(0,80,130,1);
-        background: -moz-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-        background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0,80,130,1)), color-stop(100%, rgba(4,30,67,1)));
-        background: -webkit-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-        background: -o-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-        background: -ms-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-        background: radial-gradient(ellipse at center, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#005082', endColorstr='#041e43', GradientType=1 );
-    }
-
     .btn-sync {
         width: 100%;
         height: 50px;
@@ -25,13 +13,7 @@ page-adiciona-documento {
       .btn span {
         margin: auto;
       }
-
-      .e2-input{
-        border-radius: 5px;
-        // background-color: rgba(0,73,135, 0.5);
-        margin-bottom: 10px;
-      }
-
+      
       .slide-title {
         position: fixed;
         top: 0;
@@ -42,16 +24,5 @@ page-adiciona-documento {
         color: #ffffff;
       }
 
-      .error{
-        color: #ff0000;
-        font-size: 12px;
-        margin-top: -5px;
-        text-align: left;
-      }
 
-      .btn-menu {
-        width: 50px;
-        height: 50px;
-        background-color: #041e43;
-      }
 }

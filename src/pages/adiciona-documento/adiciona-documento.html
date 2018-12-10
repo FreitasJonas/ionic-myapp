@@ -1,32 +1,22 @@
-<!-- <ion-header>
-
-  <ion-navbar>
-    <ion-title>Adicionar Documento</ion-title>
-  </ion-navbar>
-
-</ion-header> -->
-
 <ion-content padding class="fundo">
 
   <ion-grid>
     <ion-row>
 
-      <div col-12 class="page-header">
-
+      <div col-12>
         <ion-col col-2 style="float: left;">
           <button class="btn-menu" ion-button menuToggle>
             <ion-icon style="zoom:2.0; color: #00D0D4" name="md-menu">
             </ion-icon>
           </button>
         </ion-col>
-
       </div>
 
     </ion-row>
   </ion-grid>
 
 
-  <ion-slides>
+  <ion-slides pager>
     <ion-slide>
 
       <h4 class="slide-title">Arquivo</h4>
@@ -84,11 +74,26 @@
           <div *ngFor="let indice of indices">
 
             <div *ngIf="!indice.hasDic; else hasDic">
-              <ion-item class="e2-input">
-                <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}" clearInput
-                clearOnEdit="false"></ion-input>
-              </ion-item>
-              <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+
+              <!-- Se o campo for do tipo data (3) -->
+              <div *ngIf="indice.tipo == 3; else inputNormal">
+
+                <ion-item class="e2-input">
+                  <ion-label>{{indice.nameLabel}}</ion-label>
+                  <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}" (ionCancel)="clearDateTime(indice.id)"
+                    doneText="Pronto" cancelText="Limpar"></ion-datetime>
+                </ion-item>
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </div>
+
+              <ng-template #inputNormal>
+                <ion-item class="e2-input">
+                  <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}"
+                    clearInput clearOnEdit="false"></ion-input>
+                </ion-item>
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </ng-template>
+
             </div>
 
             <ng-template #hasDic>

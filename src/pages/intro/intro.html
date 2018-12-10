@@ -1,21 +1,28 @@
-<ion-header>
+<ion-content padding class="fundo">
 
-    <ion-navbar>
-      <ion-title>RH</ion-title>
-    </ion-navbar>
-  
-  </ion-header>
-
-<ion-content padding>
+    <ion-grid>
+        <ion-row>
+    
+          <div col-12>
+            <ion-col col-2 style="float: left;">
+              <button class="btn-menu" ion-button menuToggle>
+                <ion-icon style="zoom:2.0; color: #00D0D4" name="md-menu">
+                </ion-icon>
+              </button>
+            </ion-col>
+          </div>
+    
+        </ion-row>
+      </ion-grid>
 
   <ion-slides pager>
 
-    <ion-slide class="myapp-slide" *ngFor="let model of slideModels">
+    <ion-slide class="app-slide" *ngFor="let model of slideModels">
 
       <div (click)="getPicture(model.modelo)">
 
-        <div class="myapp-slide-icon">
-          <p>Clique para tirar uma foto</p>
+        <div class="app-slide-icon">
+          <p style="color: black">Clique para tirar uma foto</p>
           <img [src]="imgIcoPhoto" alt="">
         </div>
         <h2>{{model.modelo}}</h2>
@@ -42,14 +49,14 @@
     </ion-slide>
 
 
-    <ion-slide class="myapp-slide">
-      <img style="width: 287px; height: 124px;" src="assets/imgs/e2doc.jpg" alt="">
+    <ion-slide class="app-slide">
+      <!-- <img style="width: 287px; height: 124px;" src="assets/imgs/e2doc.jpg" alt=""> -->
 
       <ion-grid>
 
         <ion-row *ngFor="let model of slideModels">
           <ion-col>
-            <ion-item>
+            <ion-item class="e2-check">
               <ion-label>{{model.modelo}}</ion-label>
               <ion-checkbox color="secondary" [checked]="model.enviado" disabled="true"></ion-checkbox>
             </ion-item>
@@ -61,7 +68,7 @@
       <br>
 
       <div *ngIf="!docsIsValid">
-        <h5>Aguardando resposta, por favor aguarde!</h5>
+        <h5 style="color: #ffffff">Aguardando resposta, por favor aguarde!</h5>
         <ion-spinner name="bubbles" id="bubbles"></ion-spinner>
       </div>
 

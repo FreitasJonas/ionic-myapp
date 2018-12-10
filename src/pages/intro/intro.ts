@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides, MenuController } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { Geolocation } from "@ionic-native/geolocation";
 import { DocFichaPage } from '../doc-ficha/doc-ficha';
@@ -65,8 +65,11 @@ export class IntroPage {
     public toastCtrl: ToastController,
     public loadingCtrl: LoadingController,
     private storage: Storage,
-    public http: HttpProvider
+    public http: HttpProvider,
+    public menuCtrl: MenuController
   ) {
+
+    this.menuCtrl.enable(true, 'app_menu');
 
     //obtem configuração da pasta, modelos e indices
     //refatorar depois da criação do login

@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, MenuController } from 'ionic-angular';
 import { TarefaPage } from '../tarefa/tarefa';
 import { Pasta } from '../../helpers/e2doc/Pasta';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
-import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { Storage } from '@ionic/storage';
@@ -20,9 +19,11 @@ export class TarefasPage {
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private e2doc: E2docSincronismoProvider,
     private storage: Storage,
-    public http: HttpProvider ) {
+    public http: HttpProvider,
+    public menuCtrl: MenuController ) {
+
+      this.menuCtrl.enable(true, 'app_menu');
 
     //obtem configuração da pasta, modelos e indices
     //refatorar depois da criação do login

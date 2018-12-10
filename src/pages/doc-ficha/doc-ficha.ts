@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController, MenuController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 import { MsgHelper } from '../../helpers/MsgHelper';
@@ -60,7 +60,10 @@ export class DocFichaPage {
     private e2doc: E2docSincronismoProvider,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    public http: HttpProvider) {
+    public http: HttpProvider,
+    public menuCtrl: MenuController) {
+
+      this.menuCtrl.enable(true, 'app_menu');
 
       //obtem a chave do storage recebido por parametro
       this.pasta = this.navParams.get('pasta');      
