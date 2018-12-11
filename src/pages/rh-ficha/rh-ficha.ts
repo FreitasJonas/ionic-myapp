@@ -1,9 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController, MenuController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController, MenuController, Navbar, ViewController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 import { MsgHelper } from '../../helpers/MsgHelper';
-import { IntroPage } from '../intro/intro';
 import { Hasher } from '../../helpers/Hasher';
 import { Pasta } from '../../helpers/e2doc/Pasta';
 import { IndiceModel } from '../../helpers/IndiceModel';
@@ -15,15 +14,17 @@ import { HomePage } from '../home/home';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from '../../providers/http/http';
+import { RhPage } from '../rh/rh';
 
 @IonicPage()
 @Component({
-  selector: 'page-doc-ficha',
-  templateUrl: 'doc-ficha.html',
+  selector: 'page-rh-ficha',
+  templateUrl: 'rh-ficha.html',
 })
-export class DocFichaPage {
+export class RhFichaPage {
 
   @ViewChild(SignaturePad) signaturePad: SignaturePad;
+  @ViewChild('navbar') navBar: Navbar;
   
   //protocolo
   public protocolo: string;
@@ -61,7 +62,9 @@ export class DocFichaPage {
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     public http: HttpProvider,
-    public menuCtrl: MenuController) {
+    public menuCtrl: MenuController,
+    public viewCtrl: ViewController
+    ) {
 
       this.menuCtrl.enable(true, 'app_menu');
 
@@ -73,11 +76,27 @@ export class DocFichaPage {
 
   ionViewDidLoad() {
 
+    this.viewCtrl.setBackButtonText('Voltar');
+
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
       
       if(!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
     });
+  }
+
+  ionViewCanLeave() : Promise<void> {
+
+    return new Promise((resolve, reject) => {
+
+      MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?", 
+        function() { resolve() },
+        function () { reject() });    
+    });   
+  }
+
+  ionViewWillLeave() {
+    this.navCtrl.push(HomePage);
   }
   
   goToHomePage(mensagem: string) {
@@ -116,7 +135,7 @@ export class DocFichaPage {
           text: 'Sim',
           handler: () => {
             //retorna para intro
-            this.navCtrl.push(IntroPage);
+            this.navCtrl.push(RhPage);
           }
         },
         {

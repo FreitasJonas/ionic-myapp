@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, MenuController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, MenuController, ViewController } from 'ionic-angular';
 import { TarefaPage } from '../tarefa/tarefa';
 import { Pasta } from '../../helpers/e2doc/Pasta';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
@@ -21,7 +21,8 @@ export class TarefasPage {
     public navParams: NavParams,
     private storage: Storage,
     public http: HttpProvider,
-    public menuCtrl: MenuController ) {
+    public menuCtrl: MenuController,
+    public viewCtrl: ViewController ) {
 
       this.menuCtrl.enable(true, 'app_menu');
 
@@ -32,6 +33,8 @@ export class TarefasPage {
 
     //quando a tela é carregada
     ionViewDidLoad() {
+
+      this.viewCtrl.setBackButtonText('Voltar');
 
       AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
   

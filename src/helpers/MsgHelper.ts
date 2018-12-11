@@ -1,4 +1,4 @@
-import { ToastController } from "ionic-angular";
+import { ToastController, AlertController } from "ionic-angular";
 
 export class MsgHelper {
 
@@ -21,6 +21,38 @@ export class MsgHelper {
       duration: 5000
     });
     toast.present();
+  }
+
+  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline ) {
+
+    //exibe alert
+    alertCtrl.create({
+      title: '',
+      message: mensagem,
+      buttons: [
+        {
+          text: 'Sim',
+          handler: () => {
+            //retorna para intro
+
+            if(typeof(fnAcept) === 'function') {
+              fnAcept();
+            }
+          }
+        },
+        
+        {
+          text: 'Não',
+          handler: () => {
+            //retorna para intro
+            if(typeof(fnAcept) === 'function') {
+              fnDecline();
+            }
+          }
+        }
+      ]
+    }).present();   
+
   }
 
 }

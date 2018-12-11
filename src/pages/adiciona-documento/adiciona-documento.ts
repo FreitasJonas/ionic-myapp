@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController, Platform, MenuController, ToastController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, AlertController, Slides, LoadingController, Platform, MenuController, ToastController, ViewController } from 'ionic-angular';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
 import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
@@ -40,8 +40,8 @@ export class AdicionaDocumentoPage {
   public pastas = new Array<ModeloPasta>();
   public documentos = new Array<ModeloDoc>();
 
-   //helper para exebir toast
-   public msgHelper = new MsgHelper(this.toastCtrl);
+  //helper para exebir toast
+  public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public navCtrl: NavController,
     public platform: Platform,
@@ -53,7 +53,8 @@ export class AdicionaDocumentoPage {
     private storage: Storage,
     public http: HttpProvider,
     public menuCtrl: MenuController,
-    public toastCtrl: ToastController) {
+    public toastCtrl: ToastController,
+    public viewCtrl: ViewController) {
 
     this.menuCtrl.enable(true, 'app_menu');
 
@@ -68,11 +69,31 @@ export class AdicionaDocumentoPage {
 
   ionViewDidLoad() {
 
+    this.viewCtrl.setBackButtonText('Voltar');
+
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 
       if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
     });
+  }
+
+  ionViewCanLeave() : Promise<void> {
+
+    return new Promise((resolve, reject) => {
+
+      let vImg = this.imageSrc == "" ? false : true;
+      
+      if(vImg) {
+
+        MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?", 
+        function() { resolve() },
+        function () { reject() });    
+      }
+      else {
+        resolve();
+      }      
+    });   
   }
 
   clearDateTime(id) {
@@ -185,8 +206,6 @@ export class AdicionaDocumentoPage {
 
       loadind.dismiss();
       this.slides.slideNext();
-
-      console.log(indices);
 
     }, err => {
       loadind.dismiss();

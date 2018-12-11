@@ -5,7 +5,6 @@ import { MyApp } from './app.component';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { IntroPageModule } from '../pages/intro/intro.module';
 
 import { HttpClientModule } from '@angular/common/http';
 import { Geolocation } from '@ionic-native/geolocation';
@@ -13,7 +12,6 @@ import { IonicStorageModule } from '@ionic/storage';
 import { PhotoLibrary } from '@ionic-native/photo-library';
 
 import { File } from '@ionic-native/file';
-import { DocFichaPageModule } from '../pages/doc-ficha/doc-ficha.module';
 import { SignaturePadModule } from 'angular2-signaturepad';
 
 import { TarefasPageModule } from '../pages/tarefas/tarefas.module';
@@ -29,6 +27,8 @@ import { HomePage } from '../pages/home/home';
 import { LogoutPageModule } from '../pages/logout/logout.module';
 import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adiciona-documento.module';
 import { AppVersion } from '@ionic-native/app-version';
+import { RhPageModule } from '../pages/rh/rh.module';
+import { RhFichaPageModule } from '../pages/rh-ficha/rh-ficha.module';
 
 
 @NgModule({
@@ -43,8 +43,8 @@ import { AppVersion } from '@ionic-native/app-version';
   }),
     IonicStorageModule.forRoot(),
     LoginPageModule,
-    DocFichaPageModule,
-    IntroPageModule,
+    RhPageModule,
+    RhFichaPageModule,
     HomePageModule,
     LogoutPageModule,
     TarefasPageModule,

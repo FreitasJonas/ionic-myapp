@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, LoadingController, AlertController, MenuController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController, AlertController, MenuController, ViewController } from 'ionic-angular';
 import { IndiceModel } from '../../helpers/IndiceModel';
 import { Pasta } from '../../helpers/e2doc/Pasta';
 import { IndiceModelConverter } from '../../helpers/IndiceModelConverter';
@@ -48,7 +48,8 @@ export class TarefaPage {
     private e2doc: E2docSincronismoProvider,
     private storage: Storage,
     public http: HttpProvider,
-    public menuCtrl: MenuController) {
+    public menuCtrl: MenuController,
+    public viewCtrl: ViewController) {
 
       this.menuCtrl.enable(true, 'app_menu');
 
@@ -72,6 +73,8 @@ export class TarefaPage {
 
   //quando a tela é carregada
   ionViewDidLoad() {
+
+    this.viewCtrl.setBackButtonText('Voltar');
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 

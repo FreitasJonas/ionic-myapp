@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, Platform, MenuController, ToastController } from 'ionic-angular';
-import { IntroPage } from '../intro/intro';
+import { IonicPage, NavController, NavParams, Platform, MenuController, ToastController, App, AlertController } from 'ionic-angular';
 import { TarefasPage } from '../tarefas/tarefas';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
@@ -9,6 +8,7 @@ import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento'
 import { LoginPage } from '../login/login';
 import { HttpProvider } from "../../providers/http/http";
 import { MsgHelper } from '../../helpers/MsgHelper';
+import { RhPage } from '../rh/rh';
 
 @IonicPage()
 @Component({
@@ -23,18 +23,15 @@ export class HomePage {
   constructor(public navCtrl: NavController, public navParams: NavParams, public platform: Platform, private storage: Storage,
     public http: HttpProvider,
     public menuCtrl: MenuController,
-    public toastCtrl: ToastController) {
+    public toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    public app: App) {
 
     this.menuCtrl.enable(true, 'app_menu');
-
-    platform.registerBackButtonAction(() => {
-      this.platform.exitApp();
-      return;
-    });
   }
 
   ionViewDidLoad() {
-
+    
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 
       if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
@@ -43,7 +40,7 @@ export class HomePage {
   }
 
   goToRHPage() {
-    this.navCtrl.push(IntroPage);
+    this.navCtrl.push(RhPage);
   }
 
   goToTarefaPage() {
@@ -52,26 +49,28 @@ export class HomePage {
 
   goToPesquisa() {
 
-    AutenticationHelper.getDadosFromStorage(this.storage).then(dados => {
+    AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 
-      console.log(dados);
+      if (isAutenticate) {
 
-    });
+        let url = "";
 
-    let url = "";
+        this.storage.get(AutenticationHelper.getKeyStorage()).then(dados => {
 
-    this.storage.get(AutenticationHelper.getKeyStorage()).then(dados => {
+          url = AutenticationHelper.urlBrowser + dados;
 
-      console.log(AutenticationHelper.urlValidateUser + dados);
+          this.platform.ready().then(() => {
+            const browser = new InAppBrowser().create(url, '_system');
+          });
 
-      url = AutenticationHelper.urlBrowser + dados;
+        });
+      }
+      else {
+        this.msgHelper.presentToast2("Login inválido, registre-se novamente!");
 
-      console.log(url);
-
-      this.platform.ready().then(() => {
-        const browser = new InAppBrowser().create(url, '_system');
-      });
-
+        this.storage.clear();
+        this.navCtrl.push(LoginPage);
+      }
     });
   }
 

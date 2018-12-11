@@ -1,8 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides, MenuController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides, MenuController, Navbar, AlertController, ViewController  } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { Geolocation } from "@ionic-native/geolocation";
-import { DocFichaPage } from '../doc-ficha/doc-ficha';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { Hasher } from '../../helpers/Hasher';
 import { Pasta } from '../../helpers/e2doc/Pasta';
@@ -14,19 +13,22 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from '../../providers/http/http';
+import { RhFichaPage } from '../rh-ficha/rh-ficha';
+import { HomePage } from '../home/home';
 
 @IonicPage()
 @Component({
-  selector: 'page-intro',
-  templateUrl: 'intro.html',
+  selector: 'page-rh',
+  templateUrl: 'rh.html',
   providers: [
     Camera,
     E2docSincronismoProvider
   ]
 })
-export class IntroPage {
+export class RhPage {
 
   @ViewChild(Slides) slides: Slides;
+  @ViewChild('navbar') navBar: Navbar;
 
   //icone da camera
   public imgIcoPhoto = "assets/imgs/cam.png";
@@ -54,6 +56,8 @@ export class IntroPage {
 
   public slideModels: Array<SlideModel>;
 
+  verifyCanLeave = true;
+
   //intervalo da função que verifica o OCR
   public interval: any;
 
@@ -66,7 +70,9 @@ export class IntroPage {
     public loadingCtrl: LoadingController,
     private storage: Storage,
     public http: HttpProvider,
-    public menuCtrl: MenuController
+    public menuCtrl: MenuController,
+    private alertCtrl: AlertController,
+    public viewCtrl: ViewController
   ) {
 
     this.menuCtrl.enable(true, 'app_menu');
@@ -80,6 +86,8 @@ export class IntroPage {
 
   //quando a tela é carregada
   ionViewDidLoad() {
+
+    this.viewCtrl.setBackButtonText('Voltar');
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
       
@@ -109,13 +117,31 @@ export class IntroPage {
     this.getResponse();
   }
 
+  ionViewCanLeave() : Promise<void> {
+
+    return new Promise((resolve, reject) => {
+
+      if(this.verifyCanLeave) {
+
+        MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?", 
+        function() { resolve() },
+        function () { reject() });    
+      }
+      else {
+        resolve();
+      }      
+    });   
+  }
+
   goToDocFichaPage() {
     this.pasta.getIndice("VALIDACAO").setValue(this.geoPosition.latitude + "_" + this.geoPosition.longitude);
 
     clearInterval(this.interval);
 
+    this.verifyCanLeave = false;
+
     //chama DocFichaPage passando as informações das imagens
-    this.navCtrl.push(DocFichaPage, {
+    this.navCtrl.push(RhFichaPage, {
       pasta: this.pasta
     });
   }

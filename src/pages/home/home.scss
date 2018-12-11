@@ -63,9 +63,11 @@ page-home {
         background-color: #041e43;
       }
 
-      .page-header {
-        background-color:#041e43;
-        border-radius: 3px;
+      .page-header-title {
+        color: #00D0D4;
+        margin-top: 10px;
+        margin-left: 50px;
+        float: left;        
       }
 
       .page-body img {
@@ -74,7 +76,7 @@ page-home {
 
       .btn-title {
           margin-top: -20px;
-        text-align: justify;
+          text-align: justify;
       }
 
       .btn-panel {

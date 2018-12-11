@@ -17,6 +17,10 @@
 
 //Tema
 
+.toolbar-title.toolbar-title-md, 
+.toolbar-title.toolbar-title-ios, 
+.toolbar-title.toolbar-title-wp { color: map-get($colors, dark); }
+
 .fundo {
 
     background: rgba(0,80,130,1);
@@ -37,8 +41,8 @@
   }
 
   .btn-menu {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     background-color: #041e43;
   }
 
@@ -52,8 +56,20 @@
     margin-bottom: 10px;
   }
 
+  .btn-menu-icon {
+      zoom: 1.5;
+      color: #00D0D4;
+  }
 
+  .btn-menu-position {
+    margin-top: -10px;
+    margin-left: -10px;
+    float: left;
+  }
 
+  .app-page-title{
+    margin-left: 20px;
+  }
 
 //Menu
 
@@ -79,7 +95,7 @@
     
     top:15%;
     left:10%;
-    margin-top:-10px;
+    margin-top: -5px;
     margin-left:-10px;
 
     height: 100px;
@@ -110,6 +126,7 @@
 
 .menu-header-text {
     margin-left: -20px;
+    margin-top: 25px;
     color: #ffffff;
 }
 
