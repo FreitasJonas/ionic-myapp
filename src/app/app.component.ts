@@ -55,13 +55,11 @@ export class MyApp {
     AutenticationHelper.isAutenticated(http, storage).then(isAutenticated => {
 
       if (isAutenticated) {
-
-        this.storage.get(AutenticationHelper.getKeyStorage()).then(storageContent => {
-
-          let dados = AutenticationHelper.getDadosLogin(storageContent);
-          this.base = dados.base;
-          this.usuario = dados.usuario;
-        });  
+        
+          AutenticationHelper.getDadosLogin(storage).then(account => { 
+          this.base = account.empresa;
+          this.usuario = account.usuario;
+        });
       }
     });
 

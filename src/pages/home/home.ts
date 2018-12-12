@@ -20,6 +20,8 @@ export class HomePage {
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
 
+  public ano: any;
+
   constructor(public navCtrl: NavController, public navParams: NavParams, public platform: Platform, private storage: Storage,
     public http: HttpProvider,
     public menuCtrl: MenuController,
@@ -31,6 +33,8 @@ export class HomePage {
   }
 
   ionViewDidLoad() {
+
+    this.ano = new Date().getFullYear();
     
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 

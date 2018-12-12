@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides, MenuController, Navbar, AlertController, ViewController  } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, Slides, MenuController, Navbar, AlertController, ViewController, Platform  } from 'ionic-angular';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { Geolocation } from "@ionic-native/geolocation";
 import { MsgHelper } from '../../helpers/MsgHelper';
@@ -43,9 +43,6 @@ export class RhPage {
     longitude: "00000"
   }
 
-  //testar no sispositivo, se false não chama a camera
-  public testInDevice = false;
-
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
 
@@ -56,12 +53,13 @@ export class RhPage {
 
   public slideModels: Array<SlideModel>;
 
-  verifyCanLeave = true;
+  verifyCanLeave = false;
 
   //intervalo da função que verifica o OCR
   public interval: any;
 
   constructor(public navCtrl: NavController,
+    public platform: Platform,
     public navParams: NavParams,
     private camera: Camera,
     private e2doc: E2docSincronismoProvider,
@@ -87,7 +85,7 @@ export class RhPage {
   //quando a tela é carregada
   ionViewDidLoad() {
 
-    this.viewCtrl.setBackButtonText('Voltar');
+    this.viewCtrl.setBackButtonText('');
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
       
@@ -154,8 +152,10 @@ export class RhPage {
 
     let ctx = this;
 
-    //Se estiver testando no dispositivo, isto por que testando no PC ao chamar a camera da erro       
-    if (!this.testInDevice) {
+    let cordova = this.platform.is('cordova');
+
+    //Se não estiver testando no dispositivo, isto por que testando no PC ao chamar a camera da erro       
+    if (!cordova) {
 
       let loading = this.loadingCtrl.create({
         spinner: 'dots',
@@ -191,7 +191,7 @@ export class RhPage {
             //mostra o resultado
             ctx.setResult(strModeloDocumento);
 
-            //fechar loading
+            //fecha loading
             loading.dismiss();
 
             //adiciona na fila para aguardar retorno do OCR     
@@ -199,6 +199,8 @@ export class RhPage {
             
             //passa para o proximo slide
             ctx.slideNext();
+
+            ctx.verifyCanLeave = true;
 
           }, (err) => {
 
@@ -262,6 +264,8 @@ export class RhPage {
 
               //passa para o proximo slide
               ctx.slideNext();
+
+              ctx.verifyCanLeave = true;
 
             }, (err) => {
               ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);

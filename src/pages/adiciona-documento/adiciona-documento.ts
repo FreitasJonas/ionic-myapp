@@ -69,7 +69,7 @@ export class AdicionaDocumentoPage {
 
   ionViewDidLoad() {
 
-    this.viewCtrl.setBackButtonText('Voltar');
+    this.viewCtrl.setBackButtonText('');
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
 

@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { AppAccount } from '../../helpers/Account';
+
 
 @Injectable()
 export class SincronismoXmlProvider {
@@ -6,15 +8,15 @@ export class SincronismoXmlProvider {
   public url = "https://www.e2doc.com.br/e2doc_webservice/sincronismo.asmx?wsdl";
   public urlApp = "https://www.e2doc.com.br/e2doc_webservice/App.asmx?wsdl";
 
-  getXmlAutenticar(user: string, password: string, key: string) {
+  getXmlAutenticar( account : AppAccount) {
 
     let text = `<?xml version="1.0" encoding="utf-8"?>
         <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
           <soap12:Body>
             <AutenticarUsuario xmlns="http://www.e2doc.com.br/">
-              <usuario>` + user + `</usuario>
-              <senha>` + password + `</senha>
-              <key>` + key + `</key>
+              <usuario>` + account.usuario + `</usuario>
+              <senha>` + account.senha + `</senha>
+              <key>?` + account.empresa.toUpperCase() + `?</key>
             </AutenticarUsuario>
           </soap12:Body>
         </soap12:Envelope>`;
@@ -120,15 +122,15 @@ export class SincronismoXmlProvider {
     return { xmlText: text, tagResult: "UploadResult", url: this.urlApp }
   }
 
-  getXmlAutenticarApp(user: string, password: string, key: string) {
+  getXmlAutenticarApp( account : AppAccount ) {
 
     let text = `<?xml version="1.0" encoding="utf-8"?>
         <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
           <soap12:Body>
             <AutenticarUsuario xmlns="http://www.e2doc.com.br/">
-              <usuario>` + user + `</usuario>
-              <senha>` + password + `</senha>
-              <key>` + key + `</key>
+              <usuario>` + account.usuario + `</usuario>
+              <senha>` + account.senha + `</senha>
+              <key>?` + account.empresa.toUpperCase() + `?</key>
             </AutenticarUsuario>
           </soap12:Body>
         </soap12:Envelope>`;

@@ -1,27 +1,16 @@
-<!-- <ion-header>
-
-  <ion-navbar>
-    <ion-title>login</ion-title>
-  </ion-navbar>
-
-</ion-header> -->
-
 <ion-content class="fundo">
-
-  <ion-card class="card">
-
     <ion-card-header>
       <img src="assets/imgs/logo_e2doc.png" class="center" name="estec">
     </ion-card-header>
 
-    <ion-card-content class="primary-font" >
+    <div class="primary-font">
 
-      <h2 text-center style="color:#ffffff;">
+      <h3 text-center>
           Acesse o e2Doc Enterprise
-      </h2>
+      </h3>
 
         <form padding [formGroup]="loginForm" (submit)="login()" novalidate>
-
+          
           <ion-item class="e2-input">
             <ion-label> <ion-icon name="md-grid"></ion-icon>  </ion-label>
             <ion-input [(ngModel)]="base" formControlName="base" placeholder="Empresa" type="text" clearInput
@@ -50,9 +39,6 @@
 
           <button ion-button block color="primary" class="login-button">Entrar</button>
         </form>
-      
-    </ion-card-content>
-
-  </ion-card>
+    </div>  
 
 </ion-content>

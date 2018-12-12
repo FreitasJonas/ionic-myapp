@@ -80,7 +80,7 @@ export class LoginPage {
     else {
 
       let so = this.platform.is('android') == true ? 'android' : 'ios';
-      let dados = AutenticationHelper.getDados(user.value, password.value, base.value, so);
+      let dados = AutenticationHelper.makeStrValidate(user.value, password.value, base.value, so);
       let dadosEncod = CryptoAES.crypt(dados, AutenticationHelper.keyBytes, AutenticationHelper.ivBytes);
       var e2docResponse = AutenticationHelper.isValidUser(this.http, dadosEncod);
 

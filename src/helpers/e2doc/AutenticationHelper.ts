@@ -2,6 +2,7 @@ import { CryptoAES } from "../CryptoAES";
 import { Storage } from '@ionic/storage';
 import { HttpProvider } from "../../providers/http/http";
 import date from 'date-and-time';
+import { AppAccount } from "../Account";
 
 
 export class AutenticationHelper {
@@ -13,7 +14,7 @@ export class AutenticationHelper {
   public static urlBrowser = "https://www.e2doc.com.br/login/loginapp?c=a";             //Cria url que será enviada ao nevegador
   public static urlValidateUser = "https://www.e2doc.com.br/login/checkapp?c=a";        //Cria que será verificada
 
-  static getDados(user: string, password: string, base: string, platform: string) : string {
+  static makeStrValidate(user: string, password: string, base: string, platform: string): string {
 
     let dt = new Date();
 
@@ -24,7 +25,7 @@ export class AutenticationHelper {
 
   }
 
-  static getDadosFromStorage(storage: Storage) : Promise<any> {
+  static getDadosFromStorage(storage: Storage): Promise<any> {
 
     return new Promise((resolve) => {
 
@@ -40,7 +41,7 @@ export class AutenticationHelper {
     });
   }
 
-  static isValidUser(http: HttpProvider, strData: string) : string {
+  static isValidUser(http: HttpProvider, strData: string): string {
 
     return http.getValidationApp(AutenticationHelper.urlValidateUser + strData);
 
@@ -56,12 +57,12 @@ export class AutenticationHelper {
 
           let vetDados = CryptoAES.decrypt(decodeURIComponent(dadosCodificados), this.keyBytes, this.ivBytes).split("||");
 
-          let data = vetDados[3].split("/");          
+          let data = vetDados[3].split("/");
           var dateStorage = new Date(data[2], data[1] - 1, data[0]);
-          
+
           let agora = new Date();
-          
-          let diff = date.subtract(agora, dateStorage).toDays();   
+
+          let diff = date.subtract(agora, dateStorage).toDays();
 
           //se estiver dentro do prazo de 30 dias
           if (diff <= 30) {
@@ -70,7 +71,7 @@ export class AutenticationHelper {
             let e2docRetorno = this.isValidUser(http, dadosCodificados);
 
             //se estiver ok
-            if(e2docRetorno == "1") {
+            if (e2docRetorno == "1") {
               resolve(true);
             }
             else {
@@ -81,7 +82,7 @@ export class AutenticationHelper {
             resolve(false);
           }
         }
-        else{
+        else {
           resolve(false);
         }
       });
@@ -93,16 +94,22 @@ export class AutenticationHelper {
     storage.set(AutenticationHelper.getKeyStorage(), dadosEncod);
   }
 
-  static getDadosLogin(storageContent) {
+  static getDadosLogin(storage: Storage): Promise<AppAccount> {
 
-    if (storageContent !== null) {
+    return new Promise((resolve) => {
 
-      let decryptStr = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes);
+      storage.get(AutenticationHelper.getKeyStorage()).then(storageContent => {
 
-      let vetDados = decryptStr.split("||");
+        if (storageContent !== null) {
 
-      return { usuario: vetDados[0], base: vetDados[2] }
-    }
+          let decryptStr = CryptoAES.decrypt(decodeURIComponent(storageContent), this.keyBytes, this.ivBytes);
+
+          let vetDados = decryptStr.split("||");
+
+          resolve(new AppAccount(vetDados[2], vetDados[0], vetDados[1]));  //usuario: vetDados[0], base: vetDados[2], senha: vetDados[1] }
+        }
+      })
+    })
   }
 
   static getKeyStorage() {

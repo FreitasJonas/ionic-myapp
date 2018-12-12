@@ -4,13 +4,14 @@ import { MsgHelper } from '../../helpers/MsgHelper';
 import { ToastController } from 'ionic-angular';
 import { SincronismoXmlProvider } from './sincronismo-xml';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { Storage } from '@ionic/storage';
+import { AppAccount } from '../../helpers/Account';
 
 @Injectable()
 export class E2docSincronismoProvider {
 
-  private user = "jonas";
-  private pas = "Hoje01%";
-  private key = "XXMP";
+  // private user = "jonas";
 
   public token = "";
   public retorno = "";
@@ -19,12 +20,13 @@ export class E2docSincronismoProvider {
 
   constructor(public http: HttpClient,
     public toastCtrl: ToastController,
-    private xmlProvider: SincronismoXmlProvider) {
+    private xmlProvider: SincronismoXmlProvider,
+    private storage: Storage) {
   }
 
   //texto xml
   //tag de resultado para obter valor
-  postSOAP(xml: any): Promise<string> { 
+  postSOAP(xml: any): Promise<string> {
 
     return new Promise((resolve, reject) => {
 
@@ -92,45 +94,51 @@ export class E2docSincronismoProvider {
 
     return new Promise((resolve, reject) => {
 
-      console.log("Autenticando!");
-      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+      AutenticationHelper.getDadosLogin(this.storage).then(account => {
 
-        console.log("Fazendo Upload!");
-        this.postSOAP(this.xmlProvider.getXmlUpload(token, protocolo, tipo_doc, extensao, hash, b64string)).then((res) => {
+        console.log("Autenticando!");
+        this.postSOAP(this.xmlProvider.getXmlAutenticarApp(account)).then((token) => {
 
-          resolve(tipo_doc + ": Envio finalizado!");
+          console.log("Fazendo Upload!");
+          this.postSOAP(this.xmlProvider.getXmlUpload(token, protocolo, tipo_doc, extensao, hash, b64string)).then((res) => {
 
+            resolve(tipo_doc + ": Envio finalizado!");
+
+          }, (err) => {
+            reject(tipo_doc + " Falha no upload: " + err);
+          })
         }, (err) => {
-          reject(tipo_doc + " Falha no upload: " + err);
-        })
-      }, (err) => {
-        reject("Falha na autentição: " + err);
+          reject("Falha na autentição: " + err);
+        });
       });
-    });
+    })
   }
 
   getResponse(protocolo: string): Promise<any> {
 
     return new Promise((resolve, reject) => {
 
-      console.log("Autenticando!");
-      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+      AutenticationHelper.getDadosLogin(this.storage).then(account => {
 
-        console.log("Obtendo resposta");
-        this.postSOAP(this.xmlProvider.getXmlResponse(token, protocolo)).then((res) => {
+        console.log("Autenticando!");
+        this.postSOAP(this.xmlProvider.getXmlAutenticarApp(account)).then((token) => {
 
-          resolve(res);
+          console.log("Obtendo resposta");
+          this.postSOAP(this.xmlProvider.getXmlResponse(token, protocolo)).then((res) => {
+
+            resolve(res);
+
+          }, (err) => {
+
+            reject("Falha ao obter resposta: " + err);
+
+          });
 
         }, (err) => {
 
-          reject("Falha ao obter resposta: " + err);
+          reject("Falha na autentição: " + err);
 
         });
-
-      }, (err) => {
-
-        reject("Falha na autentição: " + err);
-
       });
     });
   }
@@ -142,49 +150,52 @@ export class E2docSincronismoProvider {
 
     return new Promise((resolve, reject) => {
 
-      let doc = vetDoc[index];
+      AutenticationHelper.getDadosLogin(this.storage).then(account => {
 
-      if (typeof (doc) === "undefined") {
-        reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
-      }
-      else {
+        let doc = vetDoc[index];
 
-        console.log("Autenticando!");
-        this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
+        if (typeof (doc) === "undefined") {
+          reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
+        }
+        else {
 
-          this.token = res;
+          console.log("Autenticando!");
+          this.postSOAP(this.xmlProvider.getXmlAutenticar(account)).then((res) => {
 
-          console.log("Iniciando Sincronismo!");
-          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, this.user, doc.protocolo)).then((res) => {
+            this.token = res;
 
-            console.log("Enviando Parte!");
-            this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
+            console.log("Iniciando Sincronismo!");
+            this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, account.usuario, doc.protocolo)).then((res) => {
 
-              console.log("Enviando arquivo!");
-              this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
+              console.log("Enviando Parte!");
+              this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
 
-                console.log("Finalizando!");
-                this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
+                console.log("Enviando arquivo!");
+                this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
 
-                  resolve(doc.modelo + ": Envio finalizado!");
+                  console.log("Finalizando!");
+                  this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
 
+                    resolve(doc.modelo + ": Envio finalizado!");
+
+                  }, (err) => {
+                    reject(doc.modelo + "Falha finalizando: " + err);
+                  })
                 }, (err) => {
-                  reject(doc.modelo + "Falha finalizando: " + err);
+                  reject(doc.modelo + "Falha enviando arquivo: " + err);
                 })
               }, (err) => {
-                reject(doc.modelo + "Falha enviando arquivo: " + err);
+                reject(doc.modelo + "Falha enviando parte: " + err);
               })
             }, (err) => {
-              reject(doc.modelo + "Falha enviando parte: " + err);
+              reject(doc.modelo + "Falha iniciando sincronismo: " + err);
             })
           }, (err) => {
-            reject(doc.modelo + "Falha iniciando sincronismo: " + err);
-          })
-        }, (err) => {
 
-          reject("Falha na autentição: " + err);
-        });
-      }
+            reject("Falha na autentição: " + err);
+          });
+        }
+      });
     });
   }
 
@@ -192,48 +203,53 @@ export class E2docSincronismoProvider {
 
     return new Promise((resolve, reject) => {
 
-      if (typeof (doc) === "undefined") {
-        reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
-      }
-      else {
+      AutenticationHelper.getDadosLogin(this.storage).then(account => {
 
-        console.log("Autenticando!");
-        this.postSOAP(this.xmlProvider.getXmlAutenticar(this.user, this.pas, this.key)).then((res) => {
+        if (typeof (doc) === "undefined") {
+          reject("Envio finalizado, mas nem todos os documentos foram inseridos!");
+        }
+        else {
 
-          this.token = res;
+          console.log("Autenticando!");
+          this.postSOAP(this.xmlProvider.getXmlAutenticar(account)).then((res) => {
 
-          console.log("Iniciando Sincronismo! ");
+            this.token = res;
 
-          this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, this.user, doc.protocolo)).then((res) => {
+            console.log("Iniciando Sincronismo! ");
 
-            console.log("Enviando Parte!");
-            this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
+            this.postSOAP(this.xmlProvider.getXmlSincIniciar(res, doc.modeloPasta, campos, account.usuario, doc.protocolo)).then((res) => {
 
-              console.log("Enviando arquivo!");
-              this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
+              console.log("Enviando Parte!");
+              this.postSOAP(this.xmlProvider.getXmlEnviaParte(this.token, doc.fileNamePart, doc.fileString)).then((res) => {
 
-                console.log("Finalizando!");
-                this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
+                console.log("Enviando arquivo!");
+                this.postSOAP(this.xmlProvider.getXmlEnviaArquivo(this.token, doc)).then((res) => {
 
-                  resolve(doc.modelo + ": Envio finalizado!");
+                  console.log("Finalizando!");
+                  this.postSOAP(this.xmlProvider.getXmlFinalizar(this.token, doc.protocolo)).then((res) => {
 
+                    resolve(doc.modelo + ": Envio finalizado!");
+
+                  }, (err) => {
+                    reject(doc.modelo + ": Falha finalizando: " + err);
+                  })
                 }, (err) => {
-                  reject(doc.modelo + ": Falha finalizando: " + err);
+                  reject(doc.modelo + ": Falha enviando arquivo: " + err);
                 })
               }, (err) => {
-                reject(doc.modelo + ": Falha enviando arquivo: " + err);
+                reject(doc.modelo + ": Falha enviando parte: " + err);
               })
             }, (err) => {
-              reject(doc.modelo + ": Falha enviando parte: " + err);
+              reject(doc.modelo + ": Falha iniciando sincronismo: " + err);
             })
           }, (err) => {
-            reject(doc.modelo + ": Falha iniciando sincronismo: " + err);
-          })
-        }, (err) => {
 
-          reject("Falha na autentição: " + err);
-        });
-      }
+            reject("Falha na autentição: " + err);
+          });
+
+        }
+      });
+
     });
   }
 
@@ -241,22 +257,25 @@ export class E2docSincronismoProvider {
 
     return new Promise((resolve, reject) => {
 
-      this.postSOAP(this.xmlProvider.getXmlAutenticarApp(this.user, this.pas, this.key)).then((token) => {
+      AutenticationHelper.getDadosLogin(this.storage).then(account => {
 
-        this.postConfig(this.xmlProvider.getXmlConfiguracao(token, cmd, pr1, pr2, pr3, pr4)).then((res) => {
+        this.postSOAP(this.xmlProvider.getXmlAutenticarApp(account)).then((token) => {
 
-          resolve(res);
+          this.postConfig(this.xmlProvider.getXmlConfiguracao(token, cmd, pr1, pr2, pr3, pr4)).then((res) => {
+
+            resolve(res);
+
+          }, (err) => {
+
+            reject("Falha ao obter resposta: " + err);
+
+          });
 
         }, (err) => {
 
-          reject("Falha ao obter resposta: " + err);
+          reject("Falha na autentição: " + err);
 
         });
-
-      }, (err) => {
-
-        reject("Falha na autentição: " + err);
-
       });
     });
   }

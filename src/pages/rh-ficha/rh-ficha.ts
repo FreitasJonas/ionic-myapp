@@ -46,6 +46,9 @@ export class RhFichaPage {
 
   //Indice Model
   public indices: Array<IndiceModel>;
+
+  //verifica se exibe ou não mensagem ao sair desta pagina
+  verifyCanLeave = true;
   
   //Opções do canvas da assinatura
   public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
@@ -76,7 +79,7 @@ export class RhFichaPage {
 
   ionViewDidLoad() {
 
-    this.viewCtrl.setBackButtonText('Voltar');
+    this.viewCtrl.setBackButtonText('');
 
     AutenticationHelper.isAutenticated(this.http, this.storage).then(isAutenticate => {
       
@@ -89,15 +92,21 @@ export class RhFichaPage {
 
     return new Promise((resolve, reject) => {
 
-      MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?", 
+      if(this.verifyCanLeave) {
+
+        MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?", 
         function() { resolve() },
         function () { reject() });    
+      }
+      else {
+        resolve();
+      }      
     });   
   }
 
-  ionViewWillLeave() {
-    this.navCtrl.push(HomePage);
-  }
+  // ionViewWillLeave() {
+  //   this.navCtrl.push(HomePage);
+  // }
   
   goToHomePage(mensagem: string) {
 
@@ -178,6 +187,7 @@ export class RhFichaPage {
       this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
         i++;
         ctx.msgHelper.presentToast2(res);
+        this.verifyCanLeave = false;  //quando primeiro documento é enviado, mensagem de verificação ao sair não precisa ser exibida
 
         this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
           i++;
@@ -191,7 +201,7 @@ export class RhFichaPage {
               i++;
               ctx.msgHelper.presentToast2(res);
 
-              this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {      
+              this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
                 
                 //ao final o loading é finalizado                
                 loading.dismiss();
@@ -201,11 +211,11 @@ export class RhFichaPage {
 
                 ctx.goToHomePage("Envio finalizado com sucesso!");
 
-              }, (err) => {       
+              }, (err) => {
                 loading.dismiss();         
                 ctx.goToHomePage(err);
               });
-            }, (err) => {         
+            }, (err) => {
               loading.dismiss();     
               ctx.goToHomePage(err);
             });
