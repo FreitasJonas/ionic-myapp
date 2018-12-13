@@ -27,8 +27,8 @@ import { HomePage } from '../pages/home/home';
 import { LogoutPageModule } from '../pages/logout/logout.module';
 import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adiciona-documento.module';
 import { AppVersion } from '@ionic-native/app-version';
-import { RhPageModule } from '../pages/rh/rh.module';
-import { RhFichaPageModule } from '../pages/rh-ficha/rh-ficha.module';
+import { ContratacaoPageModule } from '../pages/contratacao/contratacao.module';
+import { ContratacaoFichaPageModule } from '../pages/contratacao-ficha/contratacao-ficha.module';
 
 
 @NgModule({
@@ -43,8 +43,8 @@ import { RhFichaPageModule } from '../pages/rh-ficha/rh-ficha.module';
   }),
     IonicStorageModule.forRoot(),
     LoginPageModule,
-    RhPageModule,
-    RhFichaPageModule,
+    ContratacaoPageModule,
+    ContratacaoFichaPageModule,
     HomePageModule,
     LogoutPageModule,
     TarefasPageModule,

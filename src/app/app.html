@@ -1,44 +1,66 @@
-<ion-menu id="app_menu" [content]="content">
-<ion-header>
+<div *ngIf="showSplash" class="splash">
 
-    <div class="menu-header">
-        <ion-row>
+    <ion-row>
+        <ion-col col-12 text-center>
 
-        <div col-6>
-            <div class="menu-header-user">
-                    <ion-icon name="person"></ion-icon>
-            </div>
-        </div>
+            <img src="assets/imgs/logo_e2doc.png" class="center" name="estec">
 
-        <div col-6>
-
-            <div class="menu-header-text"> 
-                    <p>Usuário: {{usuario}}</p>
-                    <p>Base: {{base}}</p>
-                    <p>Versão: {{versao}}</p>
+            <div class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
             </div>
 
-        </div>
+            <h3> Olá {{getstaticUser()}} <br>
+                Bem-vindo ao e2Doc Enterprise </h3>
 
+        </ion-col>
     </ion-row>
-    </div>
-</ion-header>
+</div>
 
-<ion-content>
-    <ion-list class="menu-content-list">
-        <ion-item no-lines ion-item menuClose *ngFor="let p of pages" (click)="openPage(p)" >
+<ion-menu id="app_menu" [content]="content">
+    <ion-header>
+
+        <div class="menu-header">
+            <ion-row>
+
+                <div col-6>
+                    <div class="menu-header-user">
+                        <ion-icon name="person"></ion-icon>
+                    </div>
+                </div>
+
+                <div col-6>
+
+                    <div class="menu-header-text">
+                        <p>Usuário: {{getstaticUser()}}</p>
+                        <p>Base: {{getStaticEmpresa()}}</p>
+                        <p>Versão: {{versao}}</p>
+                    </div>
+
+                </div>
+
+            </ion-row>
+        </div>
+    </ion-header>
+
+    <ion-content>
+        <ion-list class="menu-content-list">
+            <ion-item no-lines ion-item menuClose *ngFor="let p of pages" (click)="openPage(p)">
                 <ion-icon name="{{p.icon}}" style="zoom: 1 .0;"></ion-icon>&nbsp;&nbsp;&nbsp;&nbsp;
-            {{p.title}}
-        </ion-item>
-    </ion-list>
-</ion-content>
+                {{p.title}}
+            </ion-item>
+        </ion-list>
+    </ion-content>
 
-<ion-footer class="menu-footer">
-    <h6>Ajuda</h6>
-</ion-footer>
+    <ion-footer class="menu-footer">
+        <h6>Ajuda</h6>
+    </ion-footer>
 
 </ion-menu>
 
-<ion-nav [root]="rootPage" type="overlay" #content swipeBackEnabled="false" ></ion-nav>
+<ion-nav [root]="rootPage" type="overlay" #content swipeBackEnabled="false"></ion-nav>
 
 <!-- <ion-nav [root]="rootPage"></ion-nav> -->

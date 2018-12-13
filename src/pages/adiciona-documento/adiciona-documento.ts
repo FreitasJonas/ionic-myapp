@@ -157,7 +157,7 @@ export class AdicionaDocumentoPage {
         this.slides.slideNext();
       },
         err => {
-          this.alertError(err);
+          this.msgHelper.presentToast2("Arquivo não selecionado!");
         });
     }
     else {

@@ -59,14 +59,14 @@
 
       <ion-item class="e2-input">
         <ion-label>Modelo</ion-label>
-        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()">
+        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
           <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
         </ion-select>
       </ion-item>
 
       <ion-item class="e2-input">
         <ion-label>Documento</ion-label>
-        <ion-select [(ngModel)]="documento" (ionChange)="onDocSelect()">
+        <ion-select [(ngModel)]="documento" (ionChange)="onDocSelect()" interface="popover" >
           <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}}</ion-option>
         </ion-select>
       </ion-item>
@@ -109,7 +109,7 @@
             <ng-template #hasDic>
               <ion-item class="e2-input">
                 <ion-label>{{indice.nameLabel}}</ion-label>
-                <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}">
+                <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}" interface="popover">
                   <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
                 </ion-select>
               </ion-item>

@@ -13,19 +13,18 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from '../../providers/http/http';
-import { RhFichaPage } from '../rh-ficha/rh-ficha';
-import { HomePage } from '../home/home';
+import { ContratacaoFichaPage } from '../contratacao-ficha/contratacao-ficha';
 
 @IonicPage()
 @Component({
-  selector: 'page-rh',
-  templateUrl: 'rh.html',
+  selector: 'page-contratacao',
+  templateUrl: 'contratacao.html',
   providers: [
     Camera,
     E2docSincronismoProvider
   ]
 })
-export class RhPage {
+export class ContratacaoPage {
 
   @ViewChild(Slides) slides: Slides;
   @ViewChild('navbar') navBar: Navbar;
@@ -139,7 +138,7 @@ export class RhPage {
     this.verifyCanLeave = false;
 
     //chama DocFichaPage passando as informações das imagens
-    this.navCtrl.push(RhFichaPage, {
+    this.navCtrl.push(ContratacaoFichaPage, {
       pasta: this.pasta
     });
   }
@@ -148,15 +147,62 @@ export class RhPage {
     this.slides.slideNext();
   }
 
-  getPicture(strModeloDocumento: string): any {
+  goToCamera(strModeloDocumento) {
 
-    let ctx = this;
+    let cameraOptions = {
+      quality: 70,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      sourceType: this.camera.PictureSourceType.CAMERA,
+      mediaType: this.camera.MediaType.PICTURE,
+      allowEdit: true,
+      saveToPhotoAlbum: false
+    }
+
+    this.getImage(cameraOptions, strModeloDocumento);
+  }
+
+  goToGaleria(strModeloDocumento) {
+
+    let cameraOptions = {
+      quality: 70,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
+      mediaType: this.camera.MediaType.PICTURE,
+      allowEdit: true
+    }
+
+    this.getImage(cameraOptions, strModeloDocumento);
+  }
+
+  getImage(cameraOptions, strModeloDocumento) {
 
     let cordova = this.platform.is('cordova');
 
-    //Se não estiver testando no dispositivo, isto por que testando no PC ao chamar a camera da erro       
-    if (!cordova) {
+    if (cordova) {
 
+      this.getPictureCordova(cameraOptions, strModeloDocumento);
+
+      // this.camera.getPicture(cameraOptions).then((file_uri) => {
+      //   this.imageSrc = file_uri;
+      //   this.slides.slideNext();
+      // },
+      //   err => {
+      //     this.msgHelper.presentToast2("Arquivo não selecionado!");
+      //   });
+    }
+    else {
+
+      this.getPictureTest(strModeloDocumento);     
+
+    }
+  }
+
+  getPictureTest(strModeloDocumento) {
+
+    let ctx = this;
+    
       let loading = this.loadingCtrl.create({
         spinner: 'dots',
         content: 'Aguarde, enviando imagem!'
@@ -208,74 +254,65 @@ export class RhPage {
             loading.dismiss();
           });
       });
-    }
-    else {
+  }
 
-      //configura opções da camera
-      const options: CameraOptions = {
-        quality: 80,
-        destinationType: this.camera.DestinationType.DATA_URL,
-        encodingType: this.camera.EncodingType.JPEG,
-        sourceType: this.camera.PictureSourceType.CAMERA,
-        mediaType: this.camera.MediaType.PICTURE,
-        allowEdit: true,
-        saveToPhotoAlbum: false
-      }
+  getPictureCordova(options, strModeloDocumento)  {
 
-      //chama a camera e aguada o retorno
-      ctx.camera.getPicture(options).then((b64string) => {
+    let ctx = this;
 
-        let loading = this.loadingCtrl.create({
-          spinner: 'dots',
-          content: 'Aguarde, processando imagem!'
-        });
+    //chama a camera e aguada o retorno
+    ctx.camera.getPicture(options).then((b64string) => {
 
-        //apresenta o loading
-        loading.present();
-
-        Hasher.getHash(b64string, function (hasher) {
-
-          //enviar imagem               
-          ctx.e2doc.sendImageFromOCR(ctx.pasta.protocolo, strModeloDocumento, ctx.extensao, hasher.hash, b64string).
-            then((res) => {
-
-              //guardo retorno
-              let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == documento));
-
-              documento.docFileBase64 = b64string;
-              documento.docFileTam = hasher.size;
-              documento.docFileHash = hasher.hash;
-              documento.docFileExtensao = ctx.extensao;
-              documento.status = Status.Aguandando;
-
-              let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == documento));
-
-              //substitui no vetor
-              ctx.pasta.pastaDocumentos.splice(index, 1, documento);
-
-              //mostra o resultado
-              ctx.setResult(documento);
-
-              //fechar loading
-              loading.dismiss();
-
-              //adiciona na fila para aguardar retorno do OCR     
-              ctx.setStatus(documento);
-
-              //passa para o proximo slide
-              ctx.slideNext();
-
-              ctx.verifyCanLeave = true;
-
-            }, (err) => {
-              ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
-              loading.dismiss();
-            });
-        });
-      }, (err) => {
-        ctx.msgHelper.presentToast("Imagem não capturada!");
+      let loading = this.loadingCtrl.create({
+        spinner: 'dots',
+        content: 'Aguarde, processando imagem!'
       });
-    }
+
+      //apresenta o loading
+      loading.present();
+
+      Hasher.getHash(b64string, function (hasher) {
+
+        //enviar imagem               
+        ctx.e2doc.sendImageFromOCR(ctx.pasta.protocolo, strModeloDocumento, ctx.extensao, hasher.hash, b64string).
+          then((res) => {
+
+            //guardo retorno
+            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == documento));
+
+            documento.docFileBase64 = b64string;
+            documento.docFileTam = hasher.size;
+            documento.docFileHash = hasher.hash;
+            documento.docFileExtensao = ctx.extensao;
+            documento.status = Status.Aguandando;
+
+            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == documento));
+
+            //substitui no vetor
+            ctx.pasta.pastaDocumentos.splice(index, 1, documento);
+
+            //mostra o resultado
+            ctx.setResult(documento);
+
+            //fechar loading
+            loading.dismiss();
+
+            //adiciona na fila para aguardar retorno do OCR     
+            ctx.setStatus(documento);
+
+            //passa para o proximo slide
+            ctx.slideNext();
+
+            ctx.verifyCanLeave = true;
+
+          }, (err) => {
+            ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
+            loading.dismiss();
+          });
+      });
+    }, (err) => {
+      ctx.msgHelper.presentToast("Imagem não capturada!");
+    });
   }
 
   setResult(modelo: string) {
@@ -374,4 +411,5 @@ export class RhPage {
       this.pasta.getIndice("CIDADE").setValue("Osasco");
     }
   }
+
 }

@@ -8,7 +8,7 @@ import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento'
 import { LoginPage } from '../login/login';
 import { HttpProvider } from "../../providers/http/http";
 import { MsgHelper } from '../../helpers/MsgHelper';
-import { RhPage } from '../rh/rh';
+import { ContratacaoPage } from '../contratacao/contratacao';
 
 @IonicPage()
 @Component({
@@ -44,7 +44,7 @@ export class HomePage {
   }
 
   goToRHPage() {
-    this.navCtrl.push(RhPage);
+    this.navCtrl.push(ContratacaoPage);
   }
 
   goToTarefaPage() {

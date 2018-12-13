@@ -14,15 +14,14 @@ import { HomePage } from '../home/home';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from '../../providers/http/http';
-import { RhPage } from '../rh/rh';
+import { ContratacaoPage } from '../contratacao/contratacao';
 
 @IonicPage()
 @Component({
-  selector: 'page-rh-ficha',
-  templateUrl: 'rh-ficha.html',
+  selector: 'page-contratacao-ficha',
+  templateUrl: 'contratacao-ficha.html',
 })
-export class RhFichaPage {
-
+export class ContratacaoFichaPage {
   @ViewChild(SignaturePad) signaturePad: SignaturePad;
   @ViewChild('navbar') navBar: Navbar;
   
@@ -144,7 +143,7 @@ export class RhFichaPage {
           text: 'Sim',
           handler: () => {
             //retorna para intro
-            this.navCtrl.push(RhPage);
+            this.navCtrl.push(ContratacaoPage);
           }
         },
         {
@@ -290,4 +289,5 @@ export class RhFichaPage {
       resolve(vetDoc);
     });
   } 
+
 }

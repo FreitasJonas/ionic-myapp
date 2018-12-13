@@ -6,6 +6,7 @@ import { HttpProvider } from '../../providers/http/http';
 import { Storage } from '@ionic/storage';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { HomePage } from '../home/home';
+import { MyApp } from '../../app/app.component';
 
 @IonicPage()
 @Component({
@@ -86,6 +87,7 @@ export class LoginPage {
 
       if (e2docResponse == "1") {
         AutenticationHelper.saveToStorage(this.storage, dadosEncod);
+        MyApp.setDadosUser(user.value, base.value);
         return this.navCtrl.push(HomePage);
       }
       else {

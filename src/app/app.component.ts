@@ -9,11 +9,11 @@ import { Storage } from '@ionic/storage';
 import { AutenticationHelper } from '../helpers/e2doc/AutenticationHelper';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { HomePage } from '../pages/home/home';
-import { AppVersion } from '@ionic-native/app-version';
 import { HttpProvider } from '../providers/http/http';
-import { MsgHelper } from '../helpers/MsgHelper';
-import { RhPage } from '../pages/rh/rh';
 import { TarefasPage } from '../pages/tarefas/tarefas';
+
+import { timer } from 'rxjs/observable/timer';
+import { ContratacaoPage } from '../pages/contratacao/contratacao';
 
 @Component({
   templateUrl: 'app.html'
@@ -23,12 +23,11 @@ export class MyApp {
   rootPage: any = LoginPage;
   @ViewChild(Nav) nav: Nav;
 
-  usuario: any;
-  base: any;
+  static usuario: any;
+  static base: any;
   versao: any = "1.0";
 
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
+  showSplash = true;
   
   pages: Array<{ title: string, component: any, icon: string }>;
 
@@ -40,6 +39,17 @@ export class MyApp {
     public toastCtrl: ToastController,
     public app: App) {
 
+      AutenticationHelper.isAutenticated(http, storage).then(isAutenticated => {
+
+        if (isAutenticated) {
+          
+            AutenticationHelper.getDadosLogin(storage).then(account => { 
+            MyApp.base = account.empresa;
+            MyApp.usuario = account.usuario;
+          });
+        }
+      });
+
     this.initializeApp();
 
     this.pages =
@@ -48,20 +58,9 @@ export class MyApp {
         { title: 'Pesquisa', component: "", icon: "md-search" },
         { title: 'Adicionar Documento', component: AdicionaDocumentoPage, icon: "md-document" },
         { title: 'Tarefas', component: TarefasPage, icon: "md-build" },
-        { title: 'RH', component: RhPage, icon: "md-apps" },
+        { title: 'RH', component: ContratacaoPage, icon: "md-apps" },
         { title: 'Logout', component: LogoutPage, icon: "md-exit" }
       ];
-
-    AutenticationHelper.isAutenticated(http, storage).then(isAutenticated => {
-
-      if (isAutenticated) {
-        
-          AutenticationHelper.getDadosLogin(storage).then(account => { 
-          this.base = account.empresa;
-          this.usuario = account.usuario;
-        });
-      }
-    });
 
     this.platform.registerBackButtonAction(() => {
 
@@ -69,7 +68,6 @@ export class MyApp {
       let activeView = nav.getActive();
 
       if (activeView.name == "HomePage" || activeView.name == "LoginPage") {
-        console.log(activeView.name);
         this.platform.exitApp();
         return;
       }
@@ -87,6 +85,12 @@ export class MyApp {
 
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+
+      timer(1000).subscribe(() => {
+
+        this.showSplash = false;
+
+      }) 
     });
   }
 
@@ -112,5 +116,22 @@ export class MyApp {
         const browser = new InAppBrowser().create(url, '_system');
       });
     });
+  }
+
+  getstaticUser() {
+
+    return MyApp.usuario;
+  }
+
+  getStaticEmpresa() {
+
+    return MyApp.base;
+  }
+
+  static setDadosUser( usuario, base ) {
+
+    MyApp.usuario = usuario;
+    MyApp.base = base;
+
   }
 }
