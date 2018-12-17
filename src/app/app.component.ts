@@ -57,8 +57,8 @@ export class MyApp {
         { title: 'Home', component: HomePage, icon: "md-home" },
         { title: 'Pesquisa', component: "", icon: "md-search" },
         { title: 'Adicionar Documento', component: AdicionaDocumentoPage, icon: "md-document" },
-        { title: 'Tarefas', component: TarefasPage, icon: "md-build" },
-        { title: 'RH', component: ContratacaoPage, icon: "md-apps" },
+        { title: 'Tarefas', component: TarefasPage, icon: "md-construct" },
+        { title: 'Contratação', component: ContratacaoPage, icon: "md-folder" },
         { title: 'Logout', component: LogoutPage, icon: "md-exit" }
       ];
 

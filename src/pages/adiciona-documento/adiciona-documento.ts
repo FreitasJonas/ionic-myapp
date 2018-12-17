@@ -478,7 +478,8 @@ export class AdicionaDocumentoPage {
     //cria loading
     let loading = this.loadingCtrl.create({
       spinner: 'dots',
-      content: 'Aguarde, sincronizando com o e2docCloud'
+      content: 'Aguarde, sincronizando com o e2docCloud',
+      dismissOnPageChange: true
     });
 
     //mostra loading

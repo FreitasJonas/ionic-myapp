@@ -65,13 +65,12 @@
               Documento Enviado
             </div>
 
-            <button ion-button icon-start color="danger" [disabled]="model.enviado" (click)="slideNext(model.modelo)"
+            <button ion-button icon-start color="danger" [disabled]="model.enviado" (click)="slideNext()"
               *ngIf="!model.obrigatorio">
               Não possuo &nbsp;&nbsp;
               <ion-icon name="md-arrow-forward"></ion-icon>
             </button>
           </div>
-
         </ion-col>
 
 
@@ -80,41 +79,48 @@
 
     <ion-slide class="app-slide">
 
-      <ion-grid>
+      <h4 class="slide-title">Assinar</h4> <br><br><br><br><br>
 
-        <ion-row *ngFor="let model of slideModels">
-          <ion-col>
-            <ion-item class="e2-check">
-              <ion-label>{{model.modelo}}</ion-label>
-              <ion-checkbox color="secondary" [checked]="model.enviado" disabled="true"></ion-checkbox>
-            </ion-item>
-          </ion-col>
-        </ion-row>
+      <ion-row>
 
-      </ion-grid>
+        <ion-col col-12>
 
-      <br>
+          <ion-row *ngFor="let model of slideModels">
+            <ion-col>
+              <ion-item class="e2-input">
+                <ion-label>{{model.modelo}}</ion-label>
+                <ion-checkbox color="secondary" [checked]="model.enviado" disabled="true"></ion-checkbox>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-      <div *ngIf="!docsIsValid">
-        <h5 style="color: #ffffff">Aguardando resposta, por favor aguarde!</h5>
-        <ion-spinner name="bubbles" id="bubbles"></ion-spinner>
-      </div>
+        </ion-col>
 
-      <br>
-      <br>
+        <br>
 
-      <div *ngIf="docsIsValid">
-        <button ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
-      </div>
+        <ion-col col-12>
 
-      <br>
-      <br>
+          <div *ngIf="!docsIsValid">
+            <h5 style="color: #ffffff">Aguardando resposta, por favor aguarde!</h5>
+            <ion-spinner name="bubbles" id="bubbles"></ion-spinner>
+          </div>
+
+          <br>
+          <br>
+
+          <div *ngIf="docsIsValid">
+            <button ion-button full color="secondary" (click)="goToDocFichaPage()">Assinar</button>
+          </div>
+
+          <br>
+          <br>
+
+        </ion-col>
+
+      </ion-row>
 
     </ion-slide>
   </ion-slides>
-
-
-
 
 </ion-content>
 

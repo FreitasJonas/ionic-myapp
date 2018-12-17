@@ -1,31 +1,37 @@
-<ion-header no-border>
-  <ion-navbar #navbar>
-    
-      <button ion-button icon-only menuToggle>
-          <ion-icon name="menu"></ion-icon>
+<ion-header>
+    <ion-toolbar color="tool-bar">
+  
+      <button ion-button menuToggle>
+        <ion-icon class="btn-menu-icon" name="md-menu">
+        </ion-icon>
       </button>
-
-    <ion-title class="app-page-title" >Ficha</ion-title>
-  </ion-navbar>
-</ion-header>
+  
+      <ion-title style="margin-top: 10px;"> Ficha </ion-title>
+    </ion-toolbar>
+  </ion-header>
 
 <ion-content padding>
 
 <ion-list>
+  <ion-item *ngFor="let indice of indices" class="e2-input" >
 
-  <ion-item *ngFor="let indice of indices">
-    <ion-label floating>{{indice.nome}}</ion-label>
-    <ion-input type="text" [(ngModel)]="indice.valor"></ion-input>
+    <ion-label color="primary" stacked>{{indice.nome}}</ion-label>
+    <ion-input type="text" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}"
+    clearInput clearOnEdit="false">      
+    </ion-input>
   </ion-item>
-
-  <br>
-
-  <div text-center>
-    <p ion-text color="danger">Assinatura</p>
-  </div>
-  <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
+</ion-list>
 
   <ion-grid>
+      <div text-center>
+          <p ion-text color="danger">Assinatura</p>
+        </div>
+      <ion-row>
+          <ion-col col-12>
+              <signature-pad [options]="signaturePadOptions" id="signatureCanvas"></signature-pad>
+          </ion-col>
+        </ion-row>
+
     <ion-row>
       <ion-col col-12>
         <button ion-button full color="secondary" (click)="drawComplete()">Finalizar</button>
@@ -39,6 +45,6 @@
     </ion-row>
   </ion-grid>
 
-</ion-list>
+
 
 </ion-content>

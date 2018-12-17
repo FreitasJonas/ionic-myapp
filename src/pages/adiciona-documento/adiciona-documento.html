@@ -66,13 +66,13 @@
 
       <ion-item class="e2-input">
         <ion-label>Documento</ion-label>
-        <ion-select [(ngModel)]="documento" (ionChange)="onDocSelect()" interface="popover" >
+        <ion-select [(ngModel)]="documento" (ionChange)="onDocSelect()" interface="popover">
           <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}}</ion-option>
         </ion-select>
       </ion-item>
 
     </ion-slide>
-    <ion-slide>
+    <ion-slide class="e2-scroll">
 
       <h4 class="slide-title">Índices</h4>
       <br>
@@ -98,8 +98,9 @@
 
               <ng-template #inputNormal>
                 <ion-item class="e2-input">
-                  <ion-input type="text" [(ngModel)]="indice.valor" placeholder="{{indice.nameLabel}}" [ngModelOptions]="{standalone: true}"
-                    clearInput clearOnEdit="false"></ion-input>
+                  <ion-label color="primary" stacked>{{indice.nameLabel}}</ion-label>
+                  <ion-input type="text" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}" clearInput
+                    clearOnEdit="false"></ion-input>
                 </ion-item>
                 <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
               </ng-template>
@@ -119,13 +120,12 @@
           </div>
 
           <button ion-button block class="btn-sync" style="background-color: #00C802">
-            <span style="color: white; margin: auto" >
+            <span style="color: white; margin: auto">
               <ion-icon name="md-cloud-upload" style="zoom:2.0;"> </ion-icon>
             </span>
           </button>
 
         </form>
-
       </div>
     </ion-slide>
 

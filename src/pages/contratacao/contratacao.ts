@@ -265,7 +265,8 @@ export class ContratacaoPage {
 
       let loading = this.loadingCtrl.create({
         spinner: 'dots',
-        content: 'Aguarde, processando imagem!'
+        content: 'Aguarde, processando imagem!',
+        dismissOnPageChange: true
       });
 
       //apresenta o loading
@@ -278,7 +279,7 @@ export class ContratacaoPage {
           then((res) => {
 
             //guardo retorno
-            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == documento));
+            let documento = ctx.pasta.pastaDocumentos.find((doc => doc.docNome == strModeloDocumento));
 
             documento.docFileBase64 = b64string;
             documento.docFileTam = hasher.size;
@@ -286,19 +287,19 @@ export class ContratacaoPage {
             documento.docFileExtensao = ctx.extensao;
             documento.status = Status.Aguandando;
 
-            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == documento));
+            let index = ctx.pasta.pastaDocumentos.findIndex((doc => doc.docNome == strModeloDocumento));
 
             //substitui no vetor
             ctx.pasta.pastaDocumentos.splice(index, 1, documento);
 
             //mostra o resultado
-            ctx.setResult(documento);
+            ctx.setResult(strModeloDocumento);
+
+            //adiciona na fila para aguardar retorno do OCR     
+            ctx.setStatus(strModeloDocumento);
 
             //fechar loading
             loading.dismiss();
-
-            //adiciona na fila para aguardar retorno do OCR     
-            ctx.setStatus(documento);
 
             //passa para o proximo slide
             ctx.slideNext();
@@ -319,7 +320,7 @@ export class ContratacaoPage {
     this.slideModels.find((doc => doc.modelo == modelo)).enviado = true;
   }
 
-  setStatus(modelo: string) {    
+  setStatus(modelo: string) {
     let index = this.slideModels.findIndex((d => d.modelo == modelo));
 
     this.slideModels[index].status = Status.Aguandando;

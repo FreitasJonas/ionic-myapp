@@ -52,8 +52,9 @@ export class ContratacaoFichaPage {
   //Opções do canvas da assinatura
   public signaturePadOptions: Object = { // passed through to szimek/signature_pad constructor
     'minWidth': 2,
-    'canvasWidth': 380,
-    'canvasHeight': 250
+    'canvasWidth': 310,
+    'canvasHeight': 200,
+    'backgroundColor': '#f8f8f8',
   };
 
   constructor(public navCtrl: NavController,
