@@ -9,6 +9,7 @@ import { LoginPage } from '../login/login';
 import { HttpProvider } from "../../providers/http/http";
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { ContratacaoPage } from '../contratacao/contratacao';
+import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
 
 @IonicPage()
 @Component({
@@ -80,6 +81,6 @@ export class HomePage {
 
   goToAddDoc() {
 
-    this.navCtrl.push(AdicionaDocumentoPage);
+    this.navCtrl.push(ModeloPastaPage);
   }
 }

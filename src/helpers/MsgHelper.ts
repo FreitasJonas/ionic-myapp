@@ -23,11 +23,11 @@ export class MsgHelper {
     toast.present();
   }
 
-  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline ) {
+  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline, title?: string) {
 
     //exibe alert
     alertCtrl.create({
-      title: '',
+      title: title,
       message: mensagem,
       buttons: [
         {

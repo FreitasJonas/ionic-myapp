@@ -1,7 +1,12 @@
-page-adiciona-documento {
-    
-      .slide-img {
-        height: 40%;
+page-modelo-classificacao {
+
+    // ion-slide {
+    //     padding-top: 0;
+    // }
+
+    .slide-img {
+        height: 50%;                
+        background-color:brown;
 
         border-top: 1px solid #000000;
         border-bottom: 1px solid #000000;
@@ -32,4 +37,11 @@ page-adiciona-documento {
         margin-top: -20px;
         
       }
+
+      .app-slide {
+          height: 40%;
+          width: 100%;
+          background-color: brown;
+      }
+
 }

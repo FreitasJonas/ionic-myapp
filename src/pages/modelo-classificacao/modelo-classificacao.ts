@@ -1,44 +1,41 @@
 import { Component, ViewChild } from '@angular/core';
-import {
-  IonicPage, NavController, NavParams,
-  AlertController, LoadingController, Platform,
-  MenuController, ToastController, ViewController, Slides
-} from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Platform, AlertController, MenuController, ToastController, ViewController, Slides } from 'ionic-angular';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
-import { HomePage } from '../home/home';
-import { Camera } from '@ionic-native/camera';
-import { Hasher } from '../../helpers/Hasher';
-import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
-import { Storage } from '@ionic/storage';
-import { LoginPage } from '../login/login';
-import { HttpProvider } from '../../providers/http/http';
-import { MsgHelper } from '../../helpers/MsgHelper';
-import { ClassificacaoPage } from '../classificacao/classificacao';
-import { ImagePicker } from '@ionic-native/image-picker';
-import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
-
+import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
+import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
+import { Storage } from '@ionic/storage';
+import { Camera } from '@ionic-native/camera';
+import { HttpProvider } from '../../providers/http/http';
+import { ImagePicker } from '@ionic-native/image-picker';
+import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
+import { LoginPage } from '../login/login';
+import { MsgHelper } from '../../helpers/MsgHelper';
+import { Hasher } from '../../helpers/Hasher';
+import { ClassificacaoPage } from '../classificacao/classificacao';
 
 @IonicPage()
 @Component({
-  selector: 'page-adiciona-documento',
-  templateUrl: 'adiciona-documento.html',
+  selector: 'page-modelo-classificacao',
+  templateUrl: 'modelo-classificacao.html',
   providers: [
     Camera,
     E2docSincronismoProvider
   ]
 })
-
-export class AdicionaDocumentoPage {
+export class ModeloClassificacaoPage {
 
   @ViewChild(Slides) slides: Slides;
+
+  public syncUtil: SincronismoUtil;
+
+  public pasta: ModeloPasta;
+
+  public documentos = new Array<ModeloDoc>();
 
   public vetImg = new Array<any>();
 
   private cordova: boolean;
-
-  public pastas = new Array<ModeloPasta>();
-  public documentos = new Array<ModeloDoc>();
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
@@ -46,31 +43,27 @@ export class AdicionaDocumentoPage {
   constructor(public navCtrl: NavController,
     public platform: Platform,
     public navParams: NavParams,
-    private alertCtrl: AlertController,
     private e2doc: E2docSincronismoProvider,
     private camera: Camera,
-    private storage: Storage,
     public http: HttpProvider,
     public menuCtrl: MenuController,
+    private storage: Storage,
     public toastCtrl: ToastController,
     public viewCtrl: ViewController,
     private imagePicker: ImagePicker) {
 
-    this.menuCtrl.enable(true, 'app_menu');
+    this.syncUtil = new SincronismoUtil(this.e2doc);
+
+    this.pasta = navParams.get("_pasta");
 
     this.cordova = this.platform.is('cordova');
 
-    if (this.cordova) {
-      //pede por permissão - ANDROID
-      this.imagePicker.requestReadPermission().then(inutil => { });
-    }
+    this.syncUtil.getConfigDocumento(this.pasta).then(docs => {
 
-    this.getConfigPasta().then(pst => {
-      this.pastas = pst;
+      this.documentos = docs;
 
     }, err => {
-
-      this.alertError(err);
+      alert(err);
     });
   }
 
@@ -83,23 +76,6 @@ export class AdicionaDocumentoPage {
       if (!isAutenticate) { this.storage.clear(); this.navCtrl.push(LoginPage); }
 
     });
-  }
-
-  alertError(msg) {
-
-    //exibe alert
-    this.alertCtrl.create({
-      title: 'ERRO',
-      message: msg,
-      buttons: [
-        {
-          text: 'OK',
-          handler: () => {
-            this.navCtrl.push(HomePage);
-          }
-        }
-      ]
-    }).present();
   }
 
   goToCamera() {
@@ -194,47 +170,5 @@ export class AdicionaDocumentoPage {
     this.vetImg.splice(index, 1);
     this.slides.slideTo(0);
 
-  }
-
-  getConfigPasta(): Promise<any> {
-
-    let _pastas = new Array<ModeloPasta>();
-
-    return new Promise((resolve, reject) => {
-
-      this.e2doc.getConfiguracao(100, "", "", "", "").then((pastas) => {
-
-        let erro = pastas.getElementsByTagName("erro")[0];
-
-        if (typeof erro === 'undefined') {
-
-          let nodes = pastas.getElementsByTagName("modelos")[0].childNodes;
-
-          for (var i = 0; i < nodes.length; i++) {
-
-            let id = nodes[i].childNodes[0].firstChild.nodeValue;
-            let nome = nodes[i].childNodes[1].firstChild.nodeValue;
-            let cod = nodes[i].childNodes[2].firstChild === null ? "" : nodes[i].childNodes[2].firstChild.nodeValue;
-
-            let pasta = new ModeloPasta();
-            pasta.id = id;
-            pasta.nome = nome;
-            pasta.cod = cod;
-
-            _pastas.push(pasta);
-          }
-
-          resolve(_pastas);
-        }
-        else {
-          reject("[ERRO] Falha lendo Xml");
-        }
-      }, err => {
-
-        reject(err);
-
-      });
-
-    });
   }
 }

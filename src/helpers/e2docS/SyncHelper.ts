@@ -96,6 +96,6 @@ export class SyncHelper {
         }
       
         return string;
-      }
+    }
 
 }

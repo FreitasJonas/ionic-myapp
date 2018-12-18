@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-toolbar color="tool-bar">
+
+    <button ion-button menuToggle>
+      <ion-icon class="btn-menu-icon" name="md-menu">
+      </ion-icon>
+    </button>
+
+    <ion-title style="margin-top: 10px;"> Adicionar Documento </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="fundo">
+
+  <ion-fab right bottom>
+    <button ion-fab color="light" (click)="showImage()">
+      <ion-icon name="eye"></ion-icon>
+    </button>
+    <!-- <ion-fab-list side="left">
+        <button ion-fab><ion-icon name="logo-facebook"></ion-icon></button>
+        <button ion-fab><ion-icon name="logo-twitter"></ion-icon></button>
+        <button ion-fab><ion-icon name="logo-vimeo"></ion-icon></button>
+        <button ion-fab><ion-icon name="logo-googleplus"></ion-icon></button>
+      </ion-fab-list> -->
+  </ion-fab>
+
+  <ion-grid>
+    <ion-col col-12>
+
+      <h4> &nbsp; Classificação</h4>
+
+      <ion-item class="e2-input">
+        <ion-label>Modelo de Pasta*</ion-label>
+        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
+          <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="e2-input">
+        <ion-label>Modelo de Documento*</ion-label>
+        <ion-select [(ngModel)]="documento" interface="popover">
+          <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}}</ion-option>
+        </ion-select>
+      </ion-item>
+
+    </ion-col>
+
+    <ion-col col-12>
+
+      <h4> &nbsp; Campos de Indexação</h4>
+
+      <div *ngIf="indicesReady">
+
+        <form (submit)="sincronizar()" novalidate>
+
+          <div *ngFor="let indice of indices">
+
+            <div *ngIf="!indice.hasDic; else hasDic">
+
+              <div *ngIf="indice.tipo == 3; else inputNormal">
+
+                <ion-item class="e2-input">
+                  <ion-label stacked>{{indice.nameLabel}}</ion-label>
+                  <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}"
+                    (ionCancel)="clearDateTime(indice.id)" doneText="Pronto" cancelText="Limpar"></ion-datetime>
+                </ion-item>
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </div>
+
+              <ng-template #inputNormal>
+                <ion-item class="e2-input">
+                  <ion-label stacked>{{indice.nameLabel}}</ion-label>
+                  <ion-input type="text" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}" clearInput
+                    clearOnEdit="false">
+                  </ion-input>
+                </ion-item>
+                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              </ng-template>
+
+            </div>
+
+            <ng-template #hasDic>
+              <ion-item class="e2-input">
+                <ion-label stacked>{{indice.nameLabel}}</ion-label>
+                <ion-select [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}" interface="popover">
+                  <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
+                </ion-select>
+              </ion-item>
+              <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+            </ng-template>
+
+          </div>
+
+          <button ion-button block class="btn-sync" style="background-color: #00C802">
+            <span style="color: white; margin: auto">
+              <ion-icon name="md-cloud-upload" style="zoom:2.0;"> </ion-icon>
+            </span>
+          </button>
+
+        </form>
+      </div>
+
+    </ion-col>
+  </ion-grid>
+</ion-content>

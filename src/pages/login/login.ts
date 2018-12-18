@@ -58,7 +58,7 @@ export class LoginPage {
     if (!this.loginForm.valid) {
       if (!base.valid) {
         this.errorBase = true;
-        this.messageBase = "Ops! Empresa não existente";
+        this.messageBase = "Campo obrigatório";
       } else {
         this.messageBase = "";
       }

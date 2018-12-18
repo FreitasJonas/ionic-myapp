@@ -29,7 +29,11 @@ import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adicion
 import { AppVersion } from '@ionic-native/app-version';
 import { ContratacaoPageModule } from '../pages/contratacao/contratacao.module';
 import { ContratacaoFichaPageModule } from '../pages/contratacao-ficha/contratacao-ficha.module';
-
+import { ClassificacaoPageModule } from '../pages/classificacao/classificacao.module';
+import { PhotoViewer } from '@ionic-native/photo-viewer'
+import { ImagePicker } from '@ionic-native/image-picker'
+import { ModeloPastaPageModule } from '../pages/modelo-pasta/modelo-pasta.module';
+import { ModeloClassificacaoPageModule } from '../pages/modelo-classificacao/modelo-classificacao.module';
 
 @NgModule({
   declarations: [
@@ -50,6 +54,9 @@ import { ContratacaoFichaPageModule } from '../pages/contratacao-ficha/contratac
     TarefasPageModule,
     TarefaPageModule,
     AdicionaDocumentoPageModule,
+    ModeloPastaPageModule,
+    ModeloClassificacaoPageModule,
+    ClassificacaoPageModule,
     HttpClientModule,    
     SignaturePadModule
   ],
@@ -72,6 +79,8 @@ import { ContratacaoFichaPageModule } from '../pages/contratacao-ficha/contratac
     E2docSincronismoProvider,
     E2docPesquisaProvider,    
     HttpProvider,
+    PhotoViewer,
+    ImagePicker,
     AppVersion
   ]
 })
