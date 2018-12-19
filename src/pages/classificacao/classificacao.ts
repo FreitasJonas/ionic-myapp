@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading } from 'ionic-angular';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
-import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
 import { ModeloIndice } from '../../helpers/e2docS/ModeloIndice';
 import { Dicionario } from '../../helpers/e2docS/Dicionario';
 import { HomePage } from '../home/home';
@@ -14,7 +13,8 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { HttpProvider } from '../../providers/http/http';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
-import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento';
+import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
+import { timer } from 'rxjs/observable/timer';
 
 @IonicPage()
 @Component({
@@ -23,19 +23,20 @@ import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento'
 })
 export class ClassificacaoPage {
 
-  imageSrc: any = "";
-  public vetImg: Array<any>;
   public indicesReady: boolean;
 
-  public pasta: ModeloPasta;
-  public documento: ModeloDoc;
-  public indices = new Array<ModeloIndice>();
+  public imgDocs = new Array<{ b64: any, modelo: any }>();
 
-  public pastas = new Array<ModeloPasta>();
-  public documentos = new Array<ModeloDoc>();
+  public pasta: ModeloPasta;
+
+  public indices = new Array<ModeloIndice>();
 
   //helper para exebir toast
   public msgHelper = new MsgHelper(this.toastCtrl);
+
+  public verifyOnLeave;
+
+  public loading: Loading;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -51,17 +52,15 @@ export class ClassificacaoPage {
 
     this.menuCtrl.enable(true, 'app_menu');
 
-    this.vetImg = navParams.get("vetImg");
+    this.imgDocs = navParams.get("imgDocs");
 
-    console.log(this.vetImg);
+    this.pasta = navParams.get("_pasta");
 
-    this.getConfigPasta().then(pst => {
-      this.pastas = pst;
+    console.log(this.imgDocs);
 
-    }, err => {
+    this.carregaIndices();
 
-      this.alertError(err);
-    });
+    this.verifyOnLeave = true;
 
   }
 
@@ -80,63 +79,31 @@ export class ClassificacaoPage {
 
     return new Promise((resolve, reject) => {
 
-      let vImg = this.imageSrc == "" ? false : true;
-
-      if (vImg) {
+      if (this.verifyOnLeave) {
 
         MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?",
           function () { resolve() },
           function () { reject() });
+
       }
       else {
         resolve();
       }
+
     });
   }
 
+  //para limpar os campos do tipo data
   clearDateTime(id) {
     this.indices.find(i => i.id == id).valor = null;
   }
-  
+
   showImage() {
 
-    
-
-    this.photoViewer.show("data:image/jpeg;base64," + this.vetImg);
+    //this.photoViewer.show("data:image/jpeg;base64," + this.imgDocs);
   }
 
-  onPastaSelect() {
-
-    let loadind = this.loadingCtrl.create({
-      spinner: 'circles',
-      content: "Carregando informações da pasta!"
-    });
-
-    loadind.present();
-
-    this.getIndices(this.pasta).then(indices => {
-
-      this.indices = indices;
-      this.indicesReady = true;
-
-      this.getConfigDocumento(this.pasta).then(docs => {
-
-        this.documentos = docs;
-
-      }, err => {
-        loadind.dismiss();
-        this.alertError(err);
-      });
-
-      loadind.dismiss();
-
-    }, err => {
-      loadind.dismiss();
-      this.alertError(err);
-    });
-  }
-
-  onDocSelect() {
+  carregaIndices() {
 
     let loadind = this.loadingCtrl.create({
       spinner: 'circles',
@@ -160,152 +127,139 @@ export class ClassificacaoPage {
 
   sincronizar() {
 
-    if (typeof (this.documento) !== 'undefined') {
+    if (this.imgDocs.length > 0) {
 
-      if (this.vetImg.length > 0) {
+      this.indices.forEach((indice) => {
 
-        this.indices.forEach((indice) => {
+        IndiceValidator.validade(indice);
 
-          IndiceValidator.validade(indice);
+      });
 
-        });
+      let notValid = this.indices.some((i => i.validate == false));
 
-        let notValid = this.indices.some((i => i.validate == false));
+      if (!notValid) {
 
-        if (!notValid) {
+        this.teste();
 
-          this.enviaDoc();
-
-        }
       }
-      else {
-
-        this.msgHelper.presentToast2("Não há imagens para serem indexadas!");
-      }
-
     }
     else {
-      //exibe alert
-      this.alertCtrl.create({
-        title: 'ERRO',
-        message: "Documento não selecionado!",
-        buttons: [
-          {
-            text: 'OK',
-          }
-        ]
-      }).present();
+
+      this.msgHelper.presentToast2("Não há imagens para serem indexadas!");
     }
   }
 
-  enviaDoc() {
+  teste() {
+
+    let self = this;
 
     //cria loading
-    let loading = this.loadingCtrl.create({
+    self.loading = self.loadingCtrl.create({
       spinner: 'dots',
       content: 'Aguarde, sincronizando com o e2docCloud',
       dismissOnPageChange: true
     });
 
     //mostra loading
-    loading.present();
+    self.loading.present();
 
-    let campos = SyncHelper.getStringIndices(this.indices);
+    let promisse;
 
-    SyncHelper.getVetDoc(this.pasta, this.documento, this.imageSrc).then(vetDoc => {
+    let campos = SyncHelper.getStringIndices(self.indices);
 
-      this.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
-
-        //limpa base64 da imagem
-        this.imageSrc = "";
-
-        loading.dismiss();
-
-        this.msgEnvioFinalizado("Envio finalizado com sucesso, deseja incluir mais documentos ?");
-
-      }, erro => {
-
-        loading.dismiss();
-
-        this.msgErroEnvio(erro);
-
-      });
+    this.imgDocs.forEach((doc, index) => {
+        promisse = self.sync(campos, doc, index).then(self.envioSucesso, self.envioFalha);
+      
     });
+
+    promisse.then(res => {
+      console.log("Final");
+      self.loading.dismiss();
+    })
   }
 
-  getConfigPasta(): Promise<any> {
+  envioSucesso(ordem) {
 
-    let _pastas = new Array<ModeloPasta>();
+    console.log("OK Ordem: " + ordem);
+
+  }
+
+  envioFalha(erro) {
+
+    console.log("FALHA Ordem: " + erro);
+
+  }
+
+  send(index): Promise<any> {
+
+    let self = this;
 
     return new Promise((resolve, reject) => {
 
-      this.e2doc.getConfiguracao(100, "", "", "", "").then((pastas) => {
+      let campos = SyncHelper.getStringIndices(self.indices);
 
-        let erro = pastas.getElementsByTagName("erro")[0];
+      console.log(index);
 
-        if (typeof erro === 'undefined') {
+      if (index < 0) { //se for o ultimo elemento
+        resolve();
+      }
 
-          let nodes = pastas.getElementsByTagName("modelos")[0].childNodes;
+      self.sync(campos, self.imgDocs[index], index).then(res => {
 
-          for (var i = 0; i < nodes.length; i++) {
+        self.send(index -= 1);
 
-            let id = nodes[i].childNodes[0].firstChild.nodeValue;
-            let nome = nodes[i].childNodes[1].firstChild.nodeValue;
-            let cod = nodes[i].childNodes[2].firstChild === null ? "" : nodes[i].childNodes[2].firstChild.nodeValue;
+      }, erro => {
 
-            let pasta = new ModeloPasta();
-            pasta.id = id;
-            pasta.nome = nome;
-            pasta.cod = cod;
+        reject();
 
-            _pastas.push(pasta);
-          }
-
-          resolve(_pastas);
-        }
-        else {
-          reject("[ERRO] Falha lendo Xml");
-        }
-      }, err => {
-
-        reject(err);
-
-      });
-
+      })
     });
+    // self.imgDocs.forEach((element, index) => { 
+
+    //   SyncHelper.getVetDoc(self.pasta, element.modelo, element.b64.split(",")[1], index).then(vetDoc => {
+
+    //     self.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
+
+    //       if (index == self.imgDocs.length - 1) {
+
+    //         loading.dismiss();
+
+    //         self.msgEnvioFinalizado("Envio finalizado, deseja incluir novos documentos?");
+    //       }
+
+    //     }, erro => {
+
+    //       loading.dismiss();
+
+    //       self.msgErroEnvio(erro);
+
+    //     });
+    //   });     
+
+    // });
   }
 
-  getConfigDocumento(pasta): Promise<any> {
+  sync(campos, doc, ordem): Promise<any> {
 
     return new Promise((resolve, reject) => {
 
-      let lstDocs = new Array<ModeloDoc>();
+        let self = this;
 
-      this.e2doc.getConfiguracao(200, pasta.id, pasta.nome, "", "").then(docs => {
+        SyncHelper.getVetDoc(self.pasta, doc.modelo, doc.b64.split(",")[1], ordem).then(vetDoc => {
 
-        let erro = docs.getElementsByTagName("erro")[0];
+          console.log(vetDoc);
 
-        if (typeof erro === 'undefined') { //Se não encontrar erro
+          self.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
 
-          let nodes = docs.getElementsByTagName("docs")[0].childNodes;
+            resolve(ordem);
 
-          for (var i = 0; i < nodes.length; i++) {
+          }, erro => {
 
-            let id = nodes[i].childNodes[0].firstChild === null ? "" : nodes[i].childNodes[0].firstChild.nodeValue;
-            let nome = nodes[i].childNodes[1].firstChild === null ? "" : nodes[i].childNodes[1].firstChild.nodeValue;
-            let cod = nodes[i].childNodes[2].firstChild === null ? "" : nodes[i].childNodes[2].firstChild.nodeValue;
-            let obr = nodes[i].childNodes[3].firstChild === null ? "" : nodes[i].childNodes[3].firstChild.nodeValue;
+            reject(ordem);
 
-            lstDocs.push(new ModeloDoc(pasta.id, id, nome, cod, obr));
-          }
-
-          resolve(lstDocs);
-        }
-      }, erro => {
-        reject("[ERRO] " + erro);
-      });
-
-    });
+          });
+        });
+    })
   }
 
   getIndices(pasta): Promise<any> {
@@ -370,7 +324,7 @@ export class ClassificacaoPage {
                   indice.dic.itens = itens;
 
                 }, err => {
-                  this.alertError(err);
+                  reject(err);
                 });
               });
             }
@@ -507,20 +461,22 @@ export class ClassificacaoPage {
           text: 'Sim',
           role: 'cancel',
           handler: () => {
-            this.navCtrl.push(AdicionaDocumentoPage);
+            this.verifyOnLeave = false;
+            console.log("Sim: ModeloPastaPage");
+            this.navCtrl.push(ModeloPastaPage);
           }
         },
         {
           text: 'Não',
           role: 'cancel',
           handler: () => {
-            //retorna para a home page
+            this.verifyOnLeave = false;
+            console.log("Não: HomePage");
             this.navCtrl.push(HomePage);
           }
         }
       ]
     }).present();
-
   }
 
 }

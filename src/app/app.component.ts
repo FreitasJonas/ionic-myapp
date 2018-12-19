@@ -13,7 +13,7 @@ import { HttpProvider } from '../providers/http/http';
 import { TarefasPage } from '../pages/tarefas/tarefas';
 
 import { timer } from 'rxjs/observable/timer';
-import { ContratacaoPage } from '../pages/contratacao/contratacao';
+import { ModeloPastaPage } from '../pages/modelo-pasta/modelo-pasta';
 
 @Component({
   templateUrl: 'app.html'
@@ -58,7 +58,7 @@ export class MyApp {
         { title: 'Pesquisa', component: "", icon: "md-search" },
         { title: 'Adicionar Documento', component: AdicionaDocumentoPage, icon: "md-document" },
         { title: 'Tarefas', component: TarefasPage, icon: "md-construct" },
-        { title: 'Contratação', component: ContratacaoPage, icon: "md-folder" },
+        { title: 'Contratação', component: ModeloPastaPage, icon: "md-folder" },
         { title: 'Logout', component: LogoutPage, icon: "md-exit" }
       ];
 

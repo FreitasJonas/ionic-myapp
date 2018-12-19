@@ -9,6 +9,7 @@
     <ion-title style="margin-top: 10px;"> Adicionar Documento </ion-title>
   </ion-toolbar>
 </ion-header>
+
 <ion-content class="fundo">
 
   <ion-fab right bottom>
@@ -24,7 +25,7 @@
   </ion-fab>
 
   <ion-grid>
-    <ion-col col-12>
+    <!-- <ion-col col-12>
 
       <h4> &nbsp; Classificação</h4>
 
@@ -42,11 +43,13 @@
         </ion-select>
       </ion-item>
 
-    </ion-col>
+    </ion-col> -->
 
     <ion-col col-12>
 
-      <h4> &nbsp; Campos de Indexação</h4>
+      <h4> <ion-icon name="folder"></ion-icon> &nbsp; {{pasta.nome}} </h4>
+      
+      <h6> &nbsp;&nbsp;  <ion-icon name="document"></ion-icon> &nbsp; Campos de Indexação</h6>
 
       <div *ngIf="indicesReady">
 

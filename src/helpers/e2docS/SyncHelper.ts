@@ -2,19 +2,23 @@ import { ModeloPasta } from "./modeloPasta";
 import { ModeloDoc } from "./ModeloDoc";
 import { ModeloIndice } from "./ModeloIndice";
 import { Hasher } from "../Hasher";
+import date from 'date-and-time';
 
 export class SyncHelper {
 
-    static getVetDoc(pasta: ModeloPasta, documento: ModeloDoc, base64: string) : Promise<any>{
+    static getVetDoc(pasta: ModeloPasta, documento: ModeloDoc, base64: string, ordem?: number) : Promise<any>{
 
         return new Promise((resolve) => {
 
             Hasher.getHash(base64, function (hasher) {
 
                 let vetDoc = [];
+
+                let strOrdem = ordem < 0 ? "_1" : "_" + ordem;
+                let extensao = ".JPG";
     
                 let protocolo = SyncHelper.getProtocolo();
-                var fileName = protocolo + "_1.JPG";
+                var fileName = protocolo + ordem + strOrdem + extensao; // "_1.JPG";
     
                 vetDoc.push({
                     modeloPasta: pasta.nome,
@@ -25,10 +29,10 @@ export class SyncHelper {
                     length: hasher.size,                                        //tamanho em bytes do arquivo
                     paginas: 1,                                                 //arquivo sempre será de 1 pagina
                     hash: hasher.hash,                                          //hash gerado a partir da string binaria
-                    extensao: ".JPG",                                            //sempre .jpg
+                    extensao: extensao,                                            //sempre .jpg
                     id_doc: 1,                                                  //ordem do documento, indice do loop
-                    protocolo: protocolo + "_1",                                //protocolo + ordem do documento
-                    fileNamePart: protocolo + "_1.JPG"                          //nome da parte, será sempre apenas uma parte
+                    protocolo: protocolo + strOrdem,                                //protocolo + ordem do documento
+                    fileNamePart: fileName                          //nome da parte, será sempre apenas uma parte
                 });
     
                 resolve(vetDoc);
@@ -38,18 +42,9 @@ export class SyncHelper {
     }
 
     static getProtocolo() {
-        //define protocolo
-        let dt = new Date();
-        let protocolo =
-            dt.getFullYear().toString() +
-            (dt.getMonth() + 1).toString() +
-            dt.getDate().toString() +
-            dt.getHours().toString() +
-            dt.getMinutes().toString() +
-            dt.getSeconds().toString() +
-            dt.getMilliseconds().toString();
 
-        return protocolo;
+        let dt = new Date();
+        return date.format(dt, 'DDMMYYYY') + date.format(dt, 'HHmmss');
     }
 
     static getStringIndices(indices: Array<ModeloIndice>) : string {

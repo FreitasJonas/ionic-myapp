@@ -3,7 +3,7 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
-import { ModeloClassificacaoPage } from '../modelo-classificacao/modelo-classificacao';
+import { CapturaPage } from '../captura/captura';
 
 @IonicPage()
 @Component({
@@ -31,6 +31,6 @@ export class ModeloPastaPage {
   }
 
   select(pasta) {
-    this.navCtrl.push( ModeloClassificacaoPage,  {_pasta: pasta } );
+    this.navCtrl.push( CapturaPage,  {_pasta: pasta } );
   }
 }

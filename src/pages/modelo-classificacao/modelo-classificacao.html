@@ -12,14 +12,41 @@
 
 <ion-content padding class="fundo">
 
-  <ion-slides pager>
-    <ion-slide *ngFor="let image of vetImg; let i = index">
-      <ion-grid>
+  <ion-slides pager spaceBetween="5" style="height: 70%;" >
+
+    <ion-slide *ngFor="let image of imgDocs; let i = index">
+        <img [src]="image.b64">
+        <button ion-button class="app-btn-close" (click)="removeImg(i)">
+            <ion-icon name="close"></ion-icon>
+          </button>
+
+        <ion-item class="e2-input">
+            <ion-label>Modelo de Documento*</ion-label>
+            <ion-select [(ngModel)]="image.modelo" interface="popover">
+              <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
+            </ion-select>
+          </ion-item>
+
+      <!-- <ion-grid>
+
         <ion-row col-12 class="slide-img">
-            <img [src]="image">
+            <img [src]="image" width="200" height="200">
+            <button ion-button class="app-btn-close" (click)="removeImg(i)">
+                <ion-icon name="close"></ion-icon>
+              </button>
         </ion-row>
+
+        <ion-row col-12 class="slide-modelo">
+          <ion-item class="e2-input">
+            <ion-label>Modelo de Documento*</ion-label>
+            <ion-select [(ngModel)]="documento" interface="popover">
+              <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
+            </ion-select>
+          </ion-item>
+        </ion-row>
+
       </ion-grid>
-     
+      -->
 
 
       <!-- <div class="slide-img">
@@ -46,10 +73,9 @@
 
     </ion-slide>
   </ion-slides>
-  <p text-center>Imagens: {{vetImg.length}}</p>
+  <p text-center>Imagens: {{imgDocs.length}}</p>
 
-  <ion-row>
-    <!-- <ion-row> -->
+  <!-- <ion-row style="margin-top: -15px;">
     <ion-col col-6>
 
       <button ion-button class="btn" style="background-color: #FF6700;" (click)="goToCamera()">
@@ -83,10 +109,10 @@
 
       </button>
     </ion-col>
-  </ion-row>
+  </ion-row> -->
 
   <ion-row class="indexar-row">
-    <ion-col col-6 class="btn-indexar-row">
+    <ion-col col-6 class="btn-indexar">
       <br>
       <br>
       <button ion-button class="btn" style="background-color: #006DC8" (click)="goToIndex()">

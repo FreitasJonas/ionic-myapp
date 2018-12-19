@@ -34,6 +34,7 @@ import { PhotoViewer } from '@ionic-native/photo-viewer'
 import { ImagePicker } from '@ionic-native/image-picker'
 import { ModeloPastaPageModule } from '../pages/modelo-pasta/modelo-pasta.module';
 import { ModeloClassificacaoPageModule } from '../pages/modelo-classificacao/modelo-classificacao.module';
+import { CapturaPageModule } from '../pages/captura/captura.module';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { ModeloClassificacaoPageModule } from '../pages/modelo-classificacao/mod
     ModeloPastaPageModule,
     ModeloClassificacaoPageModule,
     ClassificacaoPageModule,
+    CapturaPageModule,
     HttpClientModule,    
     SignaturePadModule
   ],
