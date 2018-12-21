@@ -1,29 +1,24 @@
-import { ToastController, AlertController } from "ionic-angular";
+import { ToastController, AlertController, LoadingController, LoadingOptions, Loading } from "ionic-angular";
 
 export class MsgHelper {
 
-  constructor(public toastCtrl: ToastController) {
+  static presentToast(toastCtrl: ToastController, msg: string, duration?: number) {
 
-  }
+    if(duration == undefined) { duration = 2000 }
 
-  presentToast(msg: string) {
-    const toast = this.toastCtrl.create({
+    const toast = toastCtrl.create({
       message: msg,
-      duration: 2000,
+      duration: duration,
       position: "top"
     });
     toast.present();
   }
 
-  presentToast2(msg: string) {
-    const toast = this.toastCtrl.create({
-      message: msg,
-      duration: 5000
-    });
-    toast.present();
-  }
+  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline, title?: string, btnAceptText?: string, btnDeclineText?:string) {
 
-  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline, title?: string) {
+    title = title == undefined ? "" : title;
+    btnAceptText = btnAceptText == undefined ? "Sim" : btnAceptText;
+    btnDeclineText = btnDeclineText == undefined ? "Não" : btnDeclineText;
 
     //exibe alert
     alertCtrl.create({
@@ -31,7 +26,16 @@ export class MsgHelper {
       message: mensagem,
       buttons: [
         {
-          text: 'Sim',
+          text: btnDeclineText,
+          handler: () => {
+            //retorna para intro
+            if(typeof(fnAcept) === 'function') {
+              fnDecline();
+            }
+          }
+        },
+        {
+          text: btnAceptText,
           handler: () => {
             //retorna para intro
 
@@ -39,19 +43,20 @@ export class MsgHelper {
               fnAcept();
             }
           }
-        },
-        
-        {
-          text: 'Não',
-          handler: () => {
-            //retorna para intro
-            if(typeof(fnAcept) === 'function') {
-              fnDecline();
-            }
-          }
         }
       ]
     }).present();   
+  }
+
+  static presentLoading(loadCtrl: LoadingController, message: string) : Loading {
+
+    let options = {
+      spinner: "dots",
+      content: message,
+      dismissOnPageChange: true
+    }
+
+    return loadCtrl.create(options);
 
   }
 

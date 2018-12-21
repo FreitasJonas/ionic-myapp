@@ -8,7 +8,7 @@ export class SincronismoUtil {
 
     constructor( private e2doc: E2docSincronismoProvider ) {}
 
-    getConfigPasta(): Promise<any> {
+      getConfigPasta(): Promise<Array<ModeloPasta>> {
 
         let _pastas = new Array<ModeloPasta>();
     
@@ -50,7 +50,7 @@ export class SincronismoUtil {
         });
       }
     
-      getConfigDocumento(pasta): Promise<any> {
+      getConfigDocumento(pasta): Promise<Array<ModeloDoc>> {
     
         return new Promise((resolve, reject) => {
     
@@ -83,7 +83,7 @@ export class SincronismoUtil {
         });
       }
     
-      getIndices(pasta): Promise<any> {
+      getIndices(pasta): Promise<Array<ModeloIndice>> {
     
         let self = this;
     
@@ -169,7 +169,7 @@ export class SincronismoUtil {
         });
       }
     
-      getIndiceDicionarios(pasta): Promise<any> {
+      getIndiceDicionarios(pasta): Promise<Array<Dicionario>> {
     
         return new Promise((resolve, reject) => {
     
@@ -203,7 +203,7 @@ export class SincronismoUtil {
         });
       }
     
-      getDicionarioItem(dic: Dicionario): Promise<any> {
+      getDicionarioItem(dic: Dicionario): Promise<Array<{ chave: any, valor: any }>> {
     
         let _itens = new Array<{ chave: any, valor: any }>();
     

@@ -1,19 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
-import { Platform, Nav, ToastController, App, AlertController } from 'ionic-angular';
+import { Platform, Nav, ToastController, App } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { LoginPage } from '../pages/login/login';
 import { LogoutPage } from '../pages/logout/logout';
-import { AdicionaDocumentoPage } from '../pages/adiciona-documento/adiciona-documento';
 import { Storage } from '@ionic/storage';
 import { AutenticationHelper } from '../helpers/e2doc/AutenticationHelper';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { HomePage } from '../pages/home/home';
 import { HttpProvider } from '../providers/http/http';
 import { TarefasPage } from '../pages/tarefas/tarefas';
-
 import { timer } from 'rxjs/observable/timer';
-import { ModeloPastaPage } from '../pages/modelo-pasta/modelo-pasta';
+import { ContratacaoPage } from '../pages/contratacao/contratacao';
+import { CapturaPage } from '../pages/captura/captura';
 
 @Component({
   templateUrl: 'app.html'
@@ -56,9 +55,9 @@ export class MyApp {
       [
         { title: 'Home', component: HomePage, icon: "md-home" },
         { title: 'Pesquisa', component: "", icon: "md-search" },
-        { title: 'Adicionar Documento', component: AdicionaDocumentoPage, icon: "md-document" },
+        { title: 'Adicionar Documento', component: CapturaPage, icon: "md-document" },
         { title: 'Tarefas', component: TarefasPage, icon: "md-construct" },
-        { title: 'Contratação', component: ModeloPastaPage, icon: "md-folder" },
+        { title: 'Contratação', component: ContratacaoPage, icon: "md-folder" },
         { title: 'Logout', component: LogoutPage, icon: "md-exit" }
       ];
 
@@ -86,7 +85,7 @@ export class MyApp {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
-      timer(1000).subscribe(() => {
+      timer(3000).subscribe(() => {
 
         this.showSplash = false;
 

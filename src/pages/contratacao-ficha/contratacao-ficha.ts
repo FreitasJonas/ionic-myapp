@@ -28,9 +28,6 @@ export class ContratacaoFichaPage {
   //protocolo
   public protocolo: string;
 
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
-  
   //base64 da assinatura
   public signatureImage: string;
 
@@ -186,20 +183,20 @@ export class ContratacaoFichaPage {
       //finalizado o indice é incrementado e a função chamada novamente
       this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
         i++;
-        ctx.msgHelper.presentToast2(res);
+        MsgHelper.presentToast(ctx.toastCtrl, res);
         this.verifyCanLeave = false;  //quando primeiro documento é enviado, mensagem de verificação ao sair não precisa ser exibida
 
         this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
           i++;
-          ctx.msgHelper.presentToast2(res);
+          MsgHelper.presentToast(ctx.toastCtrl, res);
 
           this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
             i++;
-            ctx.msgHelper.presentToast2(res);
+            MsgHelper.presentToast(ctx.toastCtrl, res);
 
             this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
               i++;
-              ctx.msgHelper.presentToast2(res);
+              MsgHelper.presentToast(ctx.toastCtrl, res);
 
               this.e2doc.enviarDocumentos(vetDoc, i, campos).then(res => {
                 
@@ -207,7 +204,7 @@ export class ContratacaoFichaPage {
                 loading.dismiss();
 
                 //exibe toast com mensagem
-                ctx.msgHelper.presentToast2(res);
+                MsgHelper.presentToast(ctx.toastCtrl, res);
 
                 ctx.goToHomePage("Envio finalizado com sucesso!");
 

@@ -12,7 +12,6 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { ClassificacaoPage } from '../classificacao/classificacao';
-import { ThrowStmt } from '@angular/compiler';
 
 @IonicPage()
 @Component({
@@ -33,12 +32,9 @@ export class ModeloClassificacaoPage {
 
   public documentos = new Array<ModeloDoc>();
 
-  public imgDocs = new Array<{ b64: any, modelo: any } >();
+  public imgDocs = new Array< { b64: any, modelo: any } >();
 
   private cordova: boolean;
-
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public navCtrl: NavController,
     public platform: Platform,
@@ -55,13 +51,21 @@ export class ModeloClassificacaoPage {
 
     this.pasta = navParams.get("_pasta");
 
-    this.imgDocs = navParams.get("imgDocs");
+    this.imgDocs = navParams.get("_imgDocs");
 
     this.cordova = this.platform.is('cordova');
 
     this.syncUtil.getConfigDocumento(this.pasta).then(docs => {
 
       this.documentos = docs;
+
+      if(docs.length == 1) {
+        this.imgDocs.forEach((element, index) => {
+
+          element.modelo = docs[0];
+          
+        });                
+      }
 
     }, err => {
       alert(err);
@@ -81,12 +85,10 @@ export class ModeloClassificacaoPage {
 
   goToIndex() {
 
-    console.log(this.imgDocs.some(i => i.modelo == ""));
-
     if( this.imgDocs.some(i => i.modelo == "") == true ) { //se houver alguma imagem sem modelo
 
       this.slides.slideTo(this.imgDocs.findIndex(i => i.modelo == ""));
-      this.msgHelper.presentToast2("Modelo de documento não selecionado!");
+      MsgHelper.presentToast(this.toastCtrl, "Modelo de documento não selecionado!");
             
     }
     else {
@@ -101,5 +103,9 @@ export class ModeloClassificacaoPage {
     this.imgDocs.splice(index, 1);
     this.slides.slideTo(0);
 
+  }
+
+  selectedDoc() {
+    this.slides.slideNext();
   }
 }

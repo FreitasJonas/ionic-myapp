@@ -1,10 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, Slides, Platform, MenuController, ToastController, ViewController, AlertController } from 'ionic-angular';
-import { Camera } from '@ionic-native/camera';
+import { IonicPage, NavController, NavParams, Slides, Platform, MenuController, ToastController, ViewController, AlertController, LoadingController } from 'ionic-angular';
+import { Camera, CameraOptions } from '@ionic-native/camera';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
-import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
-import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
-import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { Storage } from '@ionic/storage';
 import { HttpProvider } from '../../providers/http/http';
@@ -12,7 +9,7 @@ import { ImagePicker } from '@ionic-native/image-picker';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { Hasher } from '../../helpers/Hasher';
-import { ModeloClassificacaoPage } from '../modelo-classificacao/modelo-classificacao';
+import { ClassificacaoPage } from '../classificacao/classificacao';
 
 @IonicPage()
 @Component({
@@ -27,24 +24,19 @@ export class CapturaPage {
 
   @ViewChild(Slides) slides: Slides;
 
-  public syncUtil: SincronismoUtil;
-
-  public pasta: ModeloPasta;
-
-  public documentos = new Array<ModeloDoc>();
+  private strB64 = "data:image/jpeg;base64,";
 
   public imgDocs = new Array<{ b64: any, modelo: any } >();
 
   private cordova: boolean;
 
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
+  public inputTypes = { camera: "CAMERA", galeria: "GALERIA" }
 
   constructor(public navCtrl: NavController,
     public platform: Platform,
-    public navParams: NavParams,    
+    public navParams: NavParams,   
+    public loadCtrl: LoadingController, 
     private alertCtrl: AlertController,
-    private e2doc: E2docSincronismoProvider,
     private camera: Camera,
     public http: HttpProvider,
     public menuCtrl: MenuController,
@@ -53,19 +45,12 @@ export class CapturaPage {
     public viewCtrl: ViewController,
     private imagePicker: ImagePicker) {
 
-    this.syncUtil = new SincronismoUtil(this.e2doc);
-
-    this.pasta = navParams.get("_pasta");
-
     this.cordova = this.platform.is('cordova');
 
-    this.syncUtil.getConfigDocumento(this.pasta).then(docs => {
-
-      this.documentos = docs;
-
-    }, err => {
-      alert(err);
-    });
+    if (this.cordova) {
+      //pede por permissão - ANDROID
+      this.imagePicker.requestReadPermission().then(inutil => { });
+    }
   }
 
   ionViewDidLoad() {
@@ -81,13 +66,15 @@ export class CapturaPage {
 
   goToCamera() {
 
-    let cameraOptions = {
-      quality: 70,
+    let cameraOptions : CameraOptions = {
+      quality: 50,
       destinationType: this.camera.DestinationType.DATA_URL,
       encodingType: this.camera.EncodingType.JPEG,
       sourceType: this.camera.PictureSourceType.CAMERA,
       mediaType: this.camera.MediaType.PICTURE,
-      allowEdit: true,
+      targetHeight: 800,
+      targetWidth: 800,
+      allowEdit: false,
       saveToPhotoAlbum: true
     }
 
@@ -95,24 +82,37 @@ export class CapturaPage {
 
     if (this.cordova) {
 
+      let loading = MsgHelper.presentLoading(self.loadCtrl, "Carregando imagem!");
+
+      loading.present();
+
       self.camera.getPicture(cameraOptions).then((img_b64) => {
 
-        img_b64 = "data:image/jpeg;base64," + img_b64;
+        img_b64 = self.strB64 + img_b64;
 
         self.imgDocs.push( { b64: img_b64, modelo: "" } );
 
-        self.canGoAhead();
+        loading.dismiss();
+
+        self.canGoAhead(self.inputTypes.camera);
       },
         err => {
-          self.msgHelper.presentToast2("Arquivo não selecionado!");
+          loading.dismiss();
+
+          if(self.imgDocs.length == 0) {
+            MsgHelper.presentToast(self.toastCtrl, "Arquivo não capturada!");
+          }
+          else{
+            self.canGoAhead(self.inputTypes.camera);
+          }
         });
     }
     else {
 
-      let img_b64 = "data:image/jpeg;base64," + Hasher.getBase64Example();
+      let img_b64 = self.strB64 + Hasher.getBase64Example();
       self.imgDocs.push({ b64: img_b64, modelo: "" });
 
-      self.canGoAhead();
+      self.canGoAhead(self.inputTypes.camera);
     }
   }
 
@@ -122,13 +122,15 @@ export class CapturaPage {
 
     if (self.cordova) {
 
+      let loading = MsgHelper.presentLoading(self.loadCtrl, "Carregando imagem!");
+
       self.imagePicker.hasReadPermission().then(res => {
 
         if (res) {
 
           let options = {
-            quality: 70,
-            maximumImagesCount: 10,
+            quality: 50,
+            maximumImagesCount: 20,
             width: 800,
             height: 800,
             outputType: 1
@@ -137,18 +139,27 @@ export class CapturaPage {
           self.imagePicker.getPictures(options).then((results) => {
             for (var i = 0; i < results.length; i++) {
 
-              self.imgDocs.push({ b64: "data:image/jpeg;base64," + results[i], modelo: "" });
+              self.imgDocs.push({ b64: self.strB64 + results[i], modelo: "" });
             }
 
-            self.canGoAhead();
+            loading.dismiss();
+
+            self.canGoAhead(self.inputTypes.galeria);
 
           }, (err) => {
-            self.msgHelper.presentToast2("Nenhuma imagem selecionada!");
+            loading.dismiss();
+            
+            if(self.imgDocs.length == 0) {
+              MsgHelper.presentToast(self.toastCtrl, "Arquivo não selecionado!");
+            }
+            else{
+              self.canGoAhead(self.inputTypes.galeria);
+            }
           });
 
         }
         else {
-          self.msgHelper.presentToast2("É necessário permissão para acessar arquivos do dispositivo!");
+          MsgHelper.presentToast(self.toastCtrl, "É necessário permissão para acessar arquivos do dispositivo!");
         }
       })
     }
@@ -161,13 +172,24 @@ export class CapturaPage {
 
   }
 
-  canGoAhead() {
+  canGoAhead(inputType) {
 
     let self = this;
 
-    MsgHelper.presentAlert(this.alertCtrl, "Deseja capturar mais documentos ?", 
-    function () {  },
-    function () { self.navCtrl.push( ModeloClassificacaoPage, { _pasta: self.pasta, imgDocs: self.imgDocs } ) }, "Atenção!" );
+    MsgHelper.presentAlert(self.alertCtrl, "Deseja capturar mais documentos?", 
+    function () { 
+
+      if(inputType == self.inputTypes.galeria) { 
+        MsgHelper.presentAlert(self.alertCtrl, "Câmera ou Galeria?", 
+        function () { self.goToCamera(); },
+         function ( ) { self.goToGaleria() },
+          "Atenção!", "Câmera", "Galeria");        
+    }
+    else {
+      self.goToCamera();
+    }
+   },
+    function () { self.navCtrl.push( ClassificacaoPage, { imgDocs: self.imgDocs } ) }, "Atenção!" );
 
   }
 

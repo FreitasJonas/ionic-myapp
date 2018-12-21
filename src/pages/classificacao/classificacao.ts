@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading } from 'ionic-angular';
+import { Component, ViewChild } from '@angular/core';
+import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading, Slides } from 'ionic-angular';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { ModeloPasta } from '../../helpers/e2docS/modeloPasta';
 import { ModeloIndice } from '../../helpers/e2docS/ModeloIndice';
-import { Dicionario } from '../../helpers/e2docS/Dicionario';
 import { HomePage } from '../home/home';
 import { IndiceValidator } from '../../helpers/e2docS/IndiceValidator';
 import { SyncHelper } from '../../helpers/e2docS/SyncHelper';
@@ -14,7 +13,9 @@ import { HttpProvider } from '../../providers/http/http';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
 import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
-import { timer } from 'rxjs/observable/timer';
+import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
+import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
+import { CapturaPage } from '../captura/captura';
 
 @IonicPage()
 @Component({
@@ -23,20 +24,23 @@ import { timer } from 'rxjs/observable/timer';
 })
 export class ClassificacaoPage {
 
+  @ViewChild(Slides) slides: Slides;
+
   public indicesReady: boolean;
 
   public imgDocs = new Array<{ b64: any, modelo: any }>();
 
   public pasta: ModeloPasta;
 
+  public pastas = new Array<ModeloPasta>();
+  public documentos = new Array<ModeloDoc>();
   public indices = new Array<ModeloIndice>();
-
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
 
   public verifyOnLeave;
 
   public loading: Loading;
+
+  public syncUtil: SincronismoUtil;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -50,18 +54,23 @@ export class ClassificacaoPage {
     public http: HttpProvider,
     public viewCtrl: ViewController) {
 
+    this.syncUtil = new SincronismoUtil(e2doc);
+
     this.menuCtrl.enable(true, 'app_menu');
 
     this.imgDocs = navParams.get("imgDocs");
 
-    this.pasta = navParams.get("_pasta");
+    let loading = MsgHelper.presentLoading(this.loadingCtrl, "Carregando pastas...");
+    loading.present();
 
-    console.log(this.imgDocs);
+    this.syncUtil.getConfigPasta().then(pastas => {
 
-    this.carregaIndices();
+      this.pastas = pastas;
+      loading.dismiss();
+      
+    });
 
     this.verifyOnLeave = true;
-
   }
 
   ionViewDidLoad() {
@@ -93,6 +102,34 @@ export class ClassificacaoPage {
     });
   }
 
+  onPastaSelect() {
+    this.carregaIndices();
+    this.carregaDocumentos();    
+  }
+
+  selectedDoc() {
+
+    this.slides.slideNext();
+
+  }
+
+  removeImg(index) {
+
+    this.imgDocs.splice(index, 1);
+
+    if(this.imgDocs.length == 0) {
+
+      MsgHelper.presentToast(this.toastCtrl, "Não há documentos para enviar!");
+      this.verifyOnLeave = false;
+      this.navCtrl.push(CapturaPage);
+    }
+    else {
+
+      this.slides.slideTo(0);
+
+    }
+  }
+
   //para limpar os campos do tipo data
   clearDateTime(id) {
     this.indices.find(i => i.id == id).valor = null;
@@ -105,14 +142,11 @@ export class ClassificacaoPage {
 
   carregaIndices() {
 
-    let loadind = this.loadingCtrl.create({
-      spinner: 'circles',
-      content: "Carregando índices!"
-    });
+    let loadind = MsgHelper.presentLoading(this.loadingCtrl, "Carregando índices!");
 
     loadind.present();
 
-    this.getIndices(this.pasta).then(indices => {
+    this.syncUtil.getIndices(this.pasta).then(indices => {
 
       this.indices = indices;
       this.indicesReady = true;
@@ -125,118 +159,91 @@ export class ClassificacaoPage {
     });
   }
 
+  carregaDocumentos() {
+    let loadind = MsgHelper.presentLoading(this.loadingCtrl, "Carregando Documentos!");
+
+    loadind.present();
+
+    this.syncUtil.getConfigDocumento(this.pasta).then(documentos => {
+
+      this.documentos = documentos;
+
+      if(documentos.length == 1) {
+        this.imgDocs.forEach((element, index) => {
+
+          element.modelo = documentos[0];
+          
+        });                
+      }
+
+      loadind.dismiss();
+
+    }, err => {
+      loadind.dismiss();
+      this.alertError(err);
+    });
+  }
+
   sincronizar() {
 
-    if (this.imgDocs.length > 0) {
+    let self = this;
 
-      this.indices.forEach((indice) => {
+    if( self.imgDocs.some(i => i.modelo == "") == true ) { //se houver alguma imagem sem modelo
 
-        IndiceValidator.validade(indice);
-
-      });
-
-      let notValid = this.indices.some((i => i.validate == false));
-
-      if (!notValid) {
-
-        this.teste();
-
-      }
+      self.slides.slideTo(this.imgDocs.findIndex(i => i.modelo == ""));
+      MsgHelper.presentToast(this.toastCtrl, "Modelo de documento não selecionado!");
+            
     }
     else {
 
-      this.msgHelper.presentToast2("Não há imagens para serem indexadas!");
-    }
+      if (this.imgDocs.length > 0) {
+
+        this.indices.forEach((indice) => {
+  
+          IndiceValidator.validade(indice); //verifica se todos os índices obrigatórios foram preenchidos
+  
+        });
+  
+        let notValid = this.indices.some((i => i.validate == false));
+  
+        if (!notValid) {
+  
+          //cria loading
+          self.loading = MsgHelper.presentLoading(this.loadingCtrl, "Aguarde, sincronizando com o e2docCloud");
+  
+          //mostra loading
+          self.loading.present();
+  
+          this.send();
+  
+        }
+      }
+      else {
+  
+        MsgHelper.presentToast(self.toastCtrl, "Não há imagens para serem indexadas!");
+      }      
+    }    
   }
 
-  teste() {
+  send() {
 
     let self = this;
 
-    //cria loading
-    self.loading = self.loadingCtrl.create({
-      spinner: 'dots',
-      content: 'Aguarde, sincronizando com o e2docCloud',
-      dismissOnPageChange: true
-    });
+    if(this.imgDocs.length == 0) { 
+      self.loading.dismiss();
+      self.msgEnvioFinalizado();
+      return;
+    }
 
-    //mostra loading
-    self.loading.present();
-
-    let promisse;
+    let doc = this.imgDocs.pop();
 
     let campos = SyncHelper.getStringIndices(self.indices);
 
-    this.imgDocs.forEach((doc, index) => {
-        promisse = self.sync(campos, doc, index).then(self.envioSucesso, self.envioFalha);
-      
-    });
+    this.sync(campos, doc, this.imgDocs.length).then((res => {
 
-    promisse.then(res => {
-      console.log("Final");
-      self.loading.dismiss();
-    })
-  }
+      this.send();
 
-  envioSucesso(ordem) {
-
-    console.log("OK Ordem: " + ordem);
-
-  }
-
-  envioFalha(erro) {
-
-    console.log("FALHA Ordem: " + erro);
-
-  }
-
-  send(index): Promise<any> {
-
-    let self = this;
-
-    return new Promise((resolve, reject) => {
-
-      let campos = SyncHelper.getStringIndices(self.indices);
-
-      console.log(index);
-
-      if (index < 0) { //se for o ultimo elemento
-        resolve();
-      }
-
-      self.sync(campos, self.imgDocs[index], index).then(res => {
-
-        self.send(index -= 1);
-
-      }, erro => {
-
-        reject();
-
-      })
-    });
-    // self.imgDocs.forEach((element, index) => { 
-
-    //   SyncHelper.getVetDoc(self.pasta, element.modelo, element.b64.split(",")[1], index).then(vetDoc => {
-
-    //     self.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
-
-    //       if (index == self.imgDocs.length - 1) {
-
-    //         loading.dismiss();
-
-    //         self.msgEnvioFinalizado("Envio finalizado, deseja incluir novos documentos?");
-    //       }
-
-    //     }, erro => {
-
-    //       loading.dismiss();
-
-    //       self.msgErroEnvio(erro);
-
-    //     });
-    //   });     
-
-    // });
+    }));    
   }
 
   sync(campos, doc, ordem): Promise<any> {
@@ -246,8 +253,6 @@ export class ClassificacaoPage {
         let self = this;
 
         SyncHelper.getVetDoc(self.pasta, doc.modelo, doc.b64.split(",")[1], ordem).then(vetDoc => {
-
-          console.log(vetDoc);
 
           self.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
 
@@ -260,161 +265,6 @@ export class ClassificacaoPage {
           });
         });
     })
-  }
-
-  getIndices(pasta): Promise<any> {
-
-    let self = this;
-
-    return new Promise((resolve, reject) => {
-
-      let _indices = new Array<ModeloIndice>();
-
-      this.e2doc.getConfiguracao(300, pasta.id, pasta.nome, "", "").then(indices => {
-
-        let erro = indices.getElementsByTagName("erro")[0];
-
-        if (typeof erro === 'undefined') { //Se não encontrar erro
-
-          let nodes = indices.getElementsByTagName("indices")[0].childNodes;
-
-          for (var i = 0; i < nodes.length; i++) {
-
-            let options = {
-
-              id_pasta: pasta.id,
-
-              id: nodes[i].childNodes[0].firstChild === null ? "" : nodes[i].childNodes[0].firstChild.nodeValue,
-              nome: nodes[i].childNodes[1].firstChild === null ? "" : nodes[i].childNodes[1].firstChild.nodeValue,
-
-              pos: nodes[i].childNodes[2].firstChild === null ? "" : nodes[i].childNodes[2].firstChild.nodeValue,
-              def: nodes[i].childNodes[3].firstChild === null ? "" : nodes[i].childNodes[3].firstChild.nodeValue,
-              tam: nodes[i].childNodes[4].firstChild === null ? "" : nodes[i].childNodes[4].firstChild.nodeValue,
-              fixo: nodes[i].childNodes[5].firstChild === null ? "" : nodes[i].childNodes[5].firstChild.nodeValue,
-              obr: nodes[i].childNodes[6].firstChild === null ? "" : nodes[i].childNodes[6].firstChild.nodeValue,
-              unico: nodes[i].childNodes[7].firstChild === null ? "" : nodes[i].childNodes[7].firstChild.nodeValue,
-              calta: nodes[i].childNodes[8].firstChild === null ? "" : nodes[i].childNodes[8].firstChild.nodeValue,
-              cbaixa: nodes[i].childNodes[9].firstChild === null ? "" : nodes[i].childNodes[9].firstChild.nodeValue,
-              dupla: nodes[i].childNodes[10].firstChild === null ? "" : nodes[i].childNodes[10].firstChild.nodeValue,
-              tipo: nodes[i].childNodes[11].firstChild === null ? "" : nodes[i].childNodes[11].firstChild.nodeValue,
-
-              rgi: nodes[i].childNodes[12].firstChild === null ? "" : nodes[i].childNodes[12].firstChild.nodeValue,
-              rgf: nodes[i].childNodes[13].firstChild === null ? "" : nodes[i].childNodes[13].firstChild.nodeValue,
-              exp: nodes[i].childNodes[14].firstChild === null ? "" : nodes[i].childNodes[14].firstChild.nodeValue,
-
-              dicId: nodes[i].childNodes[15].firstChild === null ? "" : nodes[i].childNodes[15].firstChild.nodeValue,
-
-              ordem: nodes[i].childNodes[16].firstChild === null ? "" : nodes[i].childNodes[16].firstChild.nodeValue
-            }
-
-            let indice = new ModeloIndice(options);
-
-            //se houver dicionário
-            if (options.dicId !== "0") {
-
-              self.getIndiceDicionarios(pasta).then(dic => {
-
-                let _dic = dic.find(d => d.id == options.dicId);
-
-                indice.hasDic = true;
-                indice.dic = _dic;
-
-                this.getDicionarioItem(_dic).then(itens => {
-
-                  indice.dic.itens = itens;
-
-                }, err => {
-                  reject(err);
-                });
-              });
-            }
-
-            _indices.push(indice);
-          }
-
-          resolve(_indices);
-        }
-        else {
-
-          reject("[ERRO] Falha lendo Xml");
-
-        }
-      }, err => {
-
-        reject(err);
-
-      });
-
-    });
-  }
-
-  getIndiceDicionarios(pasta): Promise<any> {
-
-    return new Promise((resolve, reject) => {
-
-      let dicS = new Array<Dicionario>();
-
-      this.e2doc.getConfiguracao(400, pasta.id, pasta.nome, "", "").then(dicionarios => {
-
-        let erro = dicionarios.getElementsByTagName("erro")[0];
-
-        if (typeof erro === 'undefined') { //Se não encontrar erro
-
-          let nodes = dicionarios.getElementsByTagName("dics")[0].childNodes;
-
-          for (var i = 0; i < nodes.length; i++) {
-
-            let idDic = nodes[i].childNodes[0].firstChild === null ? "" : nodes[i].childNodes[0].firstChild.nodeValue;
-            let nomeDic = nodes[i].childNodes[1].firstChild === null ? "" : nodes[i].childNodes[1].firstChild.nodeValue;
-
-            dicS.push(new Dicionario(idDic, nomeDic));
-          }
-          resolve(dicS);
-        }
-        else {
-          reject("[ERRO] (getIndiceDicionarios) Falha lendo Xml");
-        }
-      }, err => {
-
-        reject(err);
-
-      });
-    });
-  }
-
-  getDicionarioItem(dic: Dicionario): Promise<any> {
-
-    let _itens = new Array<{ chave: any, valor: any }>();
-
-    return new Promise((resolve, reject) => {
-
-      this.e2doc.getConfiguracao(500, dic.id, dic.nome, "", "").then(itens => {
-
-        let erro = itens.getElementsByTagName("erro")[0];
-
-        if (typeof erro === 'undefined') {
-
-          let nodes = itens.getElementsByTagName("itens")[0].childNodes;
-
-          for (var i = 0; i < nodes.length; i++) {
-
-            let chave = nodes[i].childNodes[0].firstChild === null ? "" : nodes[i].childNodes[0].firstChild.nodeValue;
-            let valor = nodes[i].childNodes[1].firstChild === null ? "" : nodes[i].childNodes[1].firstChild.nodeValue;
-
-            _itens.push({ chave, valor });
-          }
-
-          resolve(_itens);
-
-        } else {
-          reject("[ERRO] (getDicionarioItem) Falha lendo Xml");
-        }
-      }, err => {
-
-        reject(err);
-
-      });
-    });
   }
 
   alertError(msg) {
@@ -450,33 +300,30 @@ export class ClassificacaoPage {
 
   }
 
-  msgEnvioFinalizado(mensagem: string) {
+  msgEnvioFinalizado() {
 
     //exibe alert
     this.alertCtrl.create({
       title: '',
-      message: mensagem,
+      message: "Envio Finalizado, deseja incluir mais documentos?",
       buttons: [
-        {
-          text: 'Sim',
-          role: 'cancel',
-          handler: () => {
-            this.verifyOnLeave = false;
-            console.log("Sim: ModeloPastaPage");
-            this.navCtrl.push(ModeloPastaPage);
-          }
-        },
         {
           text: 'Não',
           role: 'cancel',
           handler: () => {
             this.verifyOnLeave = false;
-            console.log("Não: HomePage");
             this.navCtrl.push(HomePage);
           }
-        }
+        },
+        {
+          text: 'Sim',
+          role: 'cancel',
+          handler: () => {
+            this.verifyOnLeave = false;
+            this.navCtrl.push(CapturaPage);
+          }
+        }       
       ]
     }).present();
   }
-
 }

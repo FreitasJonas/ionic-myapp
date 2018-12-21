@@ -42,9 +42,6 @@ export class ContratacaoPage {
     longitude: "00000"
   }
 
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
-
   //habilita botão assinar
   public docsIsValid = false;
 
@@ -107,7 +104,7 @@ export class ContratacaoPage {
     this.geolocation.getCurrentPosition().then((res) => {
       this.geoPosition = res.coords;
     }).catch((error) => {
-      this.msgHelper.presentToast(error);
+      MsgHelper.presentToast(this.toastCtrl, error);
     });
 
     //inicia fila
@@ -183,14 +180,6 @@ export class ContratacaoPage {
     if (cordova) {
 
       this.getPictureCordova(cameraOptions, strModeloDocumento);
-
-      // this.camera.getPicture(cameraOptions).then((file_uri) => {
-      //   this.imageSrc = file_uri;
-      //   this.slides.slideNext();
-      // },
-      //   err => {
-      //     this.msgHelper.presentToast2("Arquivo não selecionado!");
-      //   });
     }
     else {
 
@@ -250,7 +239,7 @@ export class ContratacaoPage {
 
           }, (err) => {
 
-            ctx.msgHelper.presentToast2(err);
+            MsgHelper.presentToast(this.toastCtrl, err);
             loading.dismiss();
           });
       });
@@ -307,12 +296,12 @@ export class ContratacaoPage {
             ctx.verifyCanLeave = true;
 
           }, (err) => {
-            ctx.msgHelper.presentToast("Erro ao processar imagem: " + err);
+            MsgHelper.presentToast(this.toastCtrl, "Erro ao processar imagem: " + err);
             loading.dismiss();
           });
       });
     }, (err) => {
-      ctx.msgHelper.presentToast("Imagem não capturada!");
+      MsgHelper.presentToast(this.toastCtrl, "Imagem não capturada!");
     });
   }
 

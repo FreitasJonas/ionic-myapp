@@ -40,9 +40,6 @@ export class AdicionaDocumentoPage {
   public pastas = new Array<ModeloPasta>();
   public documentos = new Array<ModeloDoc>();
 
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
-
   constructor(public navCtrl: NavController,
     public platform: Platform,
     public navParams: NavParams,
@@ -140,12 +137,12 @@ export class AdicionaDocumentoPage {
             }
 
           }, (err) => {
-            this.msgHelper.presentToast2("Nenhuma imagem selecionada!");
+            MsgHelper.presentToast(this.toastCtrl, "Nenhuma imagem selecionada!");
           });
 
         }
         else {
-          this.msgHelper.presentToast2("É necessário permissão para acessar arquivos do dispositivo!");
+          MsgHelper.presentToast(this.toastCtrl, "É necessário permissão para acessar arquivos do dispositivo!");
         }
       })
     }
@@ -165,7 +162,7 @@ export class AdicionaDocumentoPage {
         self.vetImg.push(img_b64);
       },
         err => {
-          self.msgHelper.presentToast2("Arquivo não selecionado!");
+          MsgHelper.presentToast(this.toastCtrl, "Arquivo não selecionado!");
         });
     }
     else {
@@ -179,7 +176,7 @@ export class AdicionaDocumentoPage {
 
     if (this.vetImg.length <= 0) {
 
-      this.msgHelper.presentToast2("Nenhuma imagem selecionada!");
+      MsgHelper.presentToast(this.toastCtrl, "Nenhuma imagem selecionada!");
 
     }
     else {

@@ -4,12 +4,11 @@ import { TarefasPage } from '../tarefas/tarefas';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { Storage } from '@ionic/storage';
-import { AdicionaDocumentoPage } from '../adiciona-documento/adiciona-documento';
 import { LoginPage } from '../login/login';
 import { HttpProvider } from "../../providers/http/http";
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { ContratacaoPage } from '../contratacao/contratacao';
-import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
+import { CapturaPage } from '../captura/captura';
 
 @IonicPage()
 @Component({
@@ -17,9 +16,6 @@ import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
   templateUrl: 'home.html',
 })
 export class HomePage {
-
-  //helper para exebir toast
-  public msgHelper = new MsgHelper(this.toastCtrl);
 
   public ano: any;
 
@@ -71,7 +67,7 @@ export class HomePage {
         });
       }
       else {
-        this.msgHelper.presentToast2("Login inválido, registre-se novamente!");
+        MsgHelper.presentToast(this.toastCtrl, "Login inválido, registre-se novamente!");
 
         this.storage.clear();
         this.navCtrl.push(LoginPage);
@@ -81,6 +77,6 @@ export class HomePage {
 
   goToAddDoc() {
 
-    this.navCtrl.push(ModeloPastaPage);
+    this.navCtrl.push(CapturaPage);
   }
 }

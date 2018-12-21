@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MsgHelper } from '../../helpers/MsgHelper';
 import { ToastController } from 'ionic-angular';
 import { SincronismoXmlProvider } from './sincronismo-xml';
 import { e2docHelper } from '../../helpers/e2doc/e2docHelper';
 import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { Storage } from '@ionic/storage';
-import { AppAccount } from '../../helpers/Account';
 
 @Injectable()
 export class E2docSincronismoProvider {
@@ -15,8 +13,6 @@ export class E2docSincronismoProvider {
 
   public token = "";
   public retorno = "";
-
-  public msgHelper = new MsgHelper(this.toastCtrl);
 
   constructor(public http: HttpClient,
     public toastCtrl: ToastController,

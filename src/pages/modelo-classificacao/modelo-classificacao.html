@@ -15,17 +15,21 @@
   <ion-slides pager spaceBetween="5" style="height: 70%;" >
 
     <ion-slide *ngFor="let image of imgDocs; let i = index">
-        <img [src]="image.b64">
+      <div class="image">
+        <img [src]="image.b64"/>
         <button ion-button class="app-btn-close" (click)="removeImg(i)">
             <ion-icon name="close"></ion-icon>
           </button>
+        <!-- </div>
 
+        <div class="classificacao"> -->
         <ion-item class="e2-input">
             <ion-label>Modelo de Documento*</ion-label>
-            <ion-select [(ngModel)]="image.modelo" interface="popover">
+            <ion-select [(ngModel)]="image.modelo" interface="popover" (ionChange)="selectedDoc()" >
               <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
             </ion-select>
           </ion-item>
+        </div>
 
       <!-- <ion-grid>
 

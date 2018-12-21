@@ -1,7 +1,5 @@
 page-modelo-classificacao {
 
-
-
     ion-slide {
       border-top: 1px solid #c0c0c0;
       border-bottom: 1px solid #c0c0c0;
@@ -9,7 +7,15 @@ page-modelo-classificacao {
       border-left: 1px solid #c0c0c0;
       border-radius: 5px;
     }
-      .app-btn-close {
+
+    .image {
+      top: 0;
+      position: absolute;
+      width: 100%;
+      height: 70%;
+    }
+
+       .app-btn-close {
         line-height: 12px;
         width: 18px;
         height: 18px;
@@ -42,11 +48,6 @@ page-modelo-classificacao {
         margin-left: auto;
         margin-right: auto;
         margin-top: -40px;
-      }
-
-      .indexar-row {
-        // margin-top: -20px; 
-        
       }
 
 }
