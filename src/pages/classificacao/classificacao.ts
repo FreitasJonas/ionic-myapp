@@ -12,10 +12,10 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { HttpProvider } from '../../providers/http/http';
 import { Storage } from '@ionic/storage';
 import { LoginPage } from '../login/login';
-import { ModeloPastaPage } from '../modelo-pasta/modelo-pasta';
 import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
 import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
 import { CapturaPage } from '../captura/captura';
+import { PhotoEditorPage } from '../photo-editor/photo-editor';
 
 @IonicPage()
 @Component({
@@ -140,8 +140,12 @@ export class ClassificacaoPage {
   }
 
   showImage(index) {
+    
+    this.verifyOnLeave = false;
+    this.navCtrl.push(PhotoEditorPage, { imageB64: this.imgDocs[index].b64 });
 
-    this.photoViewer.show(this.imgDocs[index].b64);
+    // this.photoViewer.show(this.imgDocs[index].b64);
+
   }
 
   carregaIndices() {

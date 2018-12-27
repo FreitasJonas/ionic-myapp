@@ -101,10 +101,6 @@ export class ContratacaoFichaPage {
     });   
   }
 
-  // ionViewWillLeave() {
-  //   this.navCtrl.push(HomePage);
-  // }
-  
   goToHomePage(mensagem: string) {
 
     //exibe alert

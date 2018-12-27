@@ -25,16 +25,17 @@ import { HttpProvider } from '../providers/http/http';
 import { HomePageModule } from '../pages/home/home.module';
 import { HomePage } from '../pages/home/home';
 import { LogoutPageModule } from '../pages/logout/logout.module';
-import { AdicionaDocumentoPageModule } from '../pages/adiciona-documento/adiciona-documento.module';
 import { AppVersion } from '@ionic-native/app-version';
 import { ContratacaoPageModule } from '../pages/contratacao/contratacao.module';
 import { ContratacaoFichaPageModule } from '../pages/contratacao-ficha/contratacao-ficha.module';
 import { ClassificacaoPageModule } from '../pages/classificacao/classificacao.module';
 import { PhotoViewer } from '@ionic-native/photo-viewer'
 import { ImagePicker } from '@ionic-native/image-picker'
-import { ModeloPastaPageModule } from '../pages/modelo-pasta/modelo-pasta.module';
-import { ModeloClassificacaoPageModule } from '../pages/modelo-classificacao/modelo-classificacao.module';
 import { CapturaPageModule } from '../pages/captura/captura.module';
+
+import { Camera } from '@ionic-native/camera';
+import { AngularCropperjsModule } from 'angular-cropperjs';
+import { PhotoEditorPageModule } from '../pages/photo-editor/photo-editor.module';
 
 @NgModule({
   declarations: [
@@ -54,13 +55,12 @@ import { CapturaPageModule } from '../pages/captura/captura.module';
     LogoutPageModule,
     TarefasPageModule,
     TarefaPageModule,
-    AdicionaDocumentoPageModule,
-    ModeloPastaPageModule,
-    ModeloClassificacaoPageModule,
     ClassificacaoPageModule,
     CapturaPageModule,
     HttpClientModule,    
-    SignaturePadModule
+    SignaturePadModule,
+    AngularCropperjsModule,
+    PhotoEditorPageModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -71,6 +71,7 @@ import { CapturaPageModule } from '../pages/captura/captura.module';
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
+    Camera,
     E2docSincronismoProvider,
     E2docPesquisaProvider,
     Geolocation,
