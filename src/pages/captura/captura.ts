@@ -124,8 +124,10 @@ export class CapturaPage {
 
       let loading = MsgHelper.presentLoading(self.loadCtrl, "Carregando imagem!");
 
+      //verifica se há permissão para acessar arquivos
       self.imagePicker.hasReadPermission().then(res => {
 
+        //se houver
         if (res) {
 
           let options = {
@@ -136,25 +138,29 @@ export class CapturaPage {
             outputType: 1
           }
 
+          //abre imagens para selecionar
           self.imagePicker.getPictures(options).then((results) => {
-            for (var i = 0; i < results.length; i++) {
 
-              self.imgDocs.push({ b64: self.strB64 + results[i], modelo: "" });
+            //se alguma imagens for selecionada
+            if(results.length > 0) {
+
+              for (var i = 0; i < results.length; i++) {
+
+                self.imgDocs.push({ b64: self.strB64 + results[i], modelo: "" });
+              }
+  
+              loading.dismiss();
+  
+              self.canGoAhead(self.inputTypes.galeria);
+            }            
+            else {
+              loading.dismiss();
+              self.cancel();
             }
-
-            loading.dismiss();
-
-            self.canGoAhead(self.inputTypes.galeria);
 
           }, (err) => {
             loading.dismiss();
-            
-            if(self.imgDocs.length == 0) {
-              MsgHelper.presentToast(self.toastCtrl, "Arquivo não selecionado!");
-            }
-            else{
-              self.canGoAhead(self.inputTypes.galeria);
-            }
+            this.cancel();
           });
 
         }
@@ -170,6 +176,18 @@ export class CapturaPage {
     this.imgDocs.splice(index, 1);
     this.slides.slideTo(0);
 
+  }
+
+  cancel() {
+
+    let self = this;
+
+    if(self.imgDocs.length == 0) {
+      MsgHelper.presentToast(self.toastCtrl, "Arquivo não selecionado!");
+    }
+    else {
+      self.canGoAhead(self.inputTypes.galeria);
+    }
   }
 
   canGoAhead(inputType) {
@@ -192,5 +210,4 @@ export class CapturaPage {
     function () { self.navCtrl.push( ClassificacaoPage, { imgDocs: self.imgDocs } ) }, "Atenção!" );
 
   }
-
 }

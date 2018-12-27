@@ -14,7 +14,7 @@ export class MsgHelper {
     toast.present();
   }
 
-  static presentAlert( alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline, title?: string, btnAceptText?: string, btnDeclineText?:string) {
+  static presentAlert(alertCtrl: AlertController, mensagem: string, fnAcept, fnDecline, title?: string, btnAceptText?: string, btnDeclineText?:string) {
 
     title = title == undefined ? "" : title;
     btnAceptText = btnAceptText == undefined ? "Sim" : btnAceptText;
@@ -32,7 +32,8 @@ export class MsgHelper {
             if(typeof(fnAcept) === 'function') {
               fnDecline();
             }
-          }
+          },
+          cssClass: 'alertInput'
         },
         {
           text: btnAceptText,
@@ -42,7 +43,8 @@ export class MsgHelper {
             if(typeof(fnAcept) === 'function') {
               fnAcept();
             }
-          }
+          },
+          cssClass: 'alertInput'
         }
       ]
     }).present();   
@@ -59,5 +61,4 @@ export class MsgHelper {
     return loadCtrl.create(options);
 
   }
-
 }

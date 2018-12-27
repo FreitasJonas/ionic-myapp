@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading, Slides } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading, Slides, Content } from 'ionic-angular';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
@@ -25,6 +25,7 @@ import { CapturaPage } from '../captura/captura';
 export class ClassificacaoPage {
 
   @ViewChild(Slides) slides: Slides;
+  @ViewChild(Content) content: Content;
 
   public indicesReady: boolean;
 
@@ -115,18 +116,21 @@ export class ClassificacaoPage {
 
   removeImg(index) {
 
-    this.imgDocs.splice(index, 1);
+    let self = this;
 
-    if(this.imgDocs.length == 0) {
+    if(self.imgDocs.length == 1) { // caso seja a última imagem
 
-      MsgHelper.presentToast(this.toastCtrl, "Não há documentos para enviar!");
-      this.verifyOnLeave = false;
-      this.navCtrl.push(CapturaPage);
+      MsgHelper.presentAlert(self.alertCtrl, "Não haverá mais imagens para indexar, deseja continuar?",
+      function() {
+        MsgHelper.presentToast(self.toastCtrl, "Não há documentos para enviar!");
+        self.verifyOnLeave = false;
+        self.navCtrl.push(CapturaPage);
+      }, 
+      function () { }, "Atenção!");     
     }
     else {
-
-      this.slides.slideTo(0);
-
+      self.imgDocs.splice(index, 1);
+      self.slides.slideTo(0);
     }
   }
 
@@ -135,9 +139,9 @@ export class ClassificacaoPage {
     this.indices.find(i => i.id == id).valor = null;
   }
 
-  showImage() {
+  showImage(index) {
 
-    //this.photoViewer.show("data:image/jpeg;base64," + this.imgDocs);
+    this.photoViewer.show(this.imgDocs[index].b64);
   }
 
   carregaIndices() {
@@ -190,6 +194,7 @@ export class ClassificacaoPage {
 
     if( self.imgDocs.some(i => i.modelo == "") == true ) { //se houver alguma imagem sem modelo
 
+      self.content.scrollToTop();
       self.slides.slideTo(this.imgDocs.findIndex(i => i.modelo == ""));
       MsgHelper.presentToast(this.toastCtrl, "Modelo de documento não selecionado!");
             

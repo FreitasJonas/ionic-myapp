@@ -1,20 +1,3 @@
-// http://ionicframework.com/docs/theming/
-
-
-// App Global Sass
-// --------------------------------------------------
-// Put style rules here that you want to apply globally. These
-// styles are for the entire app and not just one component.
-// Additionally, this file can be also used as an entry point
-// to import other Sass files to be included in the output CSS.
-//
-// Shared Sass variables, which can be used to adjust Ionic's
-// default Sass variables, belong in "theme/variables.scss".
-//
-// To declare rules for a specific mode, create a child rule
-// for the .md, .ios, or .wp mode classes. The mode class is
-// automatically applied to the <body> element in the app.
-
 //Tema
 
 .toolbar-title.toolbar-title-md, 
@@ -22,246 +5,220 @@
 .toolbar-title.toolbar-title-wp { color: map-get($colors, light); }
 
 .splash {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #f8f8f8;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
 }
 
 .spinner {
-    margin: 100px auto;    
-    margin-top: 5px;
-    margin-bottom: 5px;
-    width: 50px;
-    height: 40px;
-    text-align: center;
-    font-size: 10px;
-  }
+  margin: 100px auto;    
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  font-size: 10px;
+}
   
-  .spinner > div {
-    background-color: black;
-    height: 100%;
-    width: 6px;
-    display: inline-block;
-    
-    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
-    animation: sk-stretchdelay 1.2s infinite ease-in-out;
-  }
+.spinner > div {
+  background-color: black;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
   
-  .spinner .rect2 {
-    -webkit-animation-delay: -1.1s;
-    animation-delay: -1.1s;
-  }
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
   
-  .spinner .rect3 {
-    -webkit-animation-delay: -1.0s;
-    animation-delay: -1.0s;
-  }
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
   
-  .spinner .rect4 {
-    -webkit-animation-delay: -0.9s;
-    animation-delay: -0.9s;
-  }
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
   
-  .spinner .rect5 {
-    -webkit-animation-delay: -0.8s;
-    animation-delay: -0.8s;
-  }
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
   
-  @-webkit-keyframes sk-stretchdelay {
-    0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
-    20% { -webkit-transform: scaleY(1.0) }
-  }
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
   
-  @keyframes sk-stretchdelay {
-    0%, 40%, 100% { 
-      transform: scaleY(0.4);
-      -webkit-transform: scaleY(0.4);
-    }  20% { 
-      transform: scaleY(1.0);
-      -webkit-transform: scaleY(1.0);
-    }
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+  
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
   }
+}
 
-  .slide-title {
-    position: fixed;
-    top: 50px;
-    left: 0;
-    z-index: 999;
-    width: 100%;
-    height: 25px;
-    color: black;
-  }
+.slide-title {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 25px;
+  color: black;
+}
 
-// .fundo {
-
-    // background: rgba(0,80,130,1);
-    // background: -moz-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-    // background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0,80,130,1)), color-stop(100%, rgba(4,30,67,1)));
-    // background: -webkit-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-    // background: -o-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-    // background: -ms-radial-gradient(center, ellipse cover, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-    // background: radial-gradient(ellipse at center, rgba(0,80,130,1) 0%, rgba(4,30,67,1) 100%);
-    // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#005082', endColorstr='#041e43', GradientType=1 );
-// }
+.fundo {
+  background-color: #f8f8f8;
+}
 
 .contador-avisos {
-    position: absolute;
-    z-index: 100;
-    
-    top:15%;
-    left:80%;
-    margin-top:-10px;
-    margin-left:-10px;
-
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
-    background-color: #ff3300;
+  position: absolute;
+  z-index: 100;
+  
+  top:15%;
+  left:80%;
+  margin-top:-10px;
+  margin-left:-10px;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background-color: #ff3300;
 } 
 
-.error{
-    color: #ff0000;
-    font-size: 12px;
-    // margin-top: -5px;
-    text-align: left;
-  }
+.error {
+  color: #ff0000;
+  font-size: 12px;
+  text-align: left;
+}
 
-  .e2-check {
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
+.e2-check {
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
 
-  // .e2-input {
-  //   border-radius: 5px;
-  //   border-style: solid;
-  //   border-width: 1px;
-  //   border-color: lightgray;
-    
-  //   margin-bottom: 10px;
-  // }
+.btn-menu-icon {
+  zoom: 1.5;
+  color: #FF6A00;
+}
 
-  .btn-menu-icon {
-      zoom: 1.5;
-      color: #FF6A00;
-  }
+.btn-menu-position {
+  margin-top: -10px;
+  margin-left: -10px;
+  float: left;
+}
 
-  .btn-menu-position {
-    margin-top: -10px;
-    margin-left: -10px;
-    float: left;
-  }
+.app-page-title {
+  text-align: center;
+}
 
-  .app-page-title{
-    // position: absolute;
-    text-align: center;
-  }
+.md .app-page-title {
+  text-align: left;
+}
 
-  .md .app-page-title{
-    // margin-left: -20px;
-    text-align: left;
-  }
+.btn {
+  width: 100%;
+  height: 100px;
+  margin-bottom: -10px;
+}
 
-  .btn {
-    width: 100%;
-    height: 100px;
-    margin-bottom: -10px;
-  }
+.btn-title {
+  margin-top: -20px;
+  text-align: justify;
+}
 
-  .btn-title {
-    margin-top: -20px;
-    text-align: justify;
-   }
-
-  .btn-icon {
-    margin-right: 10px;
-    margin-top: 40px;
-    float: right;
-   }
+.btn-icon {
+  margin-right: 10px;
+  margin-top: 40px;
+  float: right;
+}
 
 //Menu
 
 .menu-inner > ion-header, 
 .menu-inner > ion-content, 
 .menu-inner > ion-footer {
-    background-color: #ffffff; 
+  background-color: #ffffff; 
 }
 
 .btn-menu {
-    width: 30px;
-    height: 30px;
-    background-color: #000FA6;
-  }
+  width: 30px;
+  height: 30px;
+  background-color: #000FA6;
+}
 
 .toolbar-title {
-    color : #c0c0c0;
+  color : #c0c0c0;
 }
 
 .menu-header {
-    width: 100%;
-    height: 150px;
-    background-color: #2C3742;
+  width: 100%;
+  height: 150px;
+  background-color: #2C3742;
 }
 
 .menu-header-user {
-    position: absolute;
-    z-index: 100;
+  position: absolute;
+  z-index: 100;
     
-    top:20%;
-    left:10%;
-    margin-top: -5px;
-    margin-left:-10px;
+  top:20%;
+  left:10%;
+  margin-top: -5px;
+  margin-left:-10px;
+  height: 90px;
+  width: 90px;
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+  text-align: center;
 
-    height: 90px;
-    width: 90px;
-    border-radius: 50%;
-    border: 1px solid #ffffff;
-
-    text-align: center;
-
-    // background-color: black;
-    background: rgba(92,117,133,1);
-    background: -moz-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
-    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(92,117,133,1)), color-stop(100%, rgba(6,27,56,1)));
-    background: -webkit-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
-    background: -o-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
-    background: -ms-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
-    background: radial-gradient(ellipse at center, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c7585', endColorstr='#061b38', GradientType=1 );
-
+  background: rgba(92,117,133,1);
+  background: -moz-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(92,117,133,1)), color-stop(100%, rgba(6,27,56,1)));
+  background: -webkit-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
+  background: -o-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
+  background: -ms-radial-gradient(center, ellipse cover, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
+  background: radial-gradient(ellipse at center, rgba(92,117,133,1) 0%, rgba(6,27,56,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5c7585', endColorstr='#061b38', GradientType=1 );
 }  
 
-.menu-header-user ion-icon {
-    
-    margin-top: 10%;
-    zoom: 4.0;
-    color: #ffffff; 
-
+.menu-header-user ion-icon {    
+  margin-top: 10%;
+  zoom: 4.0;
+  color: #ffffff; 
 }
 
 .menu-header-text {
-    margin-left: -20px;
-    margin-top: 25px;
-    color: #ffffff;
+  margin-left: -20px;
+  margin-top: 25px;
+  color: #ffffff;
 }
 
 .menu-content-list {
-
-    margin-top: 20px;
-    color: #c0c0c0;
-    
+  margin-top: 20px;
+  color: #c0c0c0;  
 }
 
 .menu-footer {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
 .menu-footer h6 {
-    color: #C4C2B1;
+  color: #C4C2B1;
+}
+
+.alertInput {
+  font-size: 12pt;
 }

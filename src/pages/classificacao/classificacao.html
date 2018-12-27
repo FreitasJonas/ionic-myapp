@@ -12,46 +12,56 @@
 
 <ion-content class="fundo">
 
-  <br>
+  <ion-slides pager paginationType="progress" spaceBetween="5" style="height: 60%;">
+    <ion-slide *ngFor="let image of imgDocs; let i = index">
+      <div class="image">
+        <img [src]="image.b64" />
 
-    <ion-item class="e2-input">
-        <ion-label>Modelo de Pasta*</ion-label>
-        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
-          <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
-        </ion-select>
-      </ion-item>
+        <button ion-button class="app-btn-close" style="margin-top: 45px;" (click)="removeImg(i)">
+          <ion-icon name="close"></ion-icon>
+        </button>
+        <button ion-button class="app-btn-close" style="margin-top: 75px;" (click)="showImage(i)">
+          <ion-icon name="image"></ion-icon>
+        </button>
+        <button ion-button class="app-btn-close" style="margin-top: 105px;" >
+          {{i + 1}}
+        </button>
 
-    <ion-slides pager spaceBetween="5" style="height: 70%;" >
+        <button ion-button class="app-btn-slide" style="right: 0" (click)="slides.slideNext()">
+          <ion-icon name="arrow-forward"></ion-icon>
+        </button>
 
-        <ion-slide *ngFor="let image of imgDocs; let i = index">
-          <div class="image">
-            <img [src]="image.b64"/>
-            <button ion-button class="app-btn-close" (click)="removeImg(i)">
-                <ion-icon name="close"></ion-icon>
-              </button>
-            <!-- </div>
-    
-            <div class="classificacao"> -->
-            <ion-item class="e2-input">
-                <ion-label>Modelo de Documento*</ion-label>
-                <ion-select [(ngModel)]="image.modelo" interface="popover" (ionChange)="selectedDoc()" >
-                  <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
-                </ion-select>
-              </ion-item>
-            </div>
-    
-    
-        </ion-slide>
-      </ion-slides>
-      <p text-center>Imagens: {{imgDocs.length}}</p>
+        <button ion-button class="app-btn-slide" style="left: 0" (click)="slides.slidePrev()">
+          <ion-icon name="arrow-back"></ion-icon>
+        </button>
+
+        
+        <ion-item class="e2-input modelos-input">
+          <ion-label stacked >Modelo de Documento*</ion-label>
+          <ion-select [(ngModel)]="image.modelo" interface="popover" (ionChange)="selectedDoc()">
+            <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
+          </ion-select>
+        </ion-item>
+        <br>
+      </div>
+    </ion-slide>
+  </ion-slides>
 
   <ion-grid>
 
     <ion-col col-12>
 
+  <h6> &nbsp;&nbsp; <ion-icon name="folder"></ion-icon> &nbsp; Modelo de Pasta</h6>
+  <ion-item class="e2-input">
+    <ion-label stacked >Modelo de Pasta*</ion-label>
+    <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
+      <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
+    </ion-select>
+  </ion-item>
+
       <!-- <h4> <ion-icon name="folder"></ion-icon> &nbsp; {{pasta.nome}} </h4> -->
-      
-      <h6> &nbsp;&nbsp;  <ion-icon name="document"></ion-icon> &nbsp; Campos de Indexação</h6>
+
+      <h6> &nbsp;&nbsp; <ion-icon name="document"></ion-icon> &nbsp; Campos de Indexação</h6>
 
       <div *ngIf="indicesReady">
 
