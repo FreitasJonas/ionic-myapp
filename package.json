@@ -23,6 +23,7 @@
     "@ionic-native/app-version": "^4.18.0",
     "@ionic-native/camera": "^4.15.0",
     "@ionic-native/core": "~4.15.0",
+    "@ionic-native/crop": "^4.18.0",
     "@ionic-native/file": "^4.18.0",
     "@ionic-native/geolocation": "^4.15.0",
     "@ionic-native/image-picker": "^4.18.0",
@@ -39,6 +40,7 @@
     "cordova-android": "7.1.1",
     "cordova-browser": "5.0.4",
     "cordova-plugin-camera": "^4.0.3",
+    "cordova-plugin-crop": "0.4.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-file": "^5.0.0",
     "cordova-plugin-geolocation": "^4.0.1",
@@ -65,7 +67,7 @@
     "zone.js": "0.8.26"
   },
   "devDependencies": {
-    "@ionic/app-scripts": "3.2.0",
+    "@ionic/app-scripts": "^3.2.1",
     "@types/utf8": "^2.1.6",
     "typescript": "~2.6.2"
   },
@@ -91,7 +93,8 @@
       "com-sarriaroman-photoviewer": {},
       "cordova-plugin-telerik-imagepicker": {
         "PHOTO_LIBRARY_USAGE_DESCRIPTION": ""
-      }
+      },
+      "cordova-plugin-crop": {}
     },
     "platforms": [
       "browser",

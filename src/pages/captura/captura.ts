@@ -10,6 +10,8 @@ import { AutenticationHelper } from '../../helpers/e2doc/AutenticationHelper';
 import { LoginPage } from '../login/login';
 import { Hasher } from '../../helpers/Hasher';
 import { ClassificacaoPage } from '../classificacao/classificacao';
+import { GeneralUtilities } from '../../helpers/GeneralUtilities';
+import { File } from '@ionic-native/file';
 
 @IonicPage()
 @Component({
@@ -26,7 +28,7 @@ export class CapturaPage {
 
   private strB64 = "data:image/jpeg;base64,";
 
-  public imgDocs = new Array<{ b64: any, modelo: any } >();
+  public imgDocs = new Array<{ path: any, fileName: any, b64: any, modelo: any } >();
 
   private cordova: boolean;
 
@@ -43,7 +45,8 @@ export class CapturaPage {
     private storage: Storage,
     public toastCtrl: ToastController,
     public viewCtrl: ViewController,
-    private imagePicker: ImagePicker) {
+    private imagePicker: ImagePicker,
+    public file: File) {
 
     this.cordova = this.platform.is('cordova');
 
@@ -66,17 +69,7 @@ export class CapturaPage {
 
   goToCamera() {
 
-    let cameraOptions : CameraOptions = {
-      quality: 50,
-      destinationType: this.camera.DestinationType.DATA_URL,
-      encodingType: this.camera.EncodingType.JPEG,
-      sourceType: this.camera.PictureSourceType.CAMERA,
-      mediaType: this.camera.MediaType.PICTURE,
-      targetHeight: 800,
-      targetWidth: 800,
-      allowEdit: false,
-      saveToPhotoAlbum: true
-    }
+    let cameraOptions = GeneralUtilities.getCameraOptions(this.camera);
 
     let self = this;
 
@@ -86,21 +79,29 @@ export class CapturaPage {
 
       loading.present();
 
-      self.camera.getPicture(cameraOptions).then((img_b64) => {
+      self.camera.getPicture(cameraOptions).then((path) => {
 
-        img_b64 = self.strB64 + img_b64;
+       let filePathName = GeneralUtilities.separatePathFromFileName(path);
 
-        self.imgDocs.push( { b64: img_b64, modelo: "" } );
+        self.imgDocs.push( { path: filePathName.path, fileName: filePathName.fileName, b64: "", modelo: "" } );
 
         loading.dismiss();
 
         self.canGoAhead(self.inputTypes.camera);
+
+        // path = self.strB64 + path;
+
+        // self.imgDocs.push( { b64: path, modelo: "" } );
+
+        // loading.dismiss();
+
+        // self.canGoAhead(self.inputTypes.camera);
       },
         err => {
           loading.dismiss();
 
           if(self.imgDocs.length == 0) {
-            MsgHelper.presentToast(self.toastCtrl, "Arquivo não capturada!");
+            MsgHelper.presentToast(self.toastCtrl, "Imagem não capturada!");
           }
           else{
             self.canGoAhead(self.inputTypes.camera);
@@ -110,7 +111,7 @@ export class CapturaPage {
     else {
 
       let img_b64 = self.strB64 + Hasher.getBase64Example();
-      self.imgDocs.push({ b64: img_b64, modelo: "" });
+      self.imgDocs.push({ path: "", fileName: "", b64: img_b64, modelo: "" });
 
       self.canGoAhead(self.inputTypes.camera);
     }
@@ -130,13 +131,7 @@ export class CapturaPage {
         //se houver
         if (res) {
 
-          let options = {
-            quality: 50,
-            maximumImagesCount: 20,
-            width: 800,
-            height: 800,
-            outputType: 1
-          }
+          let options = GeneralUtilities.getImagePickerOptions();
 
           //abre imagens para selecionar
           self.imagePicker.getPictures(options).then((results) => {
@@ -146,7 +141,9 @@ export class CapturaPage {
 
               for (var i = 0; i < results.length; i++) {
 
-                self.imgDocs.push({ b64: self.strB64 + results[i], modelo: "" });
+                let filePathName = GeneralUtilities.separatePathFromFileName(results[i]);
+
+                self.imgDocs.push({ path: filePathName.path, fileName: filePathName.fileName, b64: "", modelo: "" });
               }
   
               loading.dismiss();
@@ -207,7 +204,16 @@ export class CapturaPage {
       self.goToCamera();
     }
    },
-    function () { self.navCtrl.push( ClassificacaoPage, { imgDocs: self.imgDocs } ) }, "Atenção!" );
+    // function () { self.navCtrl.push( ClassificacaoPage, { imgDocs: self.imgDocs } ) }, "Atenção!" );
+    function () { 
+
+      self.storage.set(GeneralUtilities.getKeyDocsStorage(), self.imgDocs).then(res => {
+        self.navCtrl.push( ClassificacaoPage );
+      }, err => {
+        MsgHelper.presentToast(self.toastCtrl, "Erro ao salvar imagem!");
+      });
+
+    }, "Atenção!" );
 
   }
 }

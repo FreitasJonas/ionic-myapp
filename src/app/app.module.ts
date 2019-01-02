@@ -36,6 +36,7 @@ import { CapturaPageModule } from '../pages/captura/captura.module';
 import { Camera } from '@ionic-native/camera';
 import { AngularCropperjsModule } from 'angular-cropperjs';
 import { PhotoEditorPageModule } from '../pages/photo-editor/photo-editor.module';
+import { Crop } from '@ionic-native/crop';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { PhotoEditorPageModule } from '../pages/photo-editor/photo-editor.module
     HttpProvider,
     PhotoViewer,
     ImagePicker,
-    AppVersion
+    AppVersion,
+    Crop
   ]
 })
 export class AppModule {}

@@ -108,7 +108,8 @@
     <edit-config file="*-Info.plist" mode="merge" target="NSPhotoLibraryUsageDescription">
         <string>need photo library access to get pictures from there</string>
     </edit-config>
+    <plugin name="cordova-plugin-file" spec="^5.0.0" />
+    <plugin name="cordova-plugin-crop" spec="0.4.0" />
     <engine name="browser" spec="5.0.4" />
     <engine name="android" spec="7.1.1" />
-    <plugin name="cordova-plugin-file" spec="^5.0.0" />
 </widget>
