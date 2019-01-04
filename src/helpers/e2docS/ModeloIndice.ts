@@ -52,7 +52,7 @@ export class ModeloIndice {
 
     this.nameLabel = this.nome;
 
-    if(this.obr == "1") {
+    if(this.obr == "1") { //Se for obrigatório insere o * na label
 
       this.nameLabel += "*";
 

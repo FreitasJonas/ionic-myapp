@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading, Slides, Content } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, MenuController, AlertController, LoadingController, ViewController, Loading, Slides, Content, Platform } from 'ionic-angular';
 import { PhotoViewer } from '@ionic-native/photo-viewer';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
@@ -15,7 +15,6 @@ import { LoginPage } from '../login/login';
 import { SincronismoUtil } from '../../providers/e2doc-sincronismo/e2doc-sincronismo-util';
 import { ModeloDoc } from '../../helpers/e2docS/ModeloDoc';
 import { CapturaPage } from '../captura/captura';
-import { PhotoEditorPage } from '../photo-editor/photo-editor';
 import { GeneralUtilities } from '../../helpers/GeneralUtilities';
 import { File } from '@ionic-native/file';
 import { Crop } from '@ionic-native/crop';
@@ -46,10 +45,14 @@ export class ClassificacaoPage {
   public loading: Loading;
 
   public syncUtil: SincronismoUtil;
-  docs: any;
+
+  public docs: any;
+
+  public cordova: boolean;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
+    public platform: Platform,
     public photoViewer: PhotoViewer,
     public toastCtrl: ToastController,
     public menuCtrl: MenuController,
@@ -62,30 +65,25 @@ export class ClassificacaoPage {
     public file: File,
     private crop: Crop) {
 
+    this.loading = MsgHelper.presentLoading(this.loadingCtrl, "Preparando tudo...");
+    this.loading.present();
+
     this.syncUtil = new SincronismoUtil(e2doc);
 
     this.menuCtrl.enable(true, 'app_menu');
 
-    this.loading = MsgHelper.presentLoading(this.loadingCtrl, "Preparando tudo...");
-    this.loading.present();
+    this.cordova = this.platform.is('cordova');
 
     //obtem dados do storage
     storage.get(GeneralUtilities.getKeyDocsStorage()).then(docs => {
 
-      //carrega base 64
-      this.imgDocsTemp = docs;
-      this.readFiles();
-      
-      //let loading = MsgHelper.presentLoading(this.loadingCtrl, "Carregando pastas...");
-      //loading.present();  
-
       //obtem configuração das pastas
       this.syncUtil.getConfigPasta().then(pastas => {
-        
+
         this.pastas = pastas;
-        //loading.dismiss();
 
       }, err => {
+
         this.loading.dismiss();
         MsgHelper.presentToast(this.toastCtrl, "Não foi possíver carregar as pastas!", 5000);
         this.verifyOnLeave = false;
@@ -93,14 +91,26 @@ export class ClassificacaoPage {
       });
 
       this.verifyOnLeave = true;
-      
+
+      if (this.cordova) {
+
+        //carrega base 64
+        this.imgDocsTemp = docs;
+        this.readFiles();
+      }
+      else {
+
+        //carrega base 64
+        this.imgDocs = docs;
+
+      }
     }, err => {
 
       MsgHelper.presentToast(this.toastCtrl, "Não foi possíver carregar as imagens!", 5000);
       this.verifyOnLeave = false;
       this.navCtrl.push(HomePage);
 
-    });    
+    });
   }
 
   readFiles() {
@@ -111,14 +121,14 @@ export class ClassificacaoPage {
       let doc = this.imgDocsTemp.pop();
 
       this.readFile(doc).then(doc => {
-        
+
         //e coloca no vetor titular
-        
         this.imgDocs.push(doc);
         this.readFiles();
 
       }, err => {
 
+        this.loading.dismiss();
         MsgHelper.presentToast(this.toastCtrl, "Não foi possíver carregar as imagens!", 5000);
         this.verifyOnLeave = false;
         this.navCtrl.push(HomePage);
@@ -161,14 +171,23 @@ export class ClassificacaoPage {
 
     return new Promise((resolve, reject) => {
 
+      let self = this;
+
       if (this.verifyOnLeave) {
 
         MsgHelper.presentAlert(this.alertCtrl, "Deseja cancelar esta opeação?",
-          function () { resolve() },
-          function () { reject() });
+          function () { //SIM
+            self.storage.remove(GeneralUtilities.getKeyDocsStorage());
+            resolve();
+          },
+          function () { //NÃO
+            reject();
+          });
 
       }
       else {
+        //Envio finalizado, só apaga o storage e sai da tela de classificação
+        self.storage.remove(GeneralUtilities.getKeyDocsStorage());
         resolve();
       }
 
@@ -215,34 +234,21 @@ export class ClassificacaoPage {
 
     let pathName = this.imgDocs[index].path + "/" + this.imgDocs[index].fileName;
 
-    this.crop.crop(pathName, {quality: 75}).then(path => {
+    this.crop.crop(pathName, { quality: 75 }).then(path => {
       // path looks like 'file:///storage/emulated/0/Android/data/com.foo.bar/cache/1477008080626-cropped.jpg?1477008106566'
 
       let objPath = GeneralUtilities.separatePathFromFileName(path);
       this.imgDocs[index].path = objPath.path;
-      this.imgDocs[index].fileName = objPath.fileName.substring(0, path.lastIndexOf("?"));
-
-      MsgHelper.presentToast(this.toastCtrl, "PATH: " + this.imgDocs[index].path + " NAME: " + this.imgDocs[index].fileName, 9000);
+      this.imgDocs[index].fileName = objPath.fileName.substring(0, objPath.fileName.lastIndexOf("?"));
 
       this.readFile(this.imgDocs[index]).then(doc => {
 
-        this.imgDocs = doc;
+        this.imgDocs[index] = doc;
 
-      // }, error => { MsgHelper.presentToast(this.toastCtrl, "Falha ao salvar imagem!") })
-    }, error => { })
-
+      }, error => { MsgHelper.presentToast(this.toastCtrl, "Falha ao salvar imagem!") })
     },
-    // error => { MsgHelper.presentToast(this.toastCtrl, "Falha ao salvar imagem!"); }
-    error => { }
-  );
-
-
-
-    // this.verifyOnLeave = false;
-    // this.navCtrl.push(PhotoEditorPage, { imageB64: this.imgDocs[index].b64 });
-
-    // this.photoViewer.show(this.imgDocs[index].b64);
-
+      error => { MsgHelper.presentToast(this.toastCtrl, "Imagem não alterada!"); }
+    );
   }
 
   carregaIndices() {
@@ -306,7 +312,7 @@ export class ClassificacaoPage {
 
         this.indices.forEach((indice) => {
 
-          IndiceValidator.validade(indice); //verifica se todos os índices obrigatórios foram preenchidos
+          IndiceValidator.validate(indice); //verifica se todos os índices obrigatórios foram preenchidos
 
         });
 
@@ -333,40 +339,43 @@ export class ClassificacaoPage {
 
   send() {
 
-    let self = this;
-
+    //se não houver mais elementos no vetor seginifica que todos foram enviados
     if (this.imgDocs.length == 0) {
-      self.loading.dismiss();
-      self.msgEnvioFinalizado();
+      this.loading.dismiss();
+      this.msgEnvioFinalizado();
       return;
     }
 
     let doc = this.imgDocs.pop();
 
-    let campos = SyncHelper.getStringIndices(self.indices);
+    let campos = SyncHelper.getStringIndices(this.indices);
 
-    this.sync(campos, doc, this.imgDocs.length).then((res => {
+    this.sync(campos, doc, this.imgDocs.length).then(res => {
 
       this.send();
 
-    }));
+    }, error => {
+
+      this.alertError(error);
+
+    });
   }
 
   sync(campos, doc, ordem): Promise<any> {
 
     return new Promise((resolve, reject) => {
 
-      let self = this;
+      MsgHelper.presentToast(this.toastCtrl, doc.b64.substring(0, 400));
 
-      SyncHelper.getVetDoc(self.pasta, doc.modelo, doc.b64.split(",")[1], ordem).then(vetDoc => {
+      SyncHelper.getVetDoc(this.pasta, doc.modelo, doc.b64.split(",")[1], ordem).then(vetDoc => {
 
-        self.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
+        this.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
 
-          resolve(ordem);
+          resolve("OK");
 
-        }, erro => {
+        }, error => {
 
-          reject(ordem);
+          reject(error);
 
         });
       });

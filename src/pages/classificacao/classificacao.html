@@ -35,14 +35,12 @@
           <ion-icon name="arrow-back"></ion-icon>
         </button>
 
-        
         <ion-item class="e2-input modelos-input">
           <ion-label stacked >Modelo de Documento*</ion-label>
           <ion-select [(ngModel)]="image.modelo" interface="popover" (ionChange)="selectedDoc()">
             <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
           </ion-select>
         </ion-item>
-        <br>
       </div>
     </ion-slide>
   </ion-slides>

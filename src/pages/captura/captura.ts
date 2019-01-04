@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, Slides, Platform, MenuController, ToastController, ViewController, AlertController, LoadingController } from 'ionic-angular';
-import { Camera, CameraOptions } from '@ionic-native/camera';
+import { Camera } from '@ionic-native/camera';
 import { E2docSincronismoProvider } from '../../providers/e2doc-sincronismo/e2doc-sincronismo';
 import { MsgHelper } from '../../helpers/MsgHelper';
 import { Storage } from '@ionic/storage';
@@ -18,7 +18,6 @@ import { File } from '@ionic-native/file';
   selector: 'page-captura',
   templateUrl: 'captura.html',
   providers: [
-    Camera,
     E2docSincronismoProvider
   ]
 })
