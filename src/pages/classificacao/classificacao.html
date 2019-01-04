@@ -23,7 +23,7 @@
         <button ion-button class="app-btn-close" style="margin-top: 75px;" (click)="showImage(i)">
           <ion-icon name="image"></ion-icon>
         </button>
-        <button ion-button class="app-btn-close" style="margin-top: 105px;" >
+        <button ion-button class="app-btn-close" style="margin-top: 105px;">
           {{i + 1}}
         </button>
 
@@ -36,7 +36,7 @@
         </button>
 
         <ion-item class="e2-input modelos-input">
-          <ion-label stacked >Modelo de Documento*</ion-label>
+          <ion-label stacked>Modelo de Documento*</ion-label>
           <ion-select [(ngModel)]="image.modelo" interface="popover" (ionChange)="selectedDoc()">
             <ion-option *ngFor="let doc of documentos" [value]="doc">{{doc.nome}} </ion-option>
           </ion-select>
@@ -49,15 +49,13 @@
 
     <ion-col col-12>
 
-  <h6> &nbsp;&nbsp; <ion-icon name="folder"></ion-icon> &nbsp; Modelo de Pasta</h6>
-  <ion-item class="e2-input">
-    <ion-label stacked >Modelo de Pasta*</ion-label>
-    <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
-      <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
-    </ion-select>
-  </ion-item>
-
-      <!-- <h4> <ion-icon name="folder"></ion-icon> &nbsp; {{pasta.nome}} </h4> -->
+      <h6> &nbsp;&nbsp; <ion-icon name="folder"></ion-icon> &nbsp; Modelo de Pasta</h6>
+      <ion-item class="e2-input">
+        <ion-label stacked>Modelo de Pasta*</ion-label>
+        <ion-select [(ngModel)]="pasta" (ionChange)="onPastaSelect()" interface="popover">
+          <ion-option *ngFor="let pasta of pastas" [value]="pasta">{{pasta.nome}}</ion-option>
+        </ion-select>
+      </ion-item>
 
       <h6> &nbsp;&nbsp; <ion-icon name="document"></ion-icon> &nbsp; Campos de Indexação</h6>
 
@@ -76,7 +74,13 @@
                   <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="indice.valor" [ngModelOptions]="{standalone: true}"
                     (ionCancel)="clearDateTime(indice.id)" doneText="Pronto" cancelText="Limpar"></ion-datetime>
                 </ion-item>
-                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+                <div *ngIf="indice.validate; else msgError">
+                    <br>
+                  </div>
+                  <ng-template #msgError>
+                    <h6 class="error"> {{indice.messageValidate}} </h6>
+                  </ng-template>
+  
               </div>
 
               <ng-template #inputNormal>
@@ -86,7 +90,14 @@
                     clearOnEdit="false">
                   </ion-input>
                 </ion-item>
-                <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+                <!-- <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6> -->
+                <div *ngIf="indice.validate; else msgError">
+                  <br>
+                </div>
+                <ng-template #msgError>
+                  <h6 class="error"> {{indice.messageValidate}} </h6>
+                </ng-template>
+
               </ng-template>
 
             </div>
@@ -98,7 +109,13 @@
                   <ion-option *ngFor="let item of indice.dic.itens" [value]="item.chave">{{item.valor}}</ion-option>
                 </ion-select>
               </ion-item>
-              <h6 *ngIf="!indice.validate" class="error"> {{indice.messageValidate}}</h6>
+              <div *ngIf="indice.validate; else msgError">
+                  <br>
+                </div>
+                <ng-template #msgError>
+                  <h6 class="error"> {{indice.messageValidate}} </h6>
+                </ng-template>
+
             </ng-template>
 
           </div>

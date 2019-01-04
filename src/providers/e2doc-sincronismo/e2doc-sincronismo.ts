@@ -65,7 +65,6 @@ export class E2docSincronismoProvider {
         if (xmlhttp.readyState == 4) {
           if (xmlhttp.status == 200) {
             const xmlDocument = xmlhttp.responseXML;
-            console.log(xmlDocument);
             //let result = xmlDocument.getElementsByTagName(xml.tagResult);
 
             resolve(xmlDocument);

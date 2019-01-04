@@ -365,8 +365,6 @@ export class ClassificacaoPage {
 
     return new Promise((resolve, reject) => {
 
-      MsgHelper.presentToast(this.toastCtrl, doc.b64.substring(0, 400));
-
       SyncHelper.getVetDoc(this.pasta, doc.modelo, doc.b64.split(",")[1], ordem).then(vetDoc => {
 
         this.e2doc.enviarDocumento(vetDoc[0], campos).then(res => {
